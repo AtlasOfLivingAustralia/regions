@@ -8,7 +8,7 @@
         <g:javascript library="jquery.cookie" />
         <script type="text/javascript">
         </script>
-        <g:javascript library="map2" />
+        <g:javascript library="map" />
         <script type="text/javascript">
           var altMap = true;
           $(document).ready(function() {

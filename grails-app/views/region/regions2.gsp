@@ -6,7 +6,7 @@
         <!--meta name="viewport" content="initial-scale=1.0, user-scalable=no" /-->
         <title>Regions | Atlas of Living Australia</title>
         <g:javascript src="OpenLayers/OpenLayers.js" />
-        <script type="text/javascript" src="${resource(dir:'js', file:'map2.js')}"></script>
+        <script type="text/javascript" src="${resource(dir:'js', file: 'map.js')}"></script>
         <script type="text/javascript">
           var altMap = true;
           $(document).ready(function() {
