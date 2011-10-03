@@ -25,11 +25,15 @@ environments {
     }
     production {
         dataSource {
+            dbCreate = "create" // one of 'create', 'create-drop','update'
+            url = "jdbc:hsqldb:mem:protoDB"
+/*
             driverClassName = "com.mysql.jdbc.Driver"
             username = "wfadmin"
             password = "monga"
             dbCreate = "update"
             url = "jdbc:mysql://localhost:3306/workforce?autoReconnect=true&connectTimeout=0"
+*/
         }
     }
 }

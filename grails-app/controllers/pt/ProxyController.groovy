@@ -141,7 +141,7 @@ class ProxyController {
             }
         }
 
-        assert featuresList
+        //assert featuresList
         
         // pagination
         int pages = Math.ceil(featuresList.size() / pageSize)

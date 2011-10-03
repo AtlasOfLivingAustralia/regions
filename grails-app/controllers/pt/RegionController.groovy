@@ -17,4 +17,9 @@ class RegionController {
 
     def test = {}
     def test2 = {}
+
+    def region = {
+        def region = params.regionName ?: 'South Australia'
+        [region: [name:region], regionType: params.regionType]
+    }
 }
