@@ -25,35 +25,13 @@
     <div id="project-picker">
         <p>Browse our current projects and click on one to start the expedition.</p>
         <ul id="rollovers">
-            <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'moth-rollover.png')}"/></li>
-            <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'leafhopper-rollover.png')}"/></li>
-            <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'cicada-rollover.png')}"/></li>
             <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'scott-sisters-rollover.png')}"/></li>
-            <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'anic-cicada-rollover.png')}"/></li>
+            <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'cicada-rollover.png')}"/></li>
+            <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'leafhopper-rollover-coming-soon.png')}"/></li>
+            <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'moth-rollover-coming-soon.png')}"/></li>
+            <li class="rollover-tab"><img src="${resource(dir:'images/vp',file:'anic-cicada-rollover-coming-soon.png')}"/></li>
         </ul>
         <div id="description-panes">
-            <div>
-                <img src="${resource(dir:'images/vp',file:'am-moths.jpg')}"/>
-                <a href="#">Moths Expedition</a>
-                <h3>Australian Museum</h3>
-                <p>Drawers A246 - A252 hold specimens of Australian moths collected between 1890 and 1998.
-                Your task is to transcribe the labels so we know who collected them, when and where.</p>
-            </div>
-            <div>
-                <img src="${resource(dir:'images/vp',file:'am-leaf-hoppers.jpg')}"/>
-                <a href="#">Leaf Hoppers Expedition</a>
-                <h3>Australian Museum</h3>
-                <p>Ever wondered what it's like to leap from leaf to leaf through the steamy undergrowth?
-                You might never know; but you can help to label these Tarzan-like specimens and make some
-                scientists very happy.</p>
-            </div>
-            <div>
-                <img src="${resource(dir:'images/vp',file:'am-cicadas.jpg')}"/>
-                <a href="http://volunteer.ala.org.au/project/index/6306">Cicada Expedition</a>
-                <h3>Australian Museum</h3>
-                <p>The original and best expedition! Places are limited and the competition is hot.
-                Over 2000 cicadas to be tracked and transcribed. Sign up while you still can!</p>
-            </div>
             <div>
                 <img src="${resource(dir:'images/vp',file:'am-scott-sisters.jpg')}"/>
                 <a href="http://volunteer.ala.org.au/project/index/42780">Scott Sisters Expedition</a>
@@ -63,7 +41,29 @@
                 share their most intimate thoughts!</p>
             </div>
             <div>
-                <img src="${resource(dir:'images/vp',file:'anic-cicadas.jpg')}"/>
+                <img src="${resource(dir:'images/vp',file:'am-cicadas.jpg')}"/>
+                <a href="http://volunteer.ala.org.au/project/index/6306">Cicada Expedition</a>
+                <h3>Australian Museum</h3>
+                <p>The original and best expedition! Places are limited and the competition is hot.
+                Over 2000 cicadas to be tracked and transcribed. Sign up while you still can!</p>
+            </div>
+            <div>
+                <img src="${resource(dir:'images/vp',file:'leaf-hoppers-logo-coming-soon.jpg')}"/>
+                <a href="#">Leaf Hoppers Expedition</a>
+                <h3>Australian Museum</h3>
+                <p>Ever wondered what it's like to leap from leaf to leaf through the steamy undergrowth?
+                You might never know; but you can help to label these Tarzan-like specimens and make some
+                scientists very happy.</p>
+            </div>
+            <div>
+                <img src="${resource(dir:'images/vp',file:'moffs-logo-coming-soon.jpg')}"/>
+                <a href="#">Moths Expedition</a>
+                <h3>Australian Museum</h3>
+                <p>Drawers A246 - A252 hold specimens of Australian moths collected between 1890 and 1998.
+                Your task is to transcribe the labels so we know who collected them, when and where.</p>
+            </div>
+            <div>
+                <img src="${resource(dir:'images/vp',file:'anic-cicada-coming-soon.jpg')}"/>
                 <a href="#">Cicada Expedition</a>
                 <h3>Australian National Insect Collection</h3>
                 <p>Sick of doing all the drudge work the for AM? How about refreshing yourself with some

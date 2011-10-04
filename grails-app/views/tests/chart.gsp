@@ -65,7 +65,27 @@
             var type = $('#types input:checked').val();
             if (type == "taxonomy") {
                 taxonomyChartOptions.query = query;
+                var rank = $('#rank').val();
+                if (rank != "") {
+                    taxonomyChartOptions.rank = rank;
+                } else {
+                    var max = $('#max').val();
+                    if (max != "") {
+                        taxonomyChartOptions.rank = "";
+                        taxonomyChartOptions.threshold = max;
+                    }
+                }
                 loadTaxonomyChart(taxonomyChartOptions);
+            }
+            else if (type == "other") {
+                facetChartOptions.query = query;
+                var facetName = $('#other').val();
+                if (facetName == "") {
+                    alert("You must enter the name of the facet you wish to chart.");
+                    return;
+                }
+                facetChartOptions.charts = [facetName];
+                loadFacetCharts(facetChartOptions);
             }
             else {
                 facetChartOptions.query = query;
