@@ -11,4 +11,3 @@ if (Ajax && (Ajax != null)) {
 	  }
 	});
 }
-
