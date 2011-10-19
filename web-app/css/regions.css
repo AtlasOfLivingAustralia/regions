@@ -1,0 +1,92 @@
+/*** state emblems ***/
+#emblems {
+    float: right;
+}
+
+div.emblem {
+    display: inline;
+    float: left;
+    font-size: 12px;
+    width: 240px;
+}
+
+div.emblem:last-child {
+    width: auto;  /* push last emblem as far right as possible */
+}
+
+div.emblem img {
+    float: left;
+    padding-right: 4px;
+    border-radius: 0;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -khtml-border-radius: 0 !important;
+    -icab-border-radius: 0 !important;
+    -o-border-radius: 0 !important;
+}
+
+div.emblem h3 {
+    display: inline;
+    font-size: 16px;
+}
+
+/*** charts ***/
+#taxonomy {
+    float: left;
+    display: inline;
+}
+
+.link {
+    color: #01716E;
+    cursor: pointer;
+}
+.under {
+    text-decoration: underline;
+}
+
+/*** taxa box ***/
+#species {
+    width: 550px;
+    float: right;
+    padding-right: 10px;
+}
+#viewRecords {
+    padding-left: 25px;
+}
+#viewImages {
+    padding-left: 15px;
+}
+#downloadRecords {
+    padding-left: 15px;
+}
+#taxaBox {
+}
+
+/*** sub regions ***/
+#subRegions {
+    float:left;
+}
+#subRegions a {
+    text-decoration: underline;
+}
+#subRegions ul {
+    list-style: none;
+    margin-left: 0;
+}
+
+/*** map ***/
+#map {
+    float: right;
+    margin: 0 10px;
+    padding: 0;
+}
+
+#region-map {
+    width: 540px;
+    height: 470px;
+    border: 1px solid black;
+}
+
+#region-map-container {
+    margin-bottom: 10px;
+}
