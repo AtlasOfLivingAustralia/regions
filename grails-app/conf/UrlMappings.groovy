@@ -2,9 +2,9 @@ class UrlMappings {
 
 	static mappings = {
 
-        "/$regionType/$regionName?" (controller: 'region', action: 'region') {
+        "/$regionType/$regionName?" (controller: 'regions', action: 'region') {
             constraints {
-                regionType(inList:['states','lgas','ibras','imcras','nrms'])
+                regionType(inList:['states','lgas','ibras','imcras','nrms','layer'])
             }
         }
         
