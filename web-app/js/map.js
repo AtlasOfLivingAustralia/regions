@@ -489,8 +489,12 @@ function buildInfoText(payload, layer) {
 
 function buildRegionLink(layer, name) {
     // start directing some of the links to the new region pages
-    if (name == 'South Australia') {
+    if (layer.layer == 'states') {
         return "<a href='" + baseUrl + "/" + layer.layer + "/" + name + "'>Explore region</a>"
+    }
+    else if (layer.layer == 'ger') {
+        return "<a href='" + baseUrl + "/layer/Great Eastern Ranges'>Explore region</a>"
+        
     }
     else {
         return "<a href='" + bieUrl + layer.bieContext + "/" + name + "'>Explore region</a>"
