@@ -26,7 +26,7 @@
             <div class="message">${flash.message}</div>
           </g:if>
           <div class="hrgroup">
-            <h1>Select a region to explore</h1>
+            <h1>Select a region to explore-xx</h1>
             <p>Select a region (or drill down to sub-regions) then explore occurrence records, images and documents associated with that region.</p>
           </div><!--close hrgroup-->
         </div><!--close section-->

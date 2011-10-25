@@ -70,14 +70,13 @@ grails.exceptionresolver.params.exclude = ['password']
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
-        //grails.serverURL = "http://testweb1.ala.org.au:8080/pt"
-        grails.serverURL = "http://test.ala.org.au:8080/pt"
+        grails.serverURL = "http://test.ala.org.au:8080/${appName}"
     }
     development {
-        grails.serverURL = "http://woodfired.ala.org.au:8070/pt"
+        grails.serverURL = "http://woodfired.ala.org.au:8081/${appName}"
     }
     test {
-        grails.serverURL = "http://localhost:8070/${appName}"
+        grails.serverURL = "http://localhost:8081/${appName}"
     }
 
 }

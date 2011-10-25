@@ -291,10 +291,9 @@ function addPage(regionType, pageList, page, total) {
 \************************************************************/
 function displayRegionsList(regionType, page) {
     var list = getPage(regionType, page);
-    var bieLink = bieUrl + layers[regionType].bieContext + "/";
     var snippet = "<table width='100%'>";
     $.each(list, function(index, value) {
-        var link = "<a href='" + bieLink + value + "'>" + value + "</a> ";
+        var link = buildRegionLink(layers[regionType], value, value);
         var nameHash = value.replace(/ /g,'_');
         var info = "<img id='" + nameHash + "' class='info' src='" + baseUrl + "/images/skin/information.png'/>";
         if ((index % 3) == 0) {
@@ -456,6 +455,7 @@ function buildInfoText(payload, layer) {
         case 'states':
             return "<h3>" + extractValue(payload, layer.displayName) + "</h3>" +
                     buildRegionLink(layer, extractValue(payload, layer.displayName)) +
+                    /*"</p><p>gid = " + extractValue(payload, "gid") +*/
                     /*"<p style='display:none'>" + payload*/ "</p>";
         case 'lgas':
             return "<h3>" + extractValue(payload, layer.displayName) + "</h3>" +
@@ -487,17 +487,13 @@ function buildInfoText(payload, layer) {
 
 }
 
-function buildRegionLink(layer, name) {
-    // start directing some of the links to the new region pages
-    if (layer.layer == 'states') {
-        return "<a href='" + baseUrl + "/" + layer.layer + "/" + name + "'>Explore region</a>"
-    }
-    else if (layer.layer == 'ger') {
-        return "<a href='" + baseUrl + "/layer/Great Eastern Ranges'>Explore region</a>"
-        
+function buildRegionLink(layer, name, content) {
+    var text = content ? content : "Explore region";
+    if (layer.layer == 'ger') {
+        return "<a href='" + baseUrl + "/layer/Great Eastern Ranges'>" + text + "</a>"
     }
     else {
-        return "<a href='" + bieUrl + layer.bieContext + "/" + name + "'>Explore region</a>"
+        return "<a href='" + baseUrl + "/" + layer.layer + "/" + name + "'>" + text + "</a>"
     }
 }
 

@@ -1,18 +1,36 @@
-/******************************\
- * state emblems
- ******************************/
+/*
+ *  Copyright (C) 2011 Atlas of Living Australia
+ *  All Rights Reserved.
+ *
+ *  The contents of this file are subject to the Mozilla Public
+ *  License Version 1.1 (the "License"); you may not use this file
+ *  except in compliance with the License. You may obtain a copy of
+ *  the License at http://www.mozilla.org/MPL/
+ *
+ *  Software distributed under the License is distributed on an "AS
+ *  IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ *  implied. See the License for the specific language governing
+ *  rights and limitations under the License.
+ */
 
-/******************************\
+/*******************************************************************************************************\
  * behaviour for taxa box
- ******************************/
-var speciesGroup = "ALL_SPECIES";
-var taxon, taxonGuid;
-var regionType, regionName;
+ *******************************************************************************************************/
+var speciesGroup = "ALL_SPECIES";  // the currently selected species group
+var regionType, regionName, layerName;  // the region this page describes
+var taxon, taxonGuid;   // hold the currently selected species (if any)
 
 var speciesPageUrl = "http://bie.ala.org.au/species/"; // configify
 var biocacheServiceUrl = "http://biocache.ala.org.au/ws";
-var contextPath = "http://biocache.ala.org.au"; // hack
+var biocacheWebappUrl = "http://biocache.ala.org.au";
+var spatialWmsUrl = "http://spatial.ala.org.au/geoserver/ALA/wms?";
+var spatialCacheUrl = "http://spatial.ala.org.au/geoserver/gwc/service/wms?";
 
+/**
+ * Called by owner page with region type and name
+ * @param rt region type
+ * @param rn region name
+ */
 function initTaxaBox(rt, rn) {
     regionType = rt;
     regionName = rn;
@@ -42,19 +60,18 @@ function initTaxaBox(rt, rn) {
 
 /**
  * Species group was clicked
+ * @param el the element that was clicked
  */
 function groupClicked(el) {
     // Change the global var speciesGroup
     speciesGroup = $(el).find('a.taxonBrowse').attr('id');
+    // clear any selected species
+    taxon = null;
+    taxonGuid = null;
 
     // save state for back button
-    if (speciesGroup == "ALL_SPECIES") {
-        // only clear if necessary, otherwise we add a history state for no reason, ie puts in a #
-        if($.bbq.getState('group')) {
-            $.bbq.removeState('group');
-        }
-    }
-    else {
+    if (speciesGroup != "ALL_SPECIES" || $.bbq.getState('group')) {
+        // don't add ALL_SPECIES unless there is a group selected, otherwise we add a history state for no reason
         $.bbq.pushState({group:speciesGroup});
     }
 
@@ -63,14 +80,14 @@ function groupClicked(el) {
     $('#viewImages').html(speciesGroup == 'ALL_SPECIES' ? 'View images for all species' : 'View images for ' + speciesGroup);
 
     // update species list
-    taxon = null; // clear any species click
-    taxonGuid = null;
     $('#taxa-level-0 tr').removeClass("activeRow");
     $(el).addClass("activeRow");
     $('#taxa-level-1 tbody tr').addClass("activeRow");
+
     // load records layer on map
-    //if (map) loadRecordsLayer();
-    // AJAX...
+    if (map) drawRecordsOverlay(speciesGroup);
+
+    // load species for selected group
     var uri = biocacheServiceUrl + "/explore/group/"+speciesGroup+".json?callback=?";
     $('#taxaDiv').html('[loading...]');
     $.ajax({
@@ -86,11 +103,12 @@ function groupClicked(el) {
 
 /**
  * Process the JSON data from an Species list AJAX request
+ * @param data the returned json
+ * @param appendResults true if the items should be appended to the existing list
  */
 function processSpeciesJsonData(data, appendResults) {
     // clear right list unless we're paging
     if (!appendResults) {
-        //$('#loadMoreSpecies').detach();
         $('#rightList tbody').empty();
     }
     // process JSON data
@@ -116,13 +134,13 @@ function processSpeciesJsonData(data, appendResults) {
             var speciesInfo = '<div class="speciesInfo">';
             if (data[i].guid) {
                 speciesInfo = speciesInfo + '<a title="'+infoTitle+'" href="'+speciesPageUrl + data[i].guid+
-                    '"><img src="'+ contextPath +'/static/images/page_white_go.png" alt="species page icon" style="margin-bottom:-3px;" class="no-rounding"/>'+
+                    '"><img src="'+ biocacheWebappUrl +'/static/images/page_white_go.png" alt="species page icon" style="margin-bottom:-3px;" class="no-rounding"/>'+
                     ' species profile</a> | ';
             }
-            speciesInfo = speciesInfo + "<a href='" + contextPath + '/occurrences/search?q=' +
+            speciesInfo = speciesInfo + "<a href='" + biocacheWebappUrl + '/occurrences/search?q=' +
                     buildTaxonFacet(data[i].name) +
-                    '&fq=' + buildRegionFacet() + "'" + ' title="'+
-                    recsTitle+'"><img src="'+ contextPath +'/static/images/database_go.png" '+
+                    '&fq=' + buildRegionFacet(regionType, regionName) + "'" + ' title="'+
+                    recsTitle+'"><img src="'+ biocacheWebappUrl +'/static/images/database_go.png" '+
                     'alt="search list icon" style="margin-bottom:-3px;" class="no-rounding"/> list of records</a></div>';
 
             tr = tr + speciesInfo;
@@ -148,13 +166,12 @@ function processSpeciesJsonData(data, appendResults) {
         $('#rightList tbody').append(text);
     }
 
-    // Register clicks for the list of species links so that map changes
+    // Register clicks for the list of species
     $('#rightList tbody tr').click(function(e) {
         e.preventDefault(); // ignore the href text - used for data
         var thisTaxonA = $(this).find('a.taxonBrowse2').attr('href').split('/');
         var thisTaxon = thisTaxonA[thisTaxonA.length-1].replace(/%20/g, ' ');
-        var guid = $(this).find('a.taxonBrowse2').attr('id');
-        taxonGuid = guid;
+        taxonGuid = $(this).find('a.taxonBrowse2').attr('id');
         taxon = thisTaxon; // global var so map can show just this taxon
         $('#rightList tbody tr').removeClass("activeRow2"); // un-highlight previous current taxon
         // remove previous species info row
@@ -166,8 +183,9 @@ function processSpeciesJsonData(data, appendResults) {
         }
         // hide previous selected spceies info box
         $(this).addClass("activeRow2"); // highlight current taxon
-        // show the links for current selected species
-        //loadRecordsLayer();
+
+        // redraw the occurrences on the map
+        drawRecordsOverlay("occurrences");
     });
 
     // Register onClick for "load more species" link
@@ -184,7 +202,7 @@ function processSpeciesJsonData(data, appendResults) {
             $.ajax({
                 url: uri,
                 dataType: 'jsonp',
-                data: buildBiocacheQuery(),
+                data: buildBiocacheQuery(start),
                 success: function(data) {
                     // process JSON data from request
                     processSpeciesJsonData(data, true);
@@ -204,8 +222,8 @@ function processSpeciesJsonData(data, appendResults) {
     );
 }
 
-/*
- * Perform normal spatial searcj for spceies groups and species counts
+/**
+ * Perform spatial search for species groups and species counts
  */
 function loadGroups() {
     var url = biocacheServiceUrl +"/explore/groups.json";
@@ -221,8 +239,9 @@ function loadGroups() {
     });
 }
 
-/*
+/**
  * Populate the species group column (via callback from AJAX)
+ * @param data json listing the species-group breakdown for the region
  */
 function populateSpeciesGroups(data) {
     if (data.length > 0) {
@@ -243,6 +262,13 @@ function populateSpeciesGroups(data) {
     }
 }
 
+/**
+ * Add a species group row
+ * @param group the species group
+ * @param speciesCount the number of distinct species
+ * @param indent if it's a sub-group
+ * @param count the number of occurrence records
+ */
 function addGroupRow(group, speciesCount, indent, count) {
     var label = group;
     if (group == "ALL_SPECIES") label = "All Species";
@@ -251,17 +277,22 @@ function addGroupRow(group, speciesCount, indent, count) {
     $("#taxa-level-0 tbody").append(h);
 }
 
+/**
+ * Do something with the total record count
+ * @param count
+ */
 function notifyTotalRecords(count) {
     $('#occurrenceRecords').html('Occurrence records (' + format(count) + ')');
 }
-/******************************\
- * taxa box links
- ******************************/
+
+/**
+ * Set the destination for the links associated with the taxa box based on the state of the box
+ */
 function activateLinks() {
     $('#viewRecords').click(function() {
         // check what group is active
         var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id');
-        var url = contextPath + '/occurrences/search?q=' + buildRegionFacet();
+        var url = biocacheWebappUrl + '/occurrences/search?q=' + buildRegionFacet(regionType, regionName);
         if (group != 'ALL_SPECIES') {
             url += '&fq=species_group:' + group;
         }
@@ -270,158 +301,344 @@ function activateLinks() {
     $('#viewImages').click(function() {
         // check what group is active
         var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id');
-        var url = 'http://diasbtest1.ala.org.au:8080/bie-webapp/images/search/?q=' + buildRegionFacet();
+        var url = 'http://diasbtest1.ala.org.au:8080/bie-webapp/images/search/?q=' + buildRegionFacet(regionType, regionName);
         if (group != 'ALL_SPECIES') {
             url += '&fq=species_group:' + group;
         }
         document.location.href = url;
     });
+    // TODO: download links
+}
+
+/*********************************************************************************************************************\
+ * Map - shows the current region and occurrence records based on the selections in the taxa box
+ *********************************************************************************************************************/
+
+// some metadata for known layers
+var layers = {
+    states: {layer: 'states', name: 'aus1', displayName: 'name_1', keyField: 'gid' /*'id_1'*/, bieContext: 'aus_states'},
+    lgas: {layer: 'lgas', name: 'aus2', displayName: 'name_2', keyField: 'gid' /*'id_2'*/, bieContext: 'gadm_admin'},
+    ibras: {layer: 'ibras', name: 'ibra_merged', displayName: 'reg_name', keyField: 'gid' /*'reg_no'*/, bieContext: 'ibra_no_states'},
+    imcras: {layer: 'imcras', name: 'imcra4_pb', displayName: 'pb_name', keyField: 'gid' /*'pb_num'*/, bieContext: 'imcra'},
+    nrms: {layer: 'nrms', name: 'nrm_regions_2010', displayName: 'nrm_region', keyField: 'gid', bieContext: 'nrm'},
+    /*hunter: {layer: 'hunter', name: 'ger_hunter', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'},
+    k2c: {layer: 'k2c', name: 'ger_kosciuszko_to_coast', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'},
+    border: {layer: 'border_ranges', name: 'ger_border_ranges', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'},
+    slopes: {layer: 'slopes_to_summit', name: 'ger_slopes_to_summit', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'},*/
+    ger: {layer: 'ger', name: 'ger_geri_boundary_v102_australia', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'}
+};
+
+var map, marker;
+var points = [];
+var overlays = [null,null];  // first is the region, second is the occurrence data
+
+//var overlayFormat = ($.browser.msie && $.browser.version.slice(0,1) == '6') ? "image/gif" : "image/png";
+
+/**
+ * Initialise the map - called by owner page
+ * @param regionType eg states, lgas, layer
+ * @param layer name of the layer in geoserver
+ * @param name of the region (object) being described
+ * @param extent obsolete - center & zoom
+ * @param bbox bounding box for the region
+ */
+function initRegionMap(regionType, name, layer, extent, bbox) {
+
+    layerName = layer;
+
+    /*****************************************\
+    | Create the map
+    \*****************************************/
+    /*var centreLatlng;
+    if (extent != undefined) {
+        centreLatlng = new google.maps.LatLng(extent.lat, extent.lon);
+    }
+    else {
+        centreLatlng = new google.maps.LatLng(-28.8,144);
+    }
+    var zoom = extent == undefined ? 4 : extent.zoom;*/
+
+    var bounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(bbox.sw.lat, bbox.sw.lng),
+            new google.maps.LatLng(bbox.ne.lat, bbox.ne.lng));
+
+    var myOptions = {
+        scrollwheel: false,
+        streetViewControl: false,
+        mapTypeControl: true,
+        mapTypeControlOptions: {
+            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+        },
+        scaleControl: true,
+        scaleControlOptions: {
+            position: google.maps.ControlPosition.LEFT_BOTTOM
+        },
+        panControl: false,
+        mapTypeId: google.maps.MapTypeId.TERRAIN  /*google.maps.MapTypeId.TERRAIN*/
+    };
+
+    map = new google.maps.Map(document.getElementById("region-map"), myOptions);
+    map.fitBounds(bounds);
+    map.enableKeyDragZoom();
+
+    /*****************************************\
+    | Overlay the region shape
+    \*****************************************/
+    drawRegionOverlay();
+
+    /*****************************************\
+    | Overlay the occurrence data
+    \*****************************************/
+    drawRecordsOverlay("All occurrences");
+
+    /*****************************************\
+    | Set up opacity sliders
+    \*****************************************/
+    $('#occurrencesOpacity').slider({
+        min: 0,
+        max: 100,
+        value: 60,
+        change: function(event, ui) {
+            drawRecordsOverlay("occurrences");
+        }
+    });
+    $('#regionOpacity').slider({
+        min: 0,
+        max: 100,
+        value: 50,
+        change: function(event, ui) {
+            drawRegionOverlay();
+        }
+    });
+
+    /*****************************************\
+    | Bind some events
+    \*****************************************/
+    google.maps.event.addListener(map, 'mousemove', mouseMove);
+    google.maps.event.addListener(map, 'mouseout', mouseOut);
+
+    // layer toggling
+    $("#toggleOccurrences").click(function() {
+        toggleOverlay(1, this.checked);
+    });
+    $("#toggleRegion").click(function() {
+        toggleOverlay(0, this.checked);
+    });
+
+    /*******************************************************\
+    | Hack the viewport as we don't yet have good bbox data
+    \*******************************************************/
+    // fall-back attempt at bounding box if all of Oz
+    if (bounds.equals(new google.maps.LatLngBounds(
+            new google.maps.LatLng(-42, 113),
+            new google.maps.LatLng(-14, 153)))) {
+        // try the bounds of the occurrence records (TEMP: until we get proper bbox's)
+        //var url = urlConcat(biocacheServiceUrl, "webportal/bounds?q=") + buildRegionFacet(regionType, regionName);
+        var url = urlConcat(biocacheServiceUrl, 'webportal/bounds?q="Alinytjara%20Wilurara"');
+        $.ajax({
+            url: "http://woodfired.ala.org.au:8081/regions/proxy/bbox?q=" + buildRegionFacet(regionType, regionName),
+            //url: url,
+            dataType: 'json',
+            success: function(data) {
+                if (data[0] != 0.0) {
+                    var newBbox = new google.maps.LatLngBounds(
+                        new google.maps.LatLng(data[1], data[0]),
+                        new google.maps.LatLng(data[3], data[2]));
+                    map.fitBounds(newBbox);
+//                    $('#bbox').html("Using bbox " + newBbox.toString());
+                }
+            }
+        });
+    }
+}
+
+/**
+ * Load the region as a WMS overlay.
+ */
+function drawRegionOverlay() {
+    var customParams = [
+        "FORMAT=image/png8",
+        "LAYERS=ALA:" + layerName
+    ];
+
+    if (regionType == 'layer') {
+        /* this uses feature data to draw the region as a polygon */
+        /*$.ajax({
+            url: "http://woodfired.ala.org.au:8081/regions/proxy/coords",
+            dataType: 'json',
+            success: function(data) {
+
+                // process JSON data from request
+                $.each(data.geometries[0].coordinates, function(i,obj) {
+                    var polyCoords = [];
+                    var poly = [];
+                    $.each(obj[0], function(i,coord) {
+                        polyCoords.push(new google.maps.LatLng(coord[1],coord[0]));
+                    });
+                    var color;
+                    switch(i) {
+                        case 0: color = "#0000FF"; break;
+                        case 1: color = "#00FF00"; break;
+                        default: color = "#00FF00";
+                    }
+                    poly[i] = new google.maps.Polygon({
+                      paths: polyCoords,
+                      strokeColor: color,
+                      strokeOpacity: 0.8,
+                      strokeWeight: 2,
+                      fillColor: color,
+                      fillOpacity: 0.35
+                    });
+
+                    poly[i].setMap(map);
+
+                });
+
+            }
+        });*/
+
+        /* this uses KML to draw the region */
+        // THIS WON'T WORK UNLESS THE URL IS PUBLICLY AVAILABLE (data is harvested server-side by Google)
+        //var gerLayer = new google.maps.KmlLayer("http://woodfired.ala.org.au:8081/regions/proxy/kmltest.kml");
+        //var gerLayer = new google.maps.KmlLayer("http://gmaps-samples.googlecode.com/svn/trunk/ggeoxml/cta.kml");
+        //gerLayer.setMap(map);
+
+        /* this draws the region as a WMS layer */
+        overlays[0] = new WMSTileLayer(layerName, spatialCacheUrl, customParams, wmsTileLoaded, getRegionOpacity());
+
+        map.overlayMapTypes.setAt(0, overlays[0]);
+
+    }
+    else {
+        var filterFieldName = layers[regionType].displayName;
+        customParams.push("CQL_FILTER=" + filterFieldName + " EQ '" + regionName + "'");
+        customParams.push("STYLES=polygon");
+
+        overlays[0] = new WMSTileLayer(layerName, spatialWmsUrl, customParams, wmsTileLoaded, getRegionOpacity());
+        map.overlayMapTypes.setAt(0, overlays[0]);
+    }
+}
+
+/**
+ * Returns the value of the opacity slider for the region overlay. Defaults to 0.5
+ */
+function getRegionOpacity() {
+    var opacity = $('#regionOpacity').slider("value");
+    return isNaN(opacity) ? 0.5 : opacity / 100;
+}
+
+/**
+ * Displays the current lat/long of the mouse position
+ * @param mousePt
+ */
+function mouseMove(mousePt) {
+    $('#location').html(mousePt.latLng.toString());
+}
+
+/**
+ * Mouse has left the house!
+ */
+function mouseOut() {
+    $('#location').html("");
 }
 
 /******************************\
- * map
+ * show records on map
  ******************************/
-// the map
-var map;
 
-// the spherical mercator projection
-var proj = new OpenLayers.Projection("EPSG:900913");
-//var proj = new OpenLayers.Projection("EPSG:4326");
+/**
+* Load occurrence data as a wms overlay based on the currently selected species group or species
+ * @param name for the layer
+*/
+function drawRecordsOverlay(name) {
+    var customParams = [
+        "FORMAT=image/png8",
+        "colourby=3368652",
+        "symsize=4"
+    ];
 
-// projection options for interpreting GeoJSON data
-var proj_options;
+    //Add query string params to custom params
+    var query = buildBiocacheQuery();
+    var searchParam = encodeURI("?q=" + query.q + "&fq=" + query.fq);
 
-// the data layer
-var vectors;
+    var fqParam = "";
+    if (taxonGuid) {
+        fqParam = "&fq=species_guid:" + taxonGuid;
+    } else if (speciesGroup != "ALL_SPECIES") {
+        fqParam = "&fq=species_group:" + speciesGroup;
+    }
 
-// the server base url
-var baseUrl;
+    searchParam += fqParam;
 
-var info;
+    var pairs = searchParam.substring(1).split('&');
+    for (var j = 0; j < pairs.length; j++) {
+        customParams.push(pairs[j]);
+    }
+    overlays[1] = new WMSTileLayer("MySpecies - " + name,
+            urlConcat(biocacheServiceUrl,"occurrences/wms?"), customParams, wmsTileLoaded, getOccurrenceOpacity());
 
-var extent; // = new OpenLayers.Bounds(-20037508.34, -20037508.34, 20037508.34, 20037508.34);
-
-// centre point for map of Australia - this value is transformed
-// to the map projection once the map is created.
-var centrePoint = new OpenLayers.LonLat(133.7, -28.5).transform(new OpenLayers.Projection("EPSG:4326"),proj);
-
-var overlayFormat = ($.browser.msie && $.browser.version.slice(0,1) == '6') ? "image/gif" : "image/png";
-
-// initialise the map
-function initMap(layer, minLat, maxLat, minLon, maxLon) {
-
-//    alert(minLat + " " + maxLat + " " + minLon + " " + maxLon);
-    proxy = baseUrl + "/proxy?url=";
-    OpenLayers.ProxyHost= proxy;
-
-    extent = new OpenLayers.Bounds(minLon, minLat, maxLon, maxLat).transform(new OpenLayers.Projection("EPSG:4326"),proj);
-
-    // create the map
-    map = new OpenLayers.Map('region-map', {
-        projection: 'EPSG:900913',
-        maxExtent: extent,
-        maxResolution: 156543.0339,
-        units: 'm',
-        //maxResolution: 2468,
-        /*maxExtent: new OpenLayers.Bounds(-10037508.34, -10037508.34, 10037508.34, 10037508.34),*/
-        controls: []
-    });
-
-    // restrict mouse wheel chaos
-    map.addControl(new OpenLayers.Control.Navigation({zoomWheelEnabled:false}));
-    map.addControl(new OpenLayers.Control.ZoomPanel());
-    map.addControl(new OpenLayers.Control.PanPanel());
-    map.addControl(new OpenLayers.Control.Graticule({ numPoints: 2, labelled: true }));
-
-    // create base layer
-    var wms = new OpenLayers.Layer.WMS(
-              "OpenLayers WMS",
-              "http://vmap0.tiles.osgeo.org/wms/vmap0",
-              {'layers':'basic'} );
-    map.addLayer(wms);
-
-    // create google terrain layer
-    var gTerrain = new OpenLayers.Layer.Google(
-        "Google Physical",
-        {type: google.maps.MapTypeId.TERRAIN}
-    );
-    map.addLayer(gTerrain);
-
-    // zoom map
-    map.zoomToMaxExtent();
-
-    // add layer switcher for now - review later
-    map.addControl(new OpenLayers.Control.LayerSwitcher());
-
-    // centre the map on Australia
-    resetZoom();
-    //map.setCenter(centrePoint.transform(proj, map.getProjectionObject()), 4);
-
-    // set projection options
-    proj_options = {
-        'internalProjection': map.baseLayer.projection,
-        'externalProjection': proj
-    };
-
-    // create custom button to zoom extents to Australia
-    var button = new OpenLayers.Control.Button({
-        displayClass: "resetZoom",
-        title: "Zoom to Australia",
-        trigger: resetZoom
-    });
-    var panel = new OpenLayers.Control.Panel({defaultControl: button});
-    panel.addControls([button]);
-    map.addControl(panel);
-
-    // overlays
-    var ger = new OpenLayers.Layer.WMS(
-          "ger",
-          //"http://spatial.ala.org.au/geoserver/gwc/service/wms",
-          "http://spatial.ala.org.au/geoserver/ALA/wms",
-          {
-              layers: layer,
-              transparent: "true",
-              format: overlayFormat
-          },
-          {isBaseLayer: false,
-           opacity: 0.7} );
-    map.addLayer(ger);
+    map.overlayMapTypes.setAt(1, $('#toggleOccurrences').is(':checked') ? overlays[1] : null);
 }
 
-// zoom
-function resetZoom() {
-    // centre the map on Australia
-    // note that the point has already been transformed
-//    map.setCenter(centrePoint);
-    map.zoomTo(5);
+/**
+ * Turns the overlay layers on or off
+ * @param n index of the overlay in the overlays list
+ * @param show true to show; false to hide
+ */
+function toggleOverlay(n, show) {
+    map.overlayMapTypes.setAt(n, show ? overlays[n] : null);
 }
+
+/**
+ * Returns the value of the opacity slider for the occurrence overlay. Defaults to 0.6
+ */
+function getOccurrenceOpacity() {
+    var opacity = $('#occurrencesOpacity').slider("value");
+    return isNaN(opacity) ? 0.6 : opacity / 100;
+}
+
+/**
+ * Called when the overlays are loaded. Not currently used
+ * @param numtiles
+ */
+function wmsTileLoaded(numtiles) {
+    $('#maploading').fadeOut("slow");
+}
+
 
 /******************************\
  * utility
  ******************************/
+
+/**
+ * Builds a valid html id from names that may include spaces.
+ * @param str the name
+ */
 function makeId(str) {
     str = str.replace(/(\ [a-z])/g, function(s){return s.toUpperCase().replace(' ','');});
     return str.charAt(0).toLowerCase() + str.slice(1);
 }
 
+/**
+ * Returns the name to use in q & fq expressions in biocache searches
+ * @param rt
+ */
 function facetNameFromRegionType(rt) {
     switch (rt) {
         case 'states': return 'state';
         case 'ibras': return 'ibra';
-        case 'nrms': return 'nrm';
+        case 'imcras': return 'imcra';
+        case 'lgas': return 'places';
+        case 'nrms': return 'cl916';
         default: return rt.substr(0,rt.length - 1);
     }
 }
 
-function makeBreakdownQuery(rt, region) {
-    if (rt == 'layer') {
-        return lookupIdForLayer(region) + ":[* TO *]";
-    }
-    else {
-        return facetNameFromRegionType(rt) + ':"' + region + '"';
-    }
-}
-
+/**
+ * Returns layer identifier for regions that are whole layers. This should be available as metadata and supplied by
+ * the controller.
+ * @param region
+ */
 function lookupIdForLayer(region) {
     switch (region) {
         case "Great Eastern Ranges": return "cl904";
@@ -439,11 +656,22 @@ function lookupIdForLayer(region) {
     }
 }
 
-function buildBiocacheQuery() {
-    return {q:buildRegionFacet(), fq: "geospatial_kosher:true", pageSize: 50}
+/**
+ * Builds the query as a map that can be passed directly as data in an ajax call
+ * @param start optional start parameter for paging results
+ */
+function buildBiocacheQuery(start) {
+    var params = {q:buildRegionFacet(regionType, regionName), fq: "geospatial_kosher:true", pageSize: 50};
+    if (start) {
+        params.start = start
+    }
+    return params
 }
 
-function buildRegionFacet() {
+/**
+ * Builds the query phrase for a region based on its type and name.
+ */
+function buildRegionFacet(regionType, regionName) {
     if (regionType == 'layer') {
         return lookupIdForLayer(regionName) + ":[* TO *]";
     }
@@ -452,6 +680,10 @@ function buildRegionFacet() {
     }
 }
 
+/**
+ * Chooses the right facet name based on whether the name looks like a genus, species or sub-species
+ * @param name
+ */
 function buildTaxonFacet(name) {
     if (name.split(' ').length > 1) {
         // assume species
@@ -463,13 +695,21 @@ function buildTaxonFacet(name) {
     }
 }
 
-// formats numbers as human readable
+/**
+ * Formats numbers as human readable. Handles numbers in the millions.
+ * @param count the number
+ */
 function format(count) {
     if (count >= 1000000) {
         return count.numberFormat("#,#0,,.00 million");
     }
     return addCommas(count);
 }
+
+/**
+ * Inserts commas into a number for display.
+ * @param nStr
+ */
 function addCommas(nStr)
 {
 	nStr += '';

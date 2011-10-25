@@ -10,13 +10,13 @@
         <script type="text/javascript" language="javascript" src="http://www.google.com/jsapi"></script>
         <script type="text/javascript" src="http://collections.ala.org.au/js/charts.js"></script>
         <g:javascript library="jquery.jsonp-2.1.4.min"/>
-        <g:javascript src="OpenLayers/OpenLayers.js" />
         <g:javascript library="jquery.cookie" />
-        <g:javascript library="OpenLayers/OpenLayers" />
         <g:javascript library="region" />
+        <g:javascript library="wms" />
         <g:javascript library="number-functions" />
         <g:javascript library="jquery.ba-bbq.min" />
         <script src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
+        <g:javascript library="keydragzoom" />
         <script type="text/javascript">
           var altMap = true;
           $(document).ready(function() {
@@ -140,12 +140,29 @@
             </g:if>
         </div>
         <div id="map" class="section">
-            <g:if test="${region.name == 'Great Eastern Ranges'}">
-                %{--<img src="${resource(dir:'resources',file:'ger.jpg')}" width="503" height="530"/>--}%
-                <div id="region-map-container">
-                  <div id="region-map"></div>
+            <div id="region-map-container">
+                <div id="region-map"></div>
+                <div id="controls">
+
+                    <div>
+                        <div class="tish">
+                        <label for="toggleOccurrences">
+                            <input type="checkbox" name="occurrences" id="toggleOccurrences" value="1" checked/>
+                        Occurrences</label></div>
+                        <div id="occurrencesOpacity"> </div>
+                    </div>
+
+                    <div>
+                        <div class="tish">
+                        <label for="toggleRegion">
+                            <input type="checkbox" name="region" id="toggleRegion" value="1" checked/>
+                        Region</label></div>
+                        <div id="regionOpacity"> </div>
+                    </div>
                 </div>
-            </g:if>
+                <div>LatLng: <span id="location"> </span></div>
+                <div><span id="bbox"> </span></div>
+            </div>
         </div>
 
     </div><!--close content-->
@@ -187,27 +204,36 @@
               }
             });
         }
-        var query = makeBreakdownQuery("${region.type}","${region.name}");
+        var query = buildRegionFacet("${region.type}","${region.name}");
         var taxonomyChartOptions = {
             query: query,
             rank: "kingdom",
             width: 400
         }
 
+        var extent = {lat: ${region.extent?.lat},
+                      lon: ${region.extent?.lon},
+                      zoom: ${region.extent?.zoom} };
+
+        var bbox = {sw: {lat: ${region.bbox.minLat}, lng: ${region.bbox.minLng}},
+                    ne: {lat: ${region.bbox.maxLat}, lng: ${region.bbox.maxLng}} };
+
+        // Load Google maps via AJAX API
+//        google.load("maps", "3.3", {other_params:"sensor=false"});
+        // load visualisations
         google.load("visualization", "1", {packages:["corechart"]});
+        // do stuff
         google.setOnLoadCallback(function() {
             showEmblem("Bird emblem", "${emblems?.birdEmblem}");
             showEmblem("Animal emblem", "${emblems?.animalEmblem}");
             showEmblem("Plant emblem", "${emblems?.plantEmblem}");
             showEmblem("Marine emblem", "${emblems?.marineEmblem}");
+
             loadTaxonomyChart(taxonomyChartOptions);
+
             initTaxaBox("${region.type}","${region.name}");
-            if (showMap) initMap(
-                    "${region.layerName}",
-                    "${region.bbox.minLat}",
-                    "${region.bbox.maxLat}",
-                    "${region.bbox.minLon}",
-                    "${region.bbox.maxLon}");
+
+            initRegionMap("${region.type}", "${region.name}", "${region.layerName}", extent, bbox);
         });
 
     </script>

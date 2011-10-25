@@ -90,3 +90,17 @@ div.emblem h3 {
 #region-map-container {
     margin-bottom: 10px;
 }
+
+.ui-slider {
+    width: 300px;
+    display: inline-block;
+}
+
+div.tish {
+    display: inline-block;
+    width: 100px;
+}
+
+#controls label {
+    width: 100px;
+}
