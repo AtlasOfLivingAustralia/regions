@@ -176,14 +176,14 @@ function getWMSTileUrl(coord, zoom, baseurl, customParams)
 {
 
     var wmsParams = [
-    "request=GetMap",
-    "service=WMS",
-    "version=1.1.1",
-    "bgcolor=0xFFFFFF",
-    "transparent=TRUE",
-    "srs=EPSG:900913", // 3395?
-    "width=256",
-    "height=256"
+    "REQUEST=GetMap",
+    "SERVICE=WMS",
+    "VERSION=1.1.1",
+    "BGCOLOR=0xFFFFFF",
+    "TRANSPARENT=TRUE",
+    "SRS=EPSG:900913", // 3395?
+    "WIDTH=256",
+    "HEIGHT=256"
     ];
 
     //add additional parameters
@@ -205,7 +205,11 @@ function getWMSTileUrl(coord, zoom, baseurl, customParams)
     if (lLR_Longitude < lUL_Longitude){
         lLR_Longitude = Math.abs(lLR_Longitude);
     }
-    var urlResult = baseurl + wmsParams.join("&") + "&bbox=" + lUL_Longitude + "," + lUL_Latitude + "," + lLR_Longitude + "," + lLR_Latitude;
+
+    // hack to make this work for wms/reflect as well as occurrences/wms
+    var bbox = baseurl.indexOf("reflect") > 0 ? "&BBOX=" : "&bbox=";
+
+    var urlResult = baseurl + wmsParams.join("&") + bbox + lUL_Longitude + "," + lUL_Latitude + "," + lLR_Longitude + "," + lLR_Latitude;
     urlResult += "&zoom="+zoom;
 
     return urlResult;
