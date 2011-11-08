@@ -1,3 +1,49 @@
+/************************************************************************************\
+| Regions page
+\************************************************************************************/
+/* regions front page */
+#map_canvas {
+    height:470px;
+    border: 1px solid black;
+    margin: 9px 0 0 0;
+}
+
+#accordion {
+    margin: 9px 0 0 5px;
+    height: 446px;
+}
+#accordion h2 a {
+    font-size: 15px;
+    color: #333;
+}
+#accordion ul {
+    list-style: none;
+    margin: 0;
+    font-size: 1em;
+}
+.ui-widget {
+    font-family: Verdana,Arial,sans-serif !important;
+}
+#click-info {
+    font-size: 15px;
+}
+#zoomTo, #reset-map {
+    padding-left: 20px;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+}
+li.selected {
+    font-weight: bold;
+}
+
+#extra {
+    padding-left: 20px;
+    font-size: 14px;
+}
+/************************************************************************************\
+| Region page
+\************************************************************************************/
 /*** state emblems ***/
 #emblems {
     float: right;
@@ -30,15 +76,89 @@ div.emblem h3 {
     font-size: 16px;
 }
 
+/*** tabs ***/
+#explore {
+    float: left;
+    position: relative;
+    overflow: hidden;
+    width: 484px;
+    height:550px;
+    margin: 10px 0 0 -10px;
+}
+
+#slider-pane {
+    margin: 0;
+    width: 990px;
+    position: absolute;
+    left: 0;
+    top: 30px;
+}
+
+.tabs {
+    list-style:none;
+    margin:0 !important;
+    padding: 0 0 0 2px!important;
+    height:30px;
+    border-bottom:1px solid #666;
+}
+
+.tabs li {
+    float:left;
+    text-indent:0;
+    padding:0;
+    margin: 0 0 0 3px !important;
+    list-style-image:none !important;
+}
+
+/* link inside the tab. uses a background image */
+ul.tabs a {
+	float:left;
+	font-size:15px;
+	display:block;
+	padding:5px 30px;
+	text-decoration:none;
+	border:1px solid #666;
+	border-bottom:0px;
+	height:18px;
+	background-color:#efefef;
+	color:#777;
+	margin-right:2px;
+	position:relative;
+	top:1px;
+	outline:0;
+	-moz-border-radius: 5px 5px 0 0;
+	border-radius: 5px 5px 0 0;
+}
+
+ul.tabs a:hover {
+	background-color:#F7F7F7;
+	color:#333;
+}
+
+/* selected tab */
+ul.tabs a.current {
+	background-color: white;
+	border-bottom:1px solid white;
+	color:#000;
+	cursor:default;
+}
+
 /*** charts ***/
 #taxonomy {
     float: left;
-    display: inline;
+    margin: 15px 0 0 20px;
+    z-index: 10;
+    background-color: white;
 }
 
 .link {
     color: #01716E;
     cursor: pointer;
+}
+.link:hover, .link:active {
+    color:#dd3102;
+    text-decoration:underline;
+    outline:none;
 }
 .under {
     text-decoration: underline;
@@ -46,43 +166,65 @@ div.emblem h3 {
 
 /*** taxa box ***/
 #species {
-    width: 550px;
-    float: right;
-    padding-right: 10px;
+    width: 480px;
+    margin: 15px 0 0 0;
+    float: left;
 }
-#viewRecords {
-    padding-left: 25px;
+#species h3 {
+    margin-left: 10px;
 }
-#viewImages {
-    padding-left: 15px;
+#taxaBox div#rightList {
+    width: 299px !important;
 }
-#downloadRecords {
-    padding-left: 15px;
+#taxa-links {
+    padding-top: 10px;
 }
-#taxaBox {
+#taxa-links ul {
+    list-style: none;
+    margin: 0;
+    width: 100%;
 }
-
+#taxa-links li {
+    float: left;
+    text-align: center;
+    width: 31%;
+    padding: 0 3px;
+}
 /*** sub regions ***/
 #subRegions {
     float:left;
+    width: 480px;
 }
-#subRegions a {
+/*#subRegions a {
     text-decoration: underline;
-}
+}*/
 #subRegions ul {
     list-style: none;
     margin-left: 0;
 }
 
+/*** docs ***/
+#docs {
+    float: left;
+    margin-left: 0;
+}
+#docs ul {
+    list-style: none;
+    margin-left: 0;
+}
+#manage-doc-link {
+    background: transparent url(../images/documents2.gif)  left no-repeat;
+    padding-left: 20px;
+}
 /*** map ***/
 #map {
     float: right;
-    margin: 0 10px;
+    margin: 0 2px 0 0;
     padding: 0;
 }
 
 #region-map {
-    width: 540px;
+    width: 500px;
     height: 470px;
     border: 1px solid black;
 }
@@ -98,7 +240,11 @@ div.emblem h3 {
 
 div.tish {
     display: inline-block;
-    width: 100px;
+    width: 120px;
+}
+
+#controls {
+    padding-top: 4px;
 }
 
 #controls label {
