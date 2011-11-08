@@ -3,86 +3,117 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="layout" content="ala" />
-        <!--meta name="viewport" content="initial-scale=1.0, user-scalable=no" /-->
         <title>Regions | Atlas of Living Australia</title>
-        <g:javascript src="OpenLayers/OpenLayers.js" />
-        <script type="text/javascript" src="${resource(dir:'js', file: 'map-old.js')}"></script>
-
+        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
+        <script src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
+        <g:javascript library="keydragzoom" />
+        <g:javascript library="wms" />
+        <g:javascript library="jquery.cookie" />
+        <script type="text/javascript">
+        </script>
+        <g:javascript library="regions" />
         <script type="text/javascript">
           var altMap = true;
           $(document).ready(function() {
-            $('#nav-tabs > ul').tabs();
+            $('#dev-notes').dialog({autoOpen: false, show: 'blind', hide: 'blind'});
+            $('#dev-notes-link').click(function() {
+                $('#dev-notes').dialog('open');
+                return false;
+            });
             greyInitialValues();
           });
         </script>
+        <g:javascript library="jquery.ba-bbq.min" />
     </head>
-    <body id="page-collections-map" onload="initMap('${ConfigurationHolder.config.grails.serverURL}')">
+    <body onload="init('${ConfigurationHolder.config.grails.serverURL}')">
     <div id="content">
       <div id="header">
         <!--Breadcrumbs-->
-        <div id="breadcrumb"><a href="${ConfigurationHolder.config.ala.baseURL}">Home</a> <a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a><span class="current">Natural History Collections</span></div>
+        <div id="breadcrumb"><a href="${ConfigurationHolder.config.ala.baseURL}">Home</a> <a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a><span class="current">Regions</span></div>
         <div class="section full-width">
           <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
           </g:if>
           <div class="hrgroup">
-            <h1>Select a region to explore-xx</h1>
-            <p>Select a region (or drill down to sub-regions) then explore occurrence records, images and documents associated with that region.</p>
+            <h1>Select a region to explore</h1>
+            <p>Select a region then explore occurrence records, images and documents associated with that region.
+            <span id='showHelp'>Show me how.</span></p>
           </div><!--close hrgroup-->
+          <div id="mainHelp" style="height:0;">
+            <img src="${resource(dir: 'images/help',file: 'help1.png')}"/>
+            <img src="${resource(dir: 'images/help',file: 'help2.png')}"/>
+            <img src="${resource(dir: 'images/help',file: 'help3.png')}"/>
+          </div>
         </div><!--close section-->
       </div><!--close header-->
 
       <div class="map-alt"><!-- wrap map and list-->
 
-        <div id="column-one" class="fudge">
-          <div class="section" style="padding-bottom:0;">
-            <p style="padding-bottom:0;padding-left:10px;padding-top:10px;">Click a button to select the type of region displayed.</p>
-          </div>
-          <div class="section filter-buttons">
-            <div class="all selected" id="states" onclick="toggleButton(this);return false;">
-              <h2><a href="#">States<span id="allButtonTotal">Show states and territories.</span></a></h2>
+        <div id="column-one" class="fudge" style="float:left;">
+          <p style="font-size:15px;padding: 0 0 0 8px;">Click on a region name to select an area.</p>
+          <div id="accordion">
+            <h2><a href="#">States and territories</a></h2>
+            <div id="states"><span class="loading">Loading..</span>
             </div>
-            <div class="fauna" id="lgas" onclick="toggleButton(this);return false;">
-              <h2><a href="#">Local Government<span>Show local government areas (LGA).</span></a></h2>
+            <h2><a href="#">Local Government</a></h2>
+            <div id="lgas"><span class="loading">Loading..</span>
             </div>
-            <div class="insects" id="ibras" onclick="toggleButton(this);return false;">
-              <h2><a href="#">Biogeographic Regions<span>Interim Biogeographic Regionalisation of Australia (IBRA).</span></a></h2>
+            <h2><a href="#">Biogeographic Regions</a></h2>
+            <div id="ibras"><span class="loading">Loading..</span>
             </div>
-            <div class="microbes" id="imcras" onclick="toggleButton(this);return false;">
-              <h2><a href="#">Marine Regions<span>Integrated Marine and Coastal Regionalisation of Australia (IMCRA).</span></a></h2>
+            <h2><a href="#">Marine Regions</a></h2>
+            <div id="imcras"><span class="loading">Loading..</span>
             </div>
-            <div class="plants" id="nrms" onclick="toggleButton(this);return false;">
-              <h2><a href="#">Management Regions<span>Natural Resource Management (NRM) regions.</span></a></h2>
+            <h2><a href="#">Management Regions</a></h2>
+            <div id="nrms"><span class="loading">Loading..</span>
             </div>
-          </div><!--close section-->
+            <h2><a href="#">Other Regions</a></h2>
+            <div id="other"><span class="loading">Loading..</span>
+            </div>
+          </div><!--close accordion-->
+          %{--<div style="clear:both;" class='region-search'>
+            <label for="regionSearch">Type any part of a region's name and select from the list: </label><br/>
+	        <input id="regionSearch">
+          </div>--}%
         </div><!--close column-one-->
 
-        <div id="map">
-          <div id="column-two" class="map-column">
-            <div class="section">
-              <p style="width:588px;padding-bottom:8px;padding-left:30px;"> </p>
-              <div id="map-container">
-                <div id="map_canvas"></div>
-              </div>
-            </div><!--close section-->
-          </div><!--close column-two-->
-        </div><!--close map-->
+        <div id='right-side'>
+            <div>
+                <div>
+                    <span id="click-info">Click on the map to select an area.</span>
+                    <span style="float:right;" id="reset-map">Reset map</span>
+                </div>
+            </div>
+            <div id="mapListOuter" style="height:740px;width:650px;position:relative;overflow:hidden;">
+                <div id="map" style="left:0;position:absolute;top:0;width:650px;">
+                  <div class="map-column">
+                      <div id="map-container">
+                        <div id="map_canvas"></div>
+                      </div>
+                      <div id="controls">
 
-        <div id="list">
-          <div id="column-two" class="list-column">
-            <div class="nameList section" id="names">
-              <p> </p>
-              <ul id="filtered-list" style="padding-left:15px;">
-                <g:each var="c" in="${collections}" status="i">
-                  <li>
-                    <g:link controller="public" action="show" id="${c.uid}">${fieldValue(bean: c, field: "name")}</g:link>
-                  </li>
-                </g:each>
-              </ul>
-            </div><!--close nameList-->
-          </div><!--close column-one-->
-        </div><!--close list-->
+                          <div>
+                              <div class="tish">
+                                  <label for="toggleLayer">
+                                      <input type="checkbox" name="layer" id="toggleLayer" value="1" checked/>
+                                      All regions</label></div>
 
+                              <div id="layerOpacity"></div>
+                          </div>
+
+                          <div>
+                              <div class="tish">
+                                  <label for="toggleRegion">
+                                      <input type="checkbox" name="region" id="toggleRegion" value="1" checked disabled/>
+                                      Selected region</label></div>
+
+                              <div id="regionOpacity"></div>
+                          </div>
+                      </div>
+                  </div><!--close column-two-->
+                </div><!--close map-->
+            </div>
+        </div>
       </div><!--close map/list div-->
 
     </div><!--close content-->
