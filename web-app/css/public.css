@@ -1,3 +1,12 @@
+/* content css without image rounding */
+#content img {
+	-moz-border-radius: 0 !important; /* FF1+ */
+	-webkit-border-radius: 0 !important; /* Saf3+, Chrome */
+	-o-border-radius: 0 !important;
+	-icab-border-radius: 0 !important;
+	-khtml-border-radius: 0 !important;
+	border-radius: 0 !important; /* Opera 7.7, IE 9 */
+}
 
 .sidebar p {
     font-size: 0.9em;
@@ -430,12 +439,6 @@ span.number {
     font-weight: bold;
 }
 
-/* temporary styling for map */
-#map_canvas {
-    width:650px !important;
-    height:470px;
-}
-
 /* use child combinator to hide effect in IE6*/
 div > div#map-container {
     /*background:transparent url(../images/map/map-shadow.png) right bottom no-repeat;*/
@@ -654,10 +657,6 @@ div#selectedRegion p {
     padding-bottom: 2px;
 }
 
-#map_canvas {
-    border: none !important;
-}
-
 div#right-side {
     width: 650px;
     float:left;
@@ -795,49 +794,5 @@ img.info{
 
 .ui-dialog-titlebar {
     /*display: none !important;*/
-}
-
-/* from OZCAM prototype */
-button {
-    border: 0 none;
-    cursor: pointer;
-    font-weight: bold;
-    padding: 0 15px 0 0;
-    text-align: center;
-    height: 30px;
-    line-height: 30px;
-    width: auto;
-}
-
-button.rounded {
-    background: transparent url("../images/btn_right.png") no-repeat scroll right top;
-    clear: left;
-    font-size: 1.1em;
-}
-
-button span {
-    display: block;
-    padding: 0 0 0 15px;
-    position: relative;
-    white-space: nowrap;
-    height: 30px;
-    line-height: 30px;
-}
-
-button.rounded span {
-    background: transparent url("../images/btn_left.png") no-repeat scroll left top;
-    color: #FFFFFF;
-}
-
-button.rounded:hover {
-    background-position: 100% -30px;
-}
-
-button.rounded:hover span {
-    background-position: 0% -30px;
-}
-
-button::-moz-focus-inner {
-    border: none;
 }
 
