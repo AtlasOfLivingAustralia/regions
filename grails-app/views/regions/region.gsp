@@ -16,7 +16,6 @@
         <g:javascript library="wms" />
         <g:javascript library="number-functions" />
         <g:javascript library="jquery.ba-bbq.min" />
-        <g:javascript library="jquery.tools.min" />
         <script src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
         <g:javascript library="keydragzoom" />
         <script type="text/javascript">
@@ -105,11 +104,11 @@
                             <div id="taxa-links" style="clear:both;">
                                 <ul>
                                     <li>
-                                        <img src="${resource(dir:'images',file:'records-icon2.png')}"/><br/>
+                                        <img src="${resource(dir:'images',file: 'records-icon.png')}"/><br/>
                                         <span id="viewRecords" class="link">View records for all species</span>
                                     </li>
                                     <li>
-                                        <img src="${resource(dir:'images',file:'species-images-icon2.png')}"/><br/>
+                                        <img src="${resource(dir:'images',file: 'species-images-icon.png')}"/><br/>
                                         <span id="viewImages" class="link">View images for species</span>
                                     </li>
                                     <li>
