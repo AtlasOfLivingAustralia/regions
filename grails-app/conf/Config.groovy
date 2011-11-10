@@ -25,7 +25,16 @@ if (!spatial.baseURL) {
 if (!ala.baseURL) {
     ala.baseURL = "http://www.ala.org.au"
 }
-
+// spatial services
+if (!spatial.wms.url) {
+    spatial.wms.url = spatial.baseURL + "geoserver/ALA/wms?"
+}
+if (!spatial.wms.cache.url) {
+    spatial.wms.cache.url = spatial.baseURL + "geoserver/gwc/service/wms?"
+}
+if (!spatial.layers.service.url) {
+    spatial.layers.service.url = spatial.baseURL + "layers-service"
+}
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
@@ -74,7 +83,8 @@ environments {
     }
     development {
         //grails.serverURL = "http://mark1-be.nexus.csiro.au:8080/${appName}"
-        grails.serverURL = "http://woodfired.ala.org.au:8080/${appName}"
+        //grails.serverURL = "http://woodfired.ala.org.au:8080/${appName}"
+        grails.serverURL = "http://localhost:8080/${appName}"
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
