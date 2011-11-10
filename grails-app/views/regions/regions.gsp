@@ -12,6 +12,7 @@
         <script type="text/javascript">
         </script>
         <g:javascript library="regions" />
+        %{--<g:javascript library="datadumper" />--}%
         <script type="text/javascript">
           var altMap = true;
           $(document).ready(function() {
@@ -25,7 +26,7 @@
         </script>
         <g:javascript library="jquery.ba-bbq.min" />
     </head>
-    <body onload="init('${ConfigurationHolder.config.grails.serverURL}')">
+    <body>
     <div id="content">
       <div id="header">
         <!--Breadcrumbs-->
@@ -115,7 +116,16 @@
             </div>
         </div>
       </div><!--close map/list div-->
-
     </div><!--close content-->
+    <script type="text/javascript">
+        $(function() {
+            init(
+                '${ConfigurationHolder.config.grails.serverURL}',
+                '${ConfigurationHolder.config.spatial.layers.service.url}',
+                '${ConfigurationHolder.config.spatial.wms.url}',
+                '${ConfigurationHolder.config.spatial.wms.cache.url}'
+            );
+        })
+    </script>
   </body>
 </html>
