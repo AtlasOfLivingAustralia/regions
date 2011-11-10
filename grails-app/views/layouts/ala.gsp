@@ -80,7 +80,7 @@
   <link rel='next' title='Search' href='${ConfigurationHolder.config.ala.baseURL}/tools-services/search-tools/' />
 
   <g:javascript library="application" />
-  <g:javascript library="jquery-1.6.4.min"/>
+  <g:javascript library="jquery-1.7.min"/>
   <!--g:javascript library="jquery.ui.autocomplete"/-->
   <g:javascript library="jquery-ui-1.8.14.custom-notabs.min"/>
   <!--g:javascript library="collectory" /-->
