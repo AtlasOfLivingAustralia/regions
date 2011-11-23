@@ -7,8 +7,10 @@
         <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="http://biocache.ala.org.au/static/css/ala/biocache.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="http://biocache.ala.org.au/static/css/base.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="http://biocache.ala.org.au/static/js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
         <script type="text/javascript" language="javascript" src="http://www.google.com/jsapi"></script>
         %{--<script type="text/javascript" src="http://collections.ala.org.au/js/charts.js"></script>--}%
+        <script type="text/javascript" src="http://biocache.ala.org.au/static/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
         <g:javascript library="charts"/>
         <g:javascript library="jquery.jsonp-2.1.4.min"/>
         <g:javascript library="jquery.cookie" />
@@ -21,7 +23,6 @@
         <script type="text/javascript">
           var altMap = true;
           $(document).ready(function() {
-            $('#nav-tabs > ul').tabs();
             greyInitialValues();
           });
         </script>
@@ -33,7 +34,7 @@
         <div id="breadcrumb">
           <a href="${ConfigurationHolder.config.ala.baseURL}">Home</a>
           <a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a>
-          <a href="${ConfigurationHolder.config.grails.serverURL}/regions/regions">Regions</a>
+          <a href="${ConfigurationHolder.config.grails.serverURL}#rt=${region.type}">Regions</a>
           %{--TODO: do the following in a tag to support any depth --}%
           <g:if test="${region.parent}">
               <a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a>
@@ -107,13 +108,15 @@
                                         <img src="${resource(dir:'images',file: 'records-icon.png')}"/><br/>
                                         <span id="viewRecords" class="link">View records for all species</span>
                                     </li>
+%{--
                                     <li>
                                         <img src="${resource(dir:'images',file: 'species-images-icon.png')}"/><br/>
                                         <span id="viewImages" class="link">View images for species</span>
                                     </li>
+--}%
                                     <li>
                                         <img src="${resource(dir:'images',file:'download.png')}"/><br/>
-                                        <span id="downloadRecords" class="link">Download records</span>
+                                        <a href="#download" id="downloadLink" title="Download records OR species checklist">Downloads</a>
                                     </li>
                                 </ul>
                             </div>
@@ -235,14 +238,54 @@
             <g:link elementId="manage-doc-link" action="documents">Add or manage documents and links</g:link>
         </div>
 
+        <div style="display:none">
+
+        <div id="download">
+            <p id="termsOfUseDownload">
+                By downloading this content you are agreeing to use it in accordance with the Atlas
+                <a href="http://www.ala.org.au/about/terms-of-use/#TOUusingcontent">Terms of Use</a>
+                and individual <a href=" http://www.ala.org.au/support/faq/#q29">Data Provider Terms</a>.
+                <br/><br/>
+                Please provide the following <b>optional</b> details before downloading:
+            </p>
+            <form id="downloadForm">
+                <input type="hidden" name="url" id="downloadUrl" value="http://biocache.ala.org.au/ws/occurrences/download?q=state:&#034;South Australia&#034;&amp;qc="/>
+                <input type="hidden" name="url" id="downloadChecklistUrl" value="http://biocache.ala.org.au/ws/occurrences/facets/download?q=state:&#034;South Australia&#034;&amp;qc="/>
+                <input type="hidden" name="url" id="downloadFieldGuideUrl" value="http://biocache.ala.org.au/occurrences/fieldguide/download?q=state:&#034;South Australia&#034;&amp;qc="/>
+
+                <fieldset>
+                    <p><label for="email">Email</label>
+                        <input type="text" name="email" id="email" value="mark.woolston@csiro.au" size="30"  />
+                    </p>
+                    <p><label for="filename">File Name</label>
+                        <input type="text" name="filename" id="filename" value="data" size="30"  />
+                    </p>
+                    <p><label for="reason" style="vertical-align: top">Download Reason</label>
+                        <textarea name="reason" rows="5" cols="30" id="reason"  ></textarea>
+                    </p>
+                    <input type="submit" value="Download All Records" id="downloadSubmitButton"/>&nbsp;
+                    <input type="submit" value="Download Species Checklist" id="downloadCheckListSubmitButton"/>&nbsp;
+                    <input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;
+                    <!--
+                    <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
+                    -->
+                    <p style="margin-top:10px;">
+                        <strong>Note</strong>: The field guide may take several minutes to prepare and download.
+                    </p>
+                </fieldset>
+            </form>
+        </div>
+
+        </div>
+
     </div><!--close content-->
 
     <script type="text/javascript">
 
-        /*$(".tabs").tabs("#explore > div", {history: false});*/
+        var bieUrl = "${ConfigurationHolder.config.bie.baseURL}",
+            baseUrl = "${ConfigurationHolder.config.grails.serverURL}",
+            bbox;
 
-        var bieUrl = "${ConfigurationHolder.config.bie.baseURL}";
-        var baseUrl = "${ConfigurationHolder.config.grails.serverURL}";
         layerFid = "${region.fid}";
 
         if (${useReflect == false}) {
@@ -287,11 +330,14 @@
             rank: "kingdom",
             width: 450,
             clickThru: false,
-            notifyChange: "taxonChartChange"
-        }
+            notifyChange: "taxonChartChange",
+            collectionsUrl: "${ConfigurationHolder.config.grails.serverURL}",
+            biocacheServicesUrl: "${ConfigurationHolder.config.biocache.baseURL}ws",
+            displayRecordsUrl: "${ConfigurationHolder.config.biocache.baseURL}"
+        };
 
-        var bbox = {sw: {lat: ${region.bbox.minLat}, lng: ${region.bbox.minLng}},
-                    ne: {lat: ${region.bbox.maxLat}, lng: ${region.bbox.maxLng}} };
+        bbox = {sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
+                ne: {lat: ${region.bbox?.maxLat}, lng: ${region.bbox?.maxLng}} };
 
         // Load Google maps via AJAX API
 //        google.load("maps", "3.3", {other_params:"sensor=false"});
@@ -347,18 +393,27 @@
             showEmblem("Plant emblem", "${emblems?.plantEmblem}");
             showEmblem("Marine emblem", "${emblems?.marineEmblem}");
 
+            var config = {
+                speciesPageUrl: "${ConfigurationHolder.config.bie.baseURL}species/",
+                biocacheServiceUrl: "${ConfigurationHolder.config.biocache.baseURL}ws",
+                biocacheWebappUrl: "${ConfigurationHolder.config.biocache.baseURL}",
+                spatialWmsUrl: "${ConfigurationHolder.config.spatial.baseURL}geoserver/ALA/wms?",
+                spatialCacheUrl: "${ConfigurationHolder.config.spatial.baseURL}geoserver/gwc/service/wms?",
+                spatialServiceUrl: "${ConfigurationHolder.config.spatial.baseURL}layers-service"
+            };
+
             // initialise the visible tab first
             if (currentTab == 'taxonomy') {
                 loadTaxonomyChart(taxonomyChartOptions);
-                initTaxaBox("${region.type}","${region.name}");
+                initTaxaBox("${region.type}","${region.name}", config);
             }
             else {
-                initTaxaBox("${region.type}","${region.name}");
+                initTaxaBox("${region.type}","${region.name}", config);
                 loadTaxonomyChart(taxonomyChartOptions);
             }
 
             initRegionMap("${region.type}", "${region.name}", "${region.layerName}",
-                    "${region.pid}", bbox);
+                    "${region.pid}", bbox, config);
 
         });
 
