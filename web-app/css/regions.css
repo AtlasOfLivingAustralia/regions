@@ -2,6 +2,10 @@
 | Regions page
 \************************************************************************************/
 /* regions front page */
+
+#header h1 {
+    padding-left: 0 !important;
+}
 #map_canvas {
     height:470px;
     border: 1px solid black;
