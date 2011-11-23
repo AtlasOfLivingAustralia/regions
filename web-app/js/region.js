@@ -16,23 +16,19 @@
 /*******************************************************************************************************\
  * behaviour for taxa box
  *******************************************************************************************************/
-var speciesGroup = "ALL_SPECIES";  // the currently selected species group
-var regionType, regionName, layerName, regionPid, layerFid;  // the region this page describes
-var taxon, taxonGuid;   // hold the currently selected species (if any)
-
-var speciesPageUrl = "http://bie.ala.org.au/species/"; // configify
-var biocacheServiceUrl = "http://biocache.ala.org.au/ws";
-var biocacheWebappUrl = "http://biocache.ala.org.au";
-var spatialWmsUrl = "http://spatial.ala.org.au/geoserver/ALA/wms?";
-var spatialCacheUrl = "http://spatial.ala.org.au/geoserver/gwc/service/wms?";
-var spatialServiceUrl = "http://spatial.ala.org.au/layers-service";
+var speciesGroup = "ALL_SPECIES",  // the currently selected species group
+    regionType, regionName, layerName, regionPid, layerFid,  // the region this page describes
+    taxon, taxonGuid,   // hold the currently selected species (if any)
+    config = {};  // urls and other config
 
 /**
  * Called by owner page with region type and name
  * @param rt region type
  * @param rn region name
+ * @param options injected config
  */
-function initTaxaBox(rt, rn) {
+function initTaxaBox(rt, rn, options) {
+    config = options;
     regionType = rt;
     regionName = rn;
     // Register events for the species_group column
@@ -81,11 +77,12 @@ function groupClicked(el) {
         // don't create these until the taxa box is populated - so they get laid out correctly
         $('#taxaBox').append('<div style="clear:both;"><span id="viewRecords" class="link under"> </span>' +
                         '<span id="viewImages" class="link under"> </span>' +
-                        '<span id="downloadRecords" class="link under">Download records</span></div>');
+                        '<span id="downloadLink" class="link under">Download records</span></div>');
 
     }
     $('#viewRecords').html(speciesGroup == 'ALL_SPECIES' ? 'View all records' : 'View records for ' + speciesGroup);
-    $('#viewImages').html(speciesGroup == 'ALL_SPECIES' ? 'View images for all species' : 'View images for ' + speciesGroup);
+    $('#downloadLink').html(speciesGroup == 'ALL_SPECIES' ? 'Downloads' : 'Downloads for ' + speciesGroup);
+    //$('#viewImages').html(speciesGroup == 'ALL_SPECIES' ? 'View images for all species' : 'View images for ' + speciesGroup);
 
     // update species list
     $('#taxa-level-0 tr').removeClass("activeRow");
@@ -96,7 +93,7 @@ function groupClicked(el) {
     if (map) drawRecordsOverlay();
 
     // load species for selected group
-    var uri = biocacheServiceUrl + "/explore/group/"+speciesGroup+".json?callback=?";
+    var uri = config.biocacheServiceUrl + "/explore/group/"+speciesGroup+".json?callback=?";
     $('#taxaDiv').html('[loading...]');
     $.ajax({
         url: uri,
@@ -141,14 +138,14 @@ function processSpeciesJsonData(data, appendResults) {
             // add links to species page and occurrence search (inside hidden div)
             var speciesInfo = '<div class="speciesInfo">';
             if (data[i].guid) {
-                speciesInfo = speciesInfo + '<a title="'+infoTitle+'" href="'+speciesPageUrl + data[i].guid+
-                    '"><img src="'+ biocacheWebappUrl +'/static/images/page_white_go.png" alt="species page icon" style="margin-bottom:-3px;" class="no-rounding"/>'+
+                speciesInfo = speciesInfo + '<a title="'+infoTitle+'" href="'+ config.speciesPageUrl + data[i].guid+
+                    '"><img src="'+ config.biocacheWebappUrl +'/static/images/page_white_go.png" alt="species page icon" style="margin-bottom:-3px;" class="no-rounding"/>'+
                     ' species profile</a> | ';
             }
-            speciesInfo = speciesInfo + "<a href='" + biocacheWebappUrl + '/occurrences/search?q=' +
+            speciesInfo = speciesInfo + "<a href='" + config.biocacheWebappUrl + '/occurrences/search?q=' +
                     buildTaxonFacet(data[i].name, data[i].rank) +
                     '&fq=' + buildRegionFacet(regionType, regionName) + "'" + ' title="'+
-                    recsTitle+'"><img src="'+ biocacheWebappUrl +'/static/images/database_go.png" '+
+                    recsTitle+'"><img src="'+ config.biocacheWebappUrl +'/static/images/database_go.png" '+
                     'alt="search list icon" style="margin-bottom:-3px;" class="no-rounding"/> list of records</a></div>';
 
             tr = tr + speciesInfo;
@@ -208,7 +205,7 @@ function processSpeciesJsonData(data, appendResults) {
             taxa = (thisTaxon.indexOf("|") > 0) ? thisTaxon.split("|") : thisTaxon;
             var start = $(this).attr('href');
             // AJAX...
-            var uri = biocacheServiceUrl + "/explore/group/"+speciesGroup+".json?callback=?";
+            var uri = config.biocacheServiceUrl + "/explore/group/"+speciesGroup+".json?callback=?";
             $('#loadMoreSpecies').detach(); // delete it
             $.ajax({
                 url: uri,
@@ -237,7 +234,7 @@ function processSpeciesJsonData(data, appendResults) {
  * Perform spatial search for species groups and species counts
  */
 function loadGroups() {
-    var url = biocacheServiceUrl +"/explore/groups.json";
+    var url = config.biocacheServiceUrl +"/explore/groups.json";
     $.ajax({
         url: url,
         dataType: 'jsonp',
@@ -292,10 +289,11 @@ function addGroupRow(group, speciesCount, indent, count) {
  * Set the destination for the links associated with the taxa box based on the state of the box
  */
 function activateLinks() {
+
     $('#viewRecords').click(function() {
         // check what group is active
         var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id');
-        var url = biocacheWebappUrl + '/occurrences/search?q=' + buildRegionFacet(regionType, regionName);
+        var url = config.biocacheWebappUrl + '/occurrences/search?q=' + buildRegionFacet(regionType, regionName);
         if (group != 'ALL_SPECIES') {
             url += '&fq=species_group:' + group;
         }
@@ -310,7 +308,51 @@ function activateLinks() {
         }
         document.location.href = url;
     });
-    // TODO: download links
+
+    // download link
+    $("#downloadLink").fancybox({
+        'hideOnContentClick' : false,
+        'hideOnOverlayClick': true,
+        'showCloseButton': true,
+        'titleShow' : false,
+        'autoDimensions' : false,
+        'width': '500',
+        'height': '300',
+        'padding': 15,
+        'margin': 10
+    });
+
+    // catch download submit button
+    $("#downloadSubmitButton").click(function(e) {
+        e.preventDefault();
+        var url = biocacheServicesUrl + '/occurrences/download?' + buildQueryForSelectedGroup();
+        var reason = $("#reason").val();
+        if(typeof reason == "undefined")
+            reason = "";
+        url += "&type=&email="+$("#email").val()+"&reason="+encodeURIComponent(reason)+"&file="+$("#filename").val();
+        //alert("downloadUrl = " + url);
+        window.location.href = url;
+        $.fancybox.close();
+    });
+    // catch checklist download submit button
+    $("#downloadCheckListSubmitButton").click(function(e) {
+        e.preventDefault();
+        var url = biocacheServicesUrl + '/occurrences/facets/download?' + buildQueryForSelectedGroup();
+        url += "&facets=species_guid&lookup=true&file="+$("#filename").val();
+        //alert("downloadUrl = " + url);
+        window.location.href = url;
+        $.fancybox.close();
+    });
+    // catch checklist download submit button
+    $("#downloadFieldGuideSubmitButton").click(function(e) {
+        e.preventDefault();
+        var url = config.biocacheWebappUrl + '/occurrences/fieldguide/download?' + buildQueryForSelectedGroup() +
+            "&facets=species_guid";
+
+        window.open(url);
+
+        $.fancybox.close();
+    });
 }
 
 /*******************************************************************************************************\
@@ -461,8 +503,8 @@ function initRegionMap(type, name, layer, pid, bbox) {
             new google.maps.LatLng(-42, 113),
             new google.maps.LatLng(-14, 153)))) {
         // try the bounds of the occurrence records (TEMP: until we get proper bbox's)
-        //var url = urlConcat(biocacheServiceUrl, "webportal/bounds?q=") + buildRegionFacet(regionType, regionName);
-        var url = urlConcat(biocacheServiceUrl, 'webportal/bounds?q="Alinytjara%20Wilurara"');
+        //var url = urlConcat(config.biocacheServiceUrl, "webportal/bounds?q=") + buildRegionFacet(regionType, regionName);
+        var url = urlConcat(config.biocacheServiceUrl, 'webportal/bounds?q="Alinytjara%20Wilurara"');
         $.ajax({
             url: baseUrl + "/proxy/bbox?q=" + buildRegionFacet(regionType, regionName),
             //url: url,
@@ -534,7 +576,7 @@ function drawRegionOverlay() {
             "LAYERS=ALA:" + layerName,
             "STYLES=polygon"
         ];
-        overlays[0] = new WMSTileLayer(layerName, spatialCacheUrl, layerParams, wmsTileLoaded, getRegionOpacity());
+        overlays[0] = new WMSTileLayer(layerName, config.spatialCacheUrl, layerParams, wmsTileLoaded, getRegionOpacity());
         map.overlayMapTypes.setAt(0, overlays[0]);
 
     }
@@ -545,7 +587,7 @@ function drawRegionOverlay() {
             "viewparams=s:" + regionPid,
             "STYLES=polygon"
         ];
-        overlays[0] = new WMSTileLayer(layerName, spatialWmsUrl, params, wmsTileLoaded, getRegionOpacity());
+        overlays[0] = new WMSTileLayer(layerName, config.spatialWmsUrl, params, wmsTileLoaded, getRegionOpacity());
         map.overlayMapTypes.setAt(0, overlays[0]);
     }
 }
@@ -556,7 +598,7 @@ function drawRegionOverlay() {
  */
 function info(location) {
     $.ajax({
-        url: baseUrl + "/proxy?format=json&url=" + spatialServiceUrl + "/intersect/" + layerFid + "/" +
+        url: baseUrl + "/proxy?format=json&url=" + config.spatialServiceUrl + "/intersect/" + layerFid + "/" +
                 location.lat() + "/" + location.lng(),
         dataType: 'json',
         success: function(data) {
@@ -613,6 +655,7 @@ function mouseOut() {
 function drawRecordsOverlay2() {
     var url = "http://biocache.ala.org.au/ws/webportal/wms/reflect?";
     var query = buildBiocacheQuery();
+    query.fq = "geospatial_kosher:true";
     var prms = [
         "FORMAT=image/png",
         "LAYERS=ALA%3Aoccurrences",
@@ -673,6 +716,7 @@ function drawRecordsOverlay() {
 
     //Add query string params to custom params
     var query = buildBiocacheQuery();
+    query.fq = "geospatial_kosher:true";
     var searchParam = encodeURI("?q=" + query.q + "&fq=" + query.fq);
 
     var fqParam = "";
@@ -699,7 +743,7 @@ function drawRecordsOverlay() {
         customParams.push(pairs[j]);
     }
     overlays[1] = new WMSTileLayer("Occurrences",
-            urlConcat(biocacheServiceUrl,"occurrences/wms?"), customParams, wmsTileLoaded, getOccurrenceOpacity());
+            urlConcat(config.biocacheServiceUrl,"occurrences/wms?"), customParams, wmsTileLoaded, getOccurrenceOpacity());
 
     map.overlayMapTypes.setAt(1, $('#toggleOccurrences').is(':checked') ? overlays[1] : null);
 }
@@ -811,15 +855,27 @@ function facetNameFromRegionType(rt) {
 }
 
 /**
+ * Builds the query as a string of params based on the current selections in the taxa box.
+ */
+function buildQueryForSelectedGroup() {
+    var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id');
+    var query = 'q=' + buildRegionFacet(regionType, regionName);
+    if (group != 'ALL_SPECIES') {
+        query += '&fq=species_group:' + group;
+    }
+    return query;
+}
+
+/**
  * Builds the query as a map that can be passed directly as data in an ajax call
  * @param start optional start parameter for paging results
  */
 function buildBiocacheQuery(start) {
-    var params = {q:buildRegionFacet(regionType, regionName), fq: "geospatial_kosher:true", pageSize: 50};
+    var params = {q:buildRegionFacet(regionType, regionName), pageSize: 50};
     if (start) {
         params.start = start
     }
-    return params
+    return params;
 }
 
 /**
