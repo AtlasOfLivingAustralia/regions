@@ -79,7 +79,7 @@ grails.exceptionresolver.params.exclude = ['password']
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
-        grails.serverURL = "http://regions.ala.org.au:8080/${appName}"
+        grails.serverURL = "http://regions.ala.org.au"
     }
     development {
         //grails.serverURL = "http://mark1-be.nexus.csiro.au:8080/${appName}"
@@ -100,6 +100,11 @@ log4j = {
     //appenders {
     //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
     //}
+    production {
+        appenders {
+           rollingFile name: "stacktrace", maxFileSize: 1024, file: "/var/log/tomcat6/regions-stacktrace.log"
+        }
+    }
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
