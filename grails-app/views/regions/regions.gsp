@@ -30,21 +30,20 @@
     <div id="content">
       <div id="header">
         <!--Breadcrumbs-->
-        <div id="breadcrumb"><a href="${ConfigurationHolder.config.ala.baseURL}">Home</a> <a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a><span class="current">Regions</span></div>
+        <div id="breadcrumb"><a href="${ConfigurationHolder.config.ala.baseURL}">Home</a>
+          <a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a>
+          <span class="current">Regions</span></div>
         <div class="section full-width">
           <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
           </g:if>
           <div class="hrgroup">
             <h1>Select a region to explore</h1>
-            <p>Select a region then explore occurrence records, images and documents associated with that region.
-            <span id='showHelp'>Show me how.</span></p>
+            <p>Select the type of region on the left. Click a name or click on the map to select a region.
+            Use map controls or shift-drag with your mouse to zoom the map. Click the region link
+            to explore occurrence records, images and documents associated with the region.
+            </p>
           </div><!--close hrgroup-->
-          <div id="mainHelp" style="height:0;">
-            <img src="${resource(dir: 'images/help',file: 'help1.png')}"/>
-            <img src="${resource(dir: 'images/help',file: 'help2.png')}"/>
-            <img src="${resource(dir: 'images/help',file: 'help3.png')}"/>
-          </div>
         </div><!--close section-->
       </div><!--close header-->
 
@@ -119,12 +118,13 @@
     </div><!--close content-->
     <script type="text/javascript">
         $(function() {
-            init(
-                '${ConfigurationHolder.config.grails.serverURL}',
-                '${ConfigurationHolder.config.spatial.layers.service.url}',
-                '${ConfigurationHolder.config.spatial.wms.url}',
-                '${ConfigurationHolder.config.spatial.wms.cache.url}'
-            );
+            init_regions({
+                server: '${ConfigurationHolder.config.grails.serverURL}',
+                spatialService: '${ConfigurationHolder.config.spatial.layers.service.url}',
+                spatialWms: '${ConfigurationHolder.config.spatial.wms.url}',
+                spatialCache: '${ConfigurationHolder.config.spatial.wms.cache.url}',
+                mapContainer: 'map_canvas'
+            });
         })
     </script>
   </body>
