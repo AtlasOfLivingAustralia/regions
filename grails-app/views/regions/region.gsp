@@ -255,7 +255,7 @@
 
                 <fieldset>
                     <p><label for="email">Email</label>
-                        <input type="text" name="email" id="email" value="mark.woolston@csiro.au" size="30"  />
+                        <input type="text" name="email" id="email" value="${rg.loggedInUsername()}" size="30"  />
                     </p>
                     <p><label for="filename">File Name</label>
                         <input type="text" name="filename" id="filename" value="data" size="30"  />
