@@ -44,13 +44,12 @@
             to explore occurrence records, images and documents associated with the region.
             </p>
           </div><!--close hrgroup-->
-        </div><!--close section-->
       </div><!--close header-->
 
       <div class="map-alt"><!-- wrap map and list-->
 
         <div id="column-one" class="fudge" style="float:left;">
-          <p style="font-size:15px;padding: 0 0 0 8px;">Click on a region name to select an area.</p>
+          <p style="font-size:15px;margin-left: 15px;">Click on a region name to select an area.</p>
           <div id="accordion">
             <h2><a href="#">States and territories</a></h2>
             <div id="states"><span class="loading">Loading..</span>
