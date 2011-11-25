@@ -37,10 +37,12 @@
     color: #666;
     cursor: pointer;
 }
-li.selected {
+li.regionLink {
+    cursor:pointer;
+}
+.ui-accordion-content li.selected {
     font-weight: bold;
 }
-
 #extra {
     padding-left: 20px;
     font-size: 14px;
