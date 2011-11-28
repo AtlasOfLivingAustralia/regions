@@ -21,6 +21,18 @@ var speciesGroup = "ALL_SPECIES",  // the currently selected species group
     taxon, taxonGuid,   // hold the currently selected species (if any)
     config = {};  // urls and other config
 
+/************************************************************\
+* Method to concatenate url fragments handling stray slashes
+\************************************************************/
+config.urlConcat = function (base, context) {
+    // remove any trailing slash from base
+    base = base.replace(/\/$/, '');
+    // remove any leading slash from context
+    context = context.replace(/^\//, '');
+    // join
+    return base + "/" + context;
+};
+
 /**
  * Called by owner page with region type and name
  * @param rt region type
@@ -28,7 +40,7 @@ var speciesGroup = "ALL_SPECIES",  // the currently selected species group
  * @param options injected config
  */
 function initTaxaBox(rt, rn, options) {
-    config = options;
+    $.extend(config, options);
     regionType = rt;
     regionName = rn;
     // Register events for the species_group column
@@ -139,13 +151,13 @@ function processSpeciesJsonData(data, appendResults) {
             var speciesInfo = '<div class="speciesInfo">';
             if (data[i].guid) {
                 speciesInfo = speciesInfo + '<a title="'+infoTitle+'" href="'+ config.speciesPageUrl + data[i].guid+
-                    '"><img src="'+ config.biocacheWebappUrl +'/static/images/page_white_go.png" alt="species page icon" style="margin-bottom:-3px;" class="no-rounding"/>'+
+                    '"><img src="'+ config.urlConcat(config.biocacheWebappUrl, '/static/images/page_white_go.png') + '" alt="species page icon" style="margin-bottom:-3px;" class="no-rounding"/>'+
                     ' species profile</a> | ';
             }
-            speciesInfo = speciesInfo + "<a href='" + config.biocacheWebappUrl + '/occurrences/search?q=' +
+            speciesInfo = speciesInfo + "<a href='" + config.urlConcat(config.biocacheWebappUrl, '/occurrences/search?q=') +
                     buildTaxonFacet(data[i].name, data[i].rank) +
                     '&fq=' + buildRegionFacet(regionType, regionName) + "'" + ' title="'+
-                    recsTitle+'"><img src="'+ config.biocacheWebappUrl +'/static/images/database_go.png" '+
+                    recsTitle+'"><img src="'+ config.urlConcat(config.biocacheWebappUrl, '/static/images/database_go.png') + '" ' +
                     'alt="search list icon" style="margin-bottom:-3px;" class="no-rounding"/> list of records</a></div>';
 
             tr = tr + speciesInfo;
@@ -177,23 +189,25 @@ function processSpeciesJsonData(data, appendResults) {
     // Register clicks for the list of species
     $('#rightList tbody tr').click(function(e) {
         e.preventDefault(); // ignore the href text - used for data
-        var thisTaxonA = $(this).find('a.taxonBrowse2').attr('href').split('/');
-        var thisTaxon = thisTaxonA[thisTaxonA.length-1].replace(/%20/g, ' ');
-        taxonGuid = $(this).data('taxon').guid;
-        taxon = thisTaxon; // global var so map can show just this taxon
-        $('#rightList tbody tr').removeClass("activeRow2"); // un-highlight previous current taxon
-        // remove previous species info row
-        $('#rightList tbody tr#info').detach();
-        var info = $(this).find('.speciesInfo').html();
-        // copy contents of species into a new (tmp) row
-        if (info) {
-            $(this).after('<tr id="info"><td><td>'+info+'<td></td></tr>');
-        }
-        // hide previous selected spceies info box
-        $(this).addClass("activeRow2"); // highlight current taxon
+        if (this.id != 'loadMoreSpecies') {  // don't act on the 'more species' link
+            var thisTaxonA = $(this).find('a.taxonBrowse2').attr('href').split('/');
+            var thisTaxon = thisTaxonA[thisTaxonA.length-1].replace(/%20/g, ' ');
+            taxonGuid = $(this).data('taxon').guid;
+            taxon = thisTaxon; // global var so map can show just this taxon
+            $('#rightList tbody tr').removeClass("activeRow2"); // un-highlight previous current taxon
+            // remove previous species info row
+            $('#rightList tbody tr#info').detach();
+            var info = $(this).find('.speciesInfo').html();
+            // copy contents of species into a new (tmp) row
+            if (info) {
+                $(this).after('<tr id="info"><td><td>'+info+'<td></td></tr>');
+            }
+            // hide previous selected species info box
+            $(this).addClass("activeRow2"); // highlight current taxon
 
-        // redraw the occurrences on the map
-        drawRecordsOverlay();
+            // redraw the occurrences on the map
+            drawRecordsOverlay();
+        }
     });
 
     // Register onClick for "load more species" link
@@ -293,7 +307,7 @@ function activateLinks() {
     $('#viewRecords').click(function() {
         // check what group is active
         var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id');
-        var url = config.biocacheWebappUrl + '/occurrences/search?q=' + buildRegionFacet(regionType, regionName);
+        var url = config.urlConcat(config.biocacheWebappUrl, '/occurrences/search?q=') + buildRegionFacet(regionType, regionName);
         if (group != 'ALL_SPECIES') {
             url += '&fq=species_group:' + group;
         }
@@ -346,7 +360,7 @@ function activateLinks() {
     // catch checklist download submit button
     $("#downloadFieldGuideSubmitButton").click(function(e) {
         e.preventDefault();
-        var url = config.biocacheWebappUrl + '/occurrences/fieldguide/download?' + buildQueryForSelectedGroup() +
+        var url = config.urlConcat(config.biocacheWebappUrl, '/occurrences/fieldguide/download?') + buildQueryForSelectedGroup() +
             "&facets=species_guid";
 
         window.open(url);
