@@ -11,11 +11,12 @@
         <script type="text/javascript" language="javascript" src="http://www.google.com/jsapi"></script>
         %{--<script type="text/javascript" src="http://collections.ala.org.au/js/charts.js"></script>--}%
         <script type="text/javascript" src="http://biocache.ala.org.au/static/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-        <g:javascript library="charts"/>
+        <g:javascript library="charts2"/>
         <g:javascript library="jquery.jsonp-2.1.4.min"/>
         <g:javascript library="jquery.cookie" />
         <g:javascript library="region" />
         <g:javascript library="wms" />
+        %{--<g:javascript library="datadumper" />--}%
         <g:javascript library="number-functions" />
         <g:javascript library="jquery.ba-bbq.min" />
         <script src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
@@ -105,8 +106,7 @@
                             <div id="taxa-links" style="clear:both;">
                                 <ul>
                                     <li>
-                                        <img src="${resource(dir:'images',file: 'records-icon.png')}"/><br/>
-                                        <span id="viewRecords" class="link">View records for all species</span>
+                                        <span id="viewRecords" class="link">View all records</span>
                                     </li>
 %{--
                                     <li>
@@ -115,8 +115,7 @@
                                     </li>
 --}%
                                     <li>
-                                        <img src="${resource(dir:'images',file:'download.png')}"/><br/>
-                                        <a href="#download" id="downloadLink" title="Download records OR species checklist">Downloads</a>
+                                        <a href="#download" id="downloadLink" title="Download records OR species checklist">Download all</a>
                                     </li>
                                 </ul>
                             </div>
@@ -125,8 +124,20 @@
 
                     <div id="taxonomy"><div id="charts"></div></div>
                 </div>
-                <div>
-                    <button type="button" style="position:absolute;top:500px;left:30px;" onclick="resetAll()">Reset all</button>
+                <button id="resetButton" type="button" onclick="resetAll()">Reset all</button>
+
+                <div id="timeContainer">
+                    <p>Explore by date</p>
+                    <p>Drag handles to restrict records by date of observation/collection.</p>
+                    <div id="timeValues"><span id="from">1850</span> <span id="to">2010</span></div>
+                    <div id="timeSlider"></div>
+                    <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
+                    <div id="debugTime"></div>
+                    <div><span id="play">
+                        <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
+                        <img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
+                        <img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
+                    </span></div>
                 </div>
             </div>
 
@@ -303,7 +314,7 @@
                 cleanUp();
               },
               success: function(data) {
-                  var imageSrc = "http://biocache.ala.org.au/static/images/noImage85.jpg";
+                  var imageSrc = "http://bie.ala.org.au/static/images/noImage85.jpg";
                   if (data.images && data.images.length > 0) {
                       imageSrc = data.images[0].thumbnail;
                   }
@@ -324,9 +335,10 @@
               }
             });
         }
-        var query = buildRegionFacet("${region.type}","${region.name}");
-        var taxonomyChartOptions = {
+        var query = buildRegionFacet("${region.type}","${region.name}"),
+            taxonomyChartOptions = {
             query: query,
+            subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),
             rank: "kingdom",
             width: 450,
             clickThru: false,
@@ -402,14 +414,24 @@
                 spatialServiceUrl: "${ConfigurationHolder.config.spatial.baseURL}layers-service"
             };
 
+            // init time controls
+            $('#timeSlider').slider({
+                range: true,
+                min: 1850,
+                max: 2010,
+                values: [1850, 2010],
+                slide: slideHandler,
+                change: dateRangeChanged
+            });
+
             // initialise the visible tab first
-            if (currentTab == 'taxonomy') {
-                loadTaxonomyChart(taxonomyChartOptions);
+            if (false) {
+                taxonomyChart.load(taxonomyChartOptions);
                 initTaxaBox("${region.type}","${region.name}", config);
             }
             else {
                 initTaxaBox("${region.type}","${region.name}", config);
-                loadTaxonomyChart(taxonomyChartOptions);
+                taxonomyChart.load(taxonomyChartOptions);
             }
 
             initRegionMap("${region.type}", "${region.name}", "${region.layerName}",
