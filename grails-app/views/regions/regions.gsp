@@ -1,8 +1,9 @@
 <%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
+<!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="layout" content="ala" />
+        <meta name="layout" content="${ConfigurationHolder.config.ala.skin}" />
         <title>Regions | Atlas of Living Australia</title>
         <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
         <script src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
@@ -21,35 +22,37 @@
                 $('#dev-notes').dialog('open');
                 return false;
             });
-            greyInitialValues();
+            //greyInitialValues();
           });
         </script>
         <g:javascript library="jquery.ba-bbq.min" />
     </head>
     <body>
-    <div id="content">
+    <div id="content" class="clearfix">
       <div id="header">
         <!--Breadcrumbs-->
-        <div id="breadcrumb"><a href="${ConfigurationHolder.config.ala.baseURL}">Home</a>
-          <a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a>
-          <span class="current">Regions</span></div>
+        <nav id="breadcrumb"><ol>
+          <li><a href="${ConfigurationHolder.config.ala.baseURL}">Home</a></li>
+          <li><a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a></li>
+          <li class="last">Regions</li></ol></nav>
         <div class="section full-width">
           <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
           </g:if>
-          <div class="hrgroup">
+          <header class="hrgroup">
             <h1>Select a region to explore</h1>
             <p>Select the type of region on the left. Click a name or click on the map to select a region.
             Use map controls or shift-drag with your mouse to zoom the map. Click the region link
             to explore occurrence records, images and documents associated with the region.
             </p>
-          </div><!--close hrgroup-->
+          </header><!--close hrgroup-->
+        </div><!--close section-->
       </div><!--close header-->
 
       <div class="map-alt"><!-- wrap map and list-->
 
         <div id="column-one" class="fudge" style="float:left;">
-          <p style="font-size:15px;margin-left: 15px;">Click on a region name to select an area.</p>
+          <p style="font-size:15px;margin-left:15px;padding-bottom:0">Click on a region name to select an area.</p>
           <div id="accordion">
             <h2><a href="#">States and territories</a></h2>
             <div id="states"><span class="loading">Loading..</span>
@@ -83,7 +86,7 @@
                     <span style="float:right;" id="reset-map">Reset map</span>
                 </div>
             </div>
-            <div id="mapListOuter" style="height:740px;width:650px;position:relative;overflow:hidden;">
+            <div id="mapListOuter" style="height:560px;width:650px;position:relative;overflow:hidden;">
                 <div id="map" style="left:0;position:absolute;top:0;width:650px;">
                   <div class="map-column">
                       <div id="map-container">
