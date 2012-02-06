@@ -50,6 +50,10 @@ li.regionLink {
 /************************************************************************************\
 | Region page
 \************************************************************************************/
+#content {
+    min-width: 998px;
+}
+
 /*** state emblems ***/
 #emblems {
     float: right;
@@ -60,10 +64,6 @@ div.emblem {
     float: left;
     font-size: 12px;
     width: 240px;
-}
-
-div.emblem:last-child {
-    width: auto;  /* push last emblem as far right as possible */
 }
 
 div.emblem img {
@@ -90,6 +90,16 @@ div.emblem h3 {
     width: 484px;
     height:550px;
     margin: 10px 0 0 -10px;
+    /* for IE7 */
+    *margin-left: 2px;
+}
+
+/* for IE8 */
+.ie8 #explore {
+    margin-left : 2px;
+}
+.ie8 h1 {
+    margin-left: 10px;
 }
 
 #slider-pane {
@@ -97,10 +107,10 @@ div.emblem h3 {
     width: 990px;
     position: absolute;
     left: 0;
-    top: 30px;
+    top: 20px;
 }
 
-.tabs {
+.explore-tabs {
     list-style:none;
     margin:0 !important;
     padding: 0 0 0 2px!important;
@@ -108,7 +118,7 @@ div.emblem h3 {
     border-bottom:1px solid #666;
 }
 
-.tabs li {
+.explore-tabs li {
     float:left;
     text-indent:0;
     padding:0;
@@ -117,7 +127,7 @@ div.emblem h3 {
 }
 
 /* link inside the tab. uses a background image */
-ul.tabs a {
+ul.explore-tabs a {
 	float:left;
 	font-size:15px;
 	display:block;
@@ -136,13 +146,13 @@ ul.tabs a {
 	border-radius: 5px 5px 0 0;
 }
 
-ul.tabs a:hover {
+ul.explore-tabs a:hover {
 	background-color:#F7F7F7;
 	color:#333;
 }
 
 /* selected tab */
-ul.tabs a.current {
+ul.explore-tabs a.current {
 	background-color: white;
 	border-bottom:1px solid white;
 	color:#000;
@@ -183,7 +193,7 @@ ul.tabs a.current {
     width: 299px !important;
 }
 #taxa-links {
-    padding-top: 10px;
+    padding-top: 2px;
 }
 #taxa-links ul {
     list-style: none;
@@ -193,8 +203,12 @@ ul.tabs a.current {
 #taxa-links li {
     float: left;
     text-align: center;
-    width: 31%;
+    width: 41%;
     padding: 0 3px;
+}
+
+#taxaBox table {
+    border-top: none !important;
 }
 /*** sub regions ***/
 #subRegions {
@@ -212,7 +226,8 @@ ul.tabs a.current {
 /*** docs ***/
 #docs {
     float: left;
-    margin-left: 0;
+    padding-left: 5px;
+
 }
 #docs ul {
     list-style: none;
@@ -255,4 +270,88 @@ div.tish {
 
 #controls label {
     width: 100px;
+}
+
+/* reset control */
+
+#resetButton {
+    position: relative;
+    left: 410px;
+    top: -30px;
+}
+
+/* time controls */
+#timeContainer {
+    position: absolute;
+    top: 380px;
+    width: 480px;
+    height: 130px;
+    left: 0;
+    padding: 5px;
+    /* for IE */
+    top: 400px\9;
+}
+
+/* for FF */
+body:not(:-moz-handler-blocked) #timeContainer {
+    top: 400px;
+}
+
+#timeContainer p:first-child {
+    font-size: 15px;
+}
+
+#timeContainer p {
+    padding-bottom: 2px;
+}
+
+#timeSlider {
+    margin-left: 8px;
+    width: 450px;
+}
+
+#timeValues {
+    margin-left: -10px;
+}
+
+#from {
+    position: relative;
+    left: 0;
+}
+
+#to {
+    position: relative;
+    left: 410px;
+}
+
+#timeValues span {
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+#play img {
+    margin: 0 -3px;
+}
+
+#timeTicks {
+    padding-left: 4px;
+}
+
+#playControls {
+    margin-top: -8px;
+}
+
+/**************************
+used to be in old wp styles
+***************************/
+.hrgroup {
+    padding:0 15px;
+}
+
+#breadcrumb {
+    padding: 10px 15px 10px 15px;
+}
+
+section.section {
+    padding-left: 15px;
 }
