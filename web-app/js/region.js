@@ -14,23 +14,150 @@
  */
 
 /*******************************************************************************************************\
- * behaviour for taxa box
+ * vars
  *******************************************************************************************************/
 var speciesGroup = "ALL_SPECIES",  // the currently selected species group
     regionType, regionName, layerName, regionPid, layerFid,  // the region this page describes
     taxon, taxonGuid,   // hold the currently selected species (if any)
-    config = {};  // urls and other config
+    config = {},  // urls and other config
+    /**
+     * timeSlider encapsulates the data and functions of the date range widget.
+     */
+    timeSlider = {
+        defaultFrom: 1850,
+        defaultTo: 2010,
+        slider: $('#timeSlider'),
+        eventsEnabled: true,
+        isInit: function () {
+            return $('#timeSlider').hasClass('ui-slider');
+        },
+        from: function () {
+            return this.isInit() ? $('#timeSlider').slider('values')[0] : this.defaultFrom;
+        },
+        to: function () {
+            return this.isInit() ? $('#timeSlider').slider('values')[1] : this.defaultTo;
+        },
+        set: function (from, to, noEvents) {
+            if (this.isInit()) {
+                if (noEvents === true) {
+                    this.eventsEnabled = false;
+                }
+                if (from == undefined) { from = this.from();}
+                if (to === undefined) { to = this.to(); }
+                $('#timeSlider').slider('values',[from, to]);
+                this.updateLabels(from, to);
+                this.eventsEnabled = true;
+            }
+        },
+        updateLabels: function (from, to) {
+            if (from == undefined) { from = this.from();}
+            if (to === undefined) { to = this.to(); }
+            $('#from').html(from);
+            $('#to').html(to);
+            var fromPos = (from - this.defaultFrom) * 2.8,
+                toPos = (to - this.defaultFrom) * 2.8,
+                diff = toPos - fromPos,
+                fromSpacing = diff < 28 ? (28 - diff) * 0.5 : 0,
+                toSpacing = diff < 28 ? (28 - diff) * 0.5 : 0;
+            if (fromPos - fromSpacing < 0) {
+                toSpacing += (fromSpacing - fromPos);
+                fromSpacing -= (fromSpacing - fromPos);
+            }
+            if (toPos + toSpacing > 448) {
+                fromSpacing += (toSpacing - (448 - toPos));
+                toSpacing -= (toSpacing - (448 - toPos));
+            }
+            $('#from').css('left', fromPos - fromSpacing);
+            $('#to').css('left', toPos - 40 + toSpacing);
+        },
+        queryString: function () {
+            if (!this.isInit()) { return "" }
+            var fromPhrase = this.from() === this.defaultFrom ? '*' : this.from() + "-01-01T00:00:00Z",
+                toPhrase = this.to() === this.defaultTo ? "*" : (this.to() - 1) + "-12-31T23:59:59Z";
+            return "occurrence_year:[" + fromPhrase + " TO " + toPhrase + "]";
+        },
+        staticQueryString: function (from, to) {
+            // defensive stuff
+            if (!from && !to) { return ""; }
+            if (from && from.match(/[12]\d\d\d/) === null) { return ""; }
+            if (to && !to.match(/[12]\d\d\d/) === null) { return ""; }
+            var fromPhrase = (!from || from === this.defaultFrom) ? '*' : from + "-01-01T00:00:00Z",
+                toPhrase = (!to || to === this.defaultTo) ? "*" : (to - 1) + "-12-31T23:59:59Z";
+            return "occurrence_year:[" + fromPhrase + " TO " + toPhrase + "]";
+        },
+        isDefault: function() {
+            if (!this.isInit()) { return true }
+            return (this.from() === this.defaultFrom || this.from() === undefined) &&
+                    (this.to() === this.defaultTo || this.to() === undefined);
+        },
+        reset: function () {
+            this.set(this.defaultFrom, this.defaultTo, true);
+            // align state
+            this.saveState();
+            // stop play
+            this.stop();
+        },
+        playIndex: 1850,
+        playState: 'stopped',
+        playDouble: true,
+        playTimer: null,
+        startPlay: function () {
+            if (this.playState !== 'paused') {
+                this.stop();   // in case already playing
+                this.playIndex = this.defaultFrom;
+            }
+            this.playDouble = 0;
+            this.playState = 'playing';
+            this.play();
+        },
+        play: function() {
+            this.set(this.playIndex, this.playIndex + 10);
+            this.playIndex = this.playIndex + 10;
+            if (this.playIndex < this.defaultTo) {
+                    this.playTimer = setTimeout('timeSlider.play()', 1500);
+            } else {
+                this.playState = 'stopped';
+            }
+        },
+        pause: function () {
+            if (this.playState === 'playing') {
+                clearTimeout(this.playTimer);
+                this.playState = 'paused';
+            } else if (this.playState === 'paused') {
+                // restart
+                this.startPlay();
+            }
+        },
+        stop: function () {
+            if (this.playState === 'playing') {
+                clearTimeout(this.playTimer);
+                this.playState = 'stopped';
+            }
+        },
+        saveState: function () {
+            if (this.from() !== this.defaultFrom) {
+                $.bbq.pushState({from:this.from()});
+            } else {
+                $.bbq.removeState('from');
+            }
+            if (this.to() !== this.defaultTo) {
+                $.bbq.pushState({to:this.to()});
+            } else {
+                $.bbq.removeState('to');
+            }
+        }
+    };
 
 /************************************************************\
 * Method to concatenate url fragments handling stray slashes
 \************************************************************/
-config.urlConcat = function (base, context) {
+config.urlConcat = function (base, context, more) {
     // remove any trailing slash from base
     base = base.replace(/\/$/, '');
     // remove any leading slash from context
     context = context.replace(/^\//, '');
     // join
-    return base + "/" + context;
+    return base + "/" + context + (more === undefined ? "" : more);
 };
 
 /**
@@ -58,8 +185,15 @@ function initTaxaBox(rt, rn, options) {
     });
 
     // get any previous state from url
-    var urlGroup = $.bbq.getState('group');
-    if (urlGroup) { speciesGroup = urlGroup }
+    var urlGroup = $.bbq.getState('group'),
+        fromDate = $.bbq.getState('from'),
+        toDate = $.bbq.getState('to');
+    if (urlGroup) {
+        speciesGroup = urlGroup;
+    }
+    if (fromDate || toDate) {
+        timeSlider.set(fromDate, toDate, true);
+    }
 
     // load it up
     loadGroups();
@@ -92,8 +226,8 @@ function groupClicked(el) {
                         '<span id="downloadLink" class="link under">Download records</span></div>');
 
     }
-    $('#viewRecords').html(speciesGroup == 'ALL_SPECIES' ? 'View all records' : 'View records for ' + speciesGroup);
-    $('#downloadLink').html(speciesGroup == 'ALL_SPECIES' ? 'Downloads' : 'Downloads for ' + speciesGroup);
+    $('#viewRecords').html(speciesGroup == 'ALL_SPECIES' && timeSlider.isDefault() ? 'View all records' : 'View selected records');
+    $('#downloadLink').html(speciesGroup == 'ALL_SPECIES' && timeSlider.isDefault() ? 'Download all' : 'Downloads for current selection');
     //$('#viewImages').html(speciesGroup == 'ALL_SPECIES' ? 'View images for all species' : 'View images for ' + speciesGroup);
 
     // update species list
@@ -156,7 +290,7 @@ function processSpeciesJsonData(data, appendResults) {
             }
             speciesInfo = speciesInfo + "<a href='" + config.urlConcat(config.biocacheWebappUrl, '/occurrences/search?q=') +
                     buildTaxonFacet(data[i].name, data[i].rank) +
-                    '&fq=' + buildRegionFacet(regionType, regionName) + "'" + ' title="'+
+                    '&fq=' + buildRegionFacet(regionType, regionName) + timeFacetAsFq() + "'" + ' title="'+
                     recsTitle+'"><img src="'+ config.urlConcat(config.biocacheWebappUrl, '/static/images/database_go.png') + '" ' +
                     'alt="search list icon" style="margin-bottom:-3px;" class="no-rounding"/> list of records</a></div>';
 
@@ -270,16 +404,27 @@ function populateSpeciesGroups(data) {
          $("#taxa-level-0 tbody").empty(); // clear existing values
         $.each(data, function (i, n) {
             addGroupRow(n.name, n.speciesCount, n.level, n.count)
-            if (n.name == 'ALL_SPECIES') {
+            if (n.name == 'ALL_SPECIES' && timeSlider.isDefault()) {
                 notifyTotalRecords(n.count);
             }
         });
 
         // Dynamically set height of #taxaDiv (to match containing div height)
-        var tableHeight = $('#taxa-level-0').height();
-        $('.tableContainer').height(tableHeight+8);
-        var tbodyHeight = $('#taxa-level-0 tbody').height();
-        $('#rightList tbody').height(tbodyHeight);
+        var tableHeight = $('#taxa-level-0').height(),
+            tbodyHeight = $('#taxa-level-0 tbody').height();
+        if ($.browser.mozilla) {
+            $('.tableContainer').height(tableHeight+4);
+            $('#rightList tbody').height(tbodyHeight - 3);
+        }
+        /*else if ($.browser.msie) {
+            $('.tableContainer').height(tableHeight+8);
+            $('#rightList tbody').height(tbodyHeight - 5);
+            //alert(tableHeight + " -> " + $('.tableContainer').height());
+        }*/
+        else {
+            $('.tableContainer').height(tableHeight+8);
+            $('#rightList tbody').height(tbodyHeight);
+        }
         $('#taxa-level-0 tbody tr.activeRow').click();
     }
 }
@@ -307,7 +452,8 @@ function activateLinks() {
     $('#viewRecords').click(function() {
         // check what group is active
         var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id');
-        var url = config.urlConcat(config.biocacheWebappUrl, '/occurrences/search?q=') + buildRegionFacet(regionType, regionName);
+        var url = config.urlConcat(config.biocacheWebappUrl, '/occurrences/search?q=') +
+                buildRegionFacet(regionType, regionName) + timeFacetAsFq();
         if (group != 'ALL_SPECIES') {
             url += '&fq=species_group:' + group;
         }
@@ -316,7 +462,8 @@ function activateLinks() {
     $('#viewImages').click(function() {
         // check what group is active
         var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id');
-        var url = 'http://diasbtest1.ala.org.au:8080/bie-webapp/images/search/?q=' + buildRegionFacet(regionType, regionName);
+        var url = 'http://diasbtest1.ala.org.au:8080/bie-webapp/images/search/?q=' +
+                buildRegionFacet(regionType, regionName) + timeFacetAsFq();
         if (group != 'ALL_SPECIES') {
             url += '&fq=species_group:' + group;
         }
@@ -330,8 +477,8 @@ function activateLinks() {
         'showCloseButton': true,
         'titleShow' : false,
         'autoDimensions' : false,
-        'width': '500',
-        'height': '300',
+        'width': '510',
+        'height': $.browser.mozilla ? '400' : ($.browser.msie ? '385' : '375'),
         'padding': 15,
         'margin': 10
     });
@@ -369,13 +516,6 @@ function activateLinks() {
     });
 }
 
-/*******************************************************************************************************\
- * behaviour for taxonomy chart
- *******************************************************************************************************/
-var currentRank = "";
-var currentRankName = "";
-
-
 /*********************************************************************************************************************\
  * Map - shows the current region and occurrence records based on the selections in the taxa box
  *********************************************************************************************************************/
@@ -404,7 +544,7 @@ var infoWindow;
 
 var useReflectService = true;
 
-//var overlayFormat = ($.browser.msie && $.browser.version.slice(0,1) == '6') ? "image/gif" : "image/png";
+var overlayFormat = ($.browser.msie && $.browser.version.slice(0,1) == '6') ? "image/gif" : "image/png";
 
 /**
  * Initialise the map - called by owner page
@@ -543,50 +683,9 @@ function initRegionMap(type, name, layer, pid, bbox) {
 function drawRegionOverlay() {
 
     if (regionType == 'layer') {
-        /* this uses feature data to draw the region as a polygon */
-        /*$.ajax({
-            url: baseUrl + "/proxy/coords",
-            dataType: 'json',
-            success: function(data) {
-
-                // process JSON data from request
-                $.each(data.geometries[0].coordinates, function(i,obj) {
-                    var polyCoords = [];
-                    var poly = [];
-                    $.each(obj[0], function(i,coord) {
-                        polyCoords.push(new google.maps.LatLng(coord[1],coord[0]));
-                    });
-                    var color;
-                    switch(i) {
-                        case 0: color = "#0000FF"; break;
-                        case 1: color = "#00FF00"; break;
-                        default: color = "#00FF00";
-                    }
-                    poly[i] = new google.maps.Polygon({
-                      paths: polyCoords,
-                      strokeColor: color,
-                      strokeOpacity: 0.8,
-                      strokeWeight: 2,
-                      fillColor: color,
-                      fillOpacity: 0.35
-                    });
-
-                    poly[i].setMap(map);
-
-                });
-
-            }
-        });*/
-
-        /* this uses KML to draw the region */
-        // THIS WON'T WORK UNLESS THE URL IS PUBLICLY AVAILABLE (data is harvested server-side by Google)
-        //var gerLayer = new google.maps.KmlLayer(baseUrl + "/proxy/kmltest.kml");
-        //var gerLayer = new google.maps.KmlLayer("http://gmaps-samples.googlecode.com/svn/trunk/ggeoxml/cta.kml");
-        //gerLayer.setMap(map);
-
         /* this draws the region as a WMS layer */
         var layerParams = [
-            "FORMAT=image/png8",
+            "FORMAT=" + overlayFormat,
             "LAYERS=ALA:" + layerName,
             "STYLES=polygon"
         ];
@@ -596,7 +695,7 @@ function drawRegionOverlay() {
     }
     else {
         var params = [
-            "FORMAT=image/png8",
+            "FORMAT=" + overlayFormat,
             "LAYERS=ALA:Objects",
             "viewparams=s:" + regionPid,
             "STYLES=polygon"
@@ -667,16 +766,15 @@ function mouseOut() {
  * show records on map
  ******************************/
 function drawRecordsOverlay2() {
-    var url = "http://biocache.ala.org.au/ws/webportal/wms/reflect?";
-    var query = buildBiocacheQuery();
-    query.fq = "geospatial_kosher:true";
+    var url = "http://biocache.ala.org.au/ws/webportal/wms/reflect?",
+        query = buildBiocacheQuery(0, true);
     var prms = [
-        "FORMAT=image/png",
+        "FORMAT=" + overlayFormat,
         "LAYERS=ALA%3Aoccurrences",
         "STYLES=",
         "BGCOLOR=0xFFFFFF",
         'q=' + encodeURI(query.q),
-        "fq=" + encodeURI(query.fq),
+        "fq=geospatial_kosher:true",
         'CQL_FILTER=',
         "symsize=3",
         "ENV=color:3366CC;name:circle;size:3;opacity:" + getOccurrenceOpacity(),
@@ -684,11 +782,15 @@ function drawRecordsOverlay2() {
         "EXCEPTIONS=application-vnd.ogc.se_inimage"
     ];
 
+    if (query.fq) {
+        prms.push("&fq=" + query.fq);
+    }
+
     var fqParam = "";
     if ($byTaxonomyLink.hasClass('current')) {
         // show records based on taxonomy chart
-        if (currentRank && currentRankName) {
-            fqParam = "fq=" + currentRank + ":" + currentRankName;
+        if (taxonomyChart.rank && taxonomyChart.name) {
+            fqParam = "fq=" + taxonomyChart.rank + ":" + taxonomyChart.name;
         }
     }
     else {
@@ -714,6 +816,7 @@ function drawRecordsOverlay2() {
 * Load occurrence data as a wms overlay based on the current selection:
 * - if taxa box is visible, show the selected species group or species
 * - if taxonomy chart is selected, show the current named rank
+* - use date restriction specified by the time slider
 */
 function drawRecordsOverlay() {
 
@@ -723,21 +826,20 @@ function drawRecordsOverlay() {
     }
 
     var customParams = [
-        "FORMAT=image/png8",
+        "FORMAT=" + overlayFormat,
         "colourby=3368652",
         "symsize=4"
     ];
 
     //Add query string params to custom params
-    var query = buildBiocacheQuery();
-    query.fq = "geospatial_kosher:true";
-    var searchParam = encodeURI("?q=" + query.q + "&fq=" + query.fq);
+    var query = buildBiocacheQuery(0, true);
+    var searchParam = encodeURI("?q=" + query.q + "&fq=" + query.fq + "&fq=geospatial_kosher:true");
 
     var fqParam = "";
     if ($byTaxonomyLink.hasClass('current')) {
         // show records based on taxonomy chart
-        if (currentRank && currentRankName) {
-            fqParam = "&fq=" + currentRank + ":" + currentRankName;
+        if (taxonomyChart.rank && taxonomyChart.name) {
+            fqParam = "&fq=" + taxonomyChart.rank + ":" + taxonomyChart.name;
         }
     }
     else {
@@ -751,6 +853,7 @@ function drawRecordsOverlay() {
     }
 
     searchParam += fqParam;
+    alert(searchParam);
 
     var pairs = searchParam.substring(1).split('&');
     for (var j = 0; j < pairs.length; j++) {
@@ -801,8 +904,8 @@ function notifyTotalRecords(count) {
 }
 
 function taxonChartChange(rank, name) {
-    currentRank = rank;
-    currentRankName = name;
+    //taxonomyChart.rank = rank;
+    //taxonomyChart.name = name;
 //    $.bbq.pushState({rank:rank,name:name});
     drawRecordsOverlay();
 }
@@ -811,7 +914,7 @@ function taxonomySelected() {
     // save state for back button
     $.bbq.pushState({tab:'taxonomy'});
     // don't redraw if both tabs are showing all records (saves a map flash in the default page)
-    if (speciesGroup != "ALL_SPECIES" || currentRankName != undefined) {
+    if (speciesGroup != "ALL_SPECIES" || taxonomyChart.name != undefined) {
         drawRecordsOverlay();
     }
 }
@@ -820,14 +923,70 @@ function speciesSelected() {
     // save state for back button
     $.bbq.pushState({tab:'species'});
     // don't redraw if both tabs are showing all records
-    if (speciesGroup != "ALL_SPECIES" || currentRankName != undefined) {
+    if (speciesGroup != "ALL_SPECIES" || taxonomyChart.name != undefined) {
         drawRecordsOverlay();
     }
 }
 
+/**
+ * This happens for every value change when the sliders are being moved.
+ *
+ * @param event
+ * @param ui
+ */
+function slideHandler(event, ui) {
+    var from = ui.values[0],
+        to = ui.values[1];
+    // don't allow one slider to overlap the other
+    if (from === to) {
+        return false;  // prevents slide
+    }
+    // update display - value and position
+    timeSlider.updateLabels(from, to);
+    //$('#from').html(from).css('left', timeSlider.calculateFromPosition(from));
+    //$('#to').html(to).css('left', timeSlider.calculateToPosition(to));
+    return true;
+}
+
+/**
+ * This happens on mouseup when sliding or on programmatic change.
+ *
+ * Note that calling set fires this twice.
+ * @param event
+ * @param ui
+ */
+function dateRangeChanged(event, ui) {
+    $('#from').html(ui.values[0]);
+    $('#to').html(ui.values[1]);
+    //Dumper.alert(event);
+    // only react if slider events are enabled
+    if (timeSlider.eventsEnabled) {
+        // this code limits page updates to once per set event, ie when changing both values
+        // only update after the second value is set
+        if (timeSlider.playState === 'playing') {
+            if (timeSlider.playDouble === 0) {
+                timeSlider.playDouble = 1;
+                return
+            } else {
+                timeSlider.playDouble = 0;
+            }
+        } else {
+            // save state unless playing a time sequence
+            timeSlider.saveState();
+        }
+        // update both tabs based on new range
+        loadGroups();
+        taxonomyChart.updateQuery(query + timeFacetAsFq());
+    }
+}
+
+/**
+ * Revert chart, taxa box, map opacities, map bounds, and date range.
+ */
 function resetAll() {
+    timeSlider.reset();
     // taxo chart
-    resetTaxonomyChart();
+    taxonomyChart.reset();
     // taxa box
     $('#taxa-level-0 tr:first-child').click();
     // records opacity
@@ -872,8 +1031,8 @@ function facetNameFromRegionType(rt) {
  * Builds the query as a string of params based on the current selections in the taxa box.
  */
 function buildQueryForSelectedGroup() {
-    var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id');
-    var query = 'q=' + buildRegionFacet(regionType, regionName);
+    var group = $('#leftList tr.activeRow').find('a.taxonBrowse').attr('id'),
+        query = 'q=' + buildRegionFacet(regionType, regionName) + timeFacetAsFq();
     if (group != 'ALL_SPECIES') {
         query += '&fq=species_group:' + group;
     }
@@ -884,12 +1043,33 @@ function buildQueryForSelectedGroup() {
  * Builds the query as a map that can be passed directly as data in an ajax call
  * @param start optional start parameter for paging results
  */
-function buildBiocacheQuery(start) {
-    var params = {q:buildRegionFacet(regionType, regionName), pageSize: 50};
+function buildBiocacheQuery(start, useTime) {
+    var params = {q:buildRegionFacet(regionType, regionName), pageSize: 50},
+        timeFacet = buildTimeFacet();
     if (start) {
         params.start = start
     }
+
+    if (timeFacet) {
+        params.fq = timeFacet;
+        //$('#debugTime').html(timeFacet);
+    }
     return params;
+}
+
+/**
+ * Returns the time query component as an &fq= string or nothing if default dates are set.
+ */
+function timeFacetAsFq() {
+    var facet = buildTimeFacet();
+    return facet === "" ? "" : "&fq=" + facet;
+}
+
+/**
+ * Builds the query phrase for a range of dates - returns nothing for the default date range.
+ */
+function buildTimeFacet() {
+    return timeSlider.isDefault() ? "" : timeSlider.queryString();
 }
 
 /**
