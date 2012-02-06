@@ -1,10 +1,10 @@
 <%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+<!--[if IE 8 ]>    <html lang="en" class="ie8">    <![endif]-->
+<!--[if !(IE 8) ]>    <html>    <![endif]-->
 
-<head profile="http://gmpg.org/xfn/11">
+<head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8; IE=EmulateIE9">
   <meta name="robots" content="index,follow"/>
   <meta name="app.version" content="${g.meta(name:'app.version')}"/>
   <meta name="app.build" content="${g.meta(name:'app.build')}"/>
@@ -26,6 +26,7 @@
   <link rel="stylesheet" type="text/css" media="screen" href="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala/css/highlights.css" />
   <link rel="stylesheet" href="${resource(dir:'css/smoothness',file:'jquery-ui-1.8.14.custom.css')}" type="text/css" media="screen"/>
 
+  <script type="text/javascript" src="http://www.ala.org.au/wp-content/themes/ala2011/scripts/html5.js"></script>
   <script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala/scripts/iframe.js"></script>
   <script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala/scripts/form.js"></script>
   <!--script language="JavaScript" type="text/javascript" src="${ConfigurationHolder.config.ala.baseURL}/wp-content/themes/ala/scripts/ui.core.js"></script>
@@ -73,6 +74,24 @@
 		});*/
 
 	</script>
+    <!-- these styles adapt structural changes for the new skin so they have the
+         same appearance as the old skin -->
+    <style type="text/css">
+        nav ol,nav ul,nav li{list-style:none;margin:0;padding:0;}
+        #breadcrumb li {
+            display:inline;
+        }
+        #header {
+            border-bottom: none;
+            padding-bottom: 10px;
+        }
+        #header .section {
+            border-bottom: none;
+        }
+        section.section {
+            margin: 0;
+        }
+    </style>
   <link rel="EditURI" type="application/rsd+xml" title="RSD" href="${ConfigurationHolder.config.ala.baseURL}/xmlrpc.php?rsd" />
   <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="${ConfigurationHolder.config.ala.baseURL}/wp-includes/wlwmanifest.xml" />
   <link rel='index' title='Atlas Living Australia NG' href='${ConfigurationHolder.config.ala.baseURL}/' />
