@@ -234,7 +234,7 @@ function showRegionsList(regionType, page) {
     var pageList = getPage(regionType, page);
     if (pageList == null) {
         // load the page
-        var listUrl = baseUrl + "/proxy/regions?pageSize=60&page=" + page + "&type=" + regionType;
+        var listUrl = baseUrl + "/regions/regionList?pageSize=60&page=" + page + "&type=" + regionType;
         $.getJSON(listUrl, function(data) {
             pageList = data.features;
             // add to cache
@@ -292,9 +292,9 @@ function addPage(regionType, pageList, page, total) {
 function displayRegionsList(regionType, page) {
     var list = getPage(regionType, page);
     var snippet = "<table width='100%'>";
-    $.each(list, function(index, value) {
-        var link = buildRegionLink(layers[regionType], value, value);
-        var nameHash = value.replace(/ /g,'_');
+    $.each(list, function(index, obj) {
+        var link = buildRegionLink(layers[regionType], obj.name, obj.name);
+        var nameHash = obj.name.replace(/ /g,'_');
         var info = "<img id='" + nameHash + "' class='info' src='" + baseUrl + "/images/skin/information.png'/>";
         if ((index % 3) == 0) {
             snippet += "<tr><td>" + info + link + "</td>";
