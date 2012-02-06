@@ -2,11 +2,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="layout" content="ala" />
+        <meta name="layout" content="${ConfigurationHolder.config.ala.skin}" />
         <title>${region.name} | Atlas of Living Australia</title>
         <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/base.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="http://biocache.ala.org.au/static/css/ala/biocache.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="http://biocache.ala.org.au/static/css/base.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="http://biocache.ala.org.au/static/js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
         <script type="text/javascript" language="javascript" src="http://www.google.com/jsapi"></script>
         %{--<script type="text/javascript" src="http://collections.ala.org.au/js/charts.js"></script>--}%
@@ -23,13 +23,10 @@
         <g:javascript library="keydragzoom" />
         <script type="text/javascript">
           var altMap = true;
-          $(document).ready(function() {
-            greyInitialValues();
-          });
         </script>
     </head>
     <body>
-    <div id="content">
+    <div id="content" class="clearfix">
       <div id="header">
         <!--Breadcrumbs-->
         <div id="breadcrumb">
@@ -48,27 +45,27 @@
           <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
           </g:if>
-          <div class="hrgroup">
+          <header class="hrgroup">
             <h1>${region.name}</h1>
             <div id="emblems"></div>
-          </div><!--close hrgroup-->
+          </header><!--close hrgroup header-->
 
         </div><!--close section-->
       </div><!--close header-->
 
         <g:if test="${region.description || region.notes}">
-            <div class="section">
+            <section class="section">
               <h2>Description</h2>
               <g:if test="${region.description}"><p>${region.description}</p></g:if>
               <g:if test="${region.notes}"><h3>Notes on the map layer</h3><p>${region.notes}</p></g:if>
-            </div>
+            </section>
         </g:if>
 
-        <div class="section">
+        <section class="section">
             <h2 id="occurrenceRecords">Occurrence records</h2>
 
             <div id="explore">
-                <ul class='tabs'>
+                <ul class='explore-tabs'>
                     <li><a href="#" class="current">Explore by species</a></li>
                     <li><a href="#">Explore by taxonomy</a></li>
                 </ul>
@@ -133,7 +130,7 @@
                     <div id="timeSlider"></div>
                     <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
                     <div id="debugTime"></div>
-                    <div><span id="play">
+                    <div id="playControls"><span id="play">
                         <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
                         <img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
                         <img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
@@ -173,11 +170,11 @@
                 </div>
             </div>
 
-        </div><!--close section-->
+        </section><!--close section-->
 
         <div style="clear:both;"> </div>
 
-        <div id="subRegions" class="section">
+        <section id="subRegions" class="section">
             <h2>Regions within ${region.name}</h2>
             <g:if test="${subRegions.ibras}">
                 <h3>Biogeographic (IBRA)</h3>
@@ -211,9 +208,9 @@
                     </g:each>
                 </ul>
             </g:if>
-        </div>
+        </section>
 
-        <div id="docs" class="section">
+        <section id="docs" class="section">
             <h2>Documents and Links</h2>
             <g:if test="${documents.factSheets}">
                 <h3>Fact sheets</h3>
@@ -247,7 +244,7 @@
             </g:if>
 
             <g:link elementId="manage-doc-link" action="documents">Add or manage documents and links</g:link>
-        </div>
+        </section>
 
         <div style="display:none">
 
@@ -357,8 +354,8 @@
         google.load("visualization", "1", {packages:["corechart"]});
 
         // wire tabs
-        var $bySpecies = $('ul.tabs li:first-child');
-        var $byTaxonomy = $('ul.tabs li:last-child');
+        var $bySpecies = $('ul.explore-tabs li:first-child');
+        var $byTaxonomy = $('ul.explore-tabs li:last-child');
         var $bySpeciesLink = $bySpecies.find('a');
         var $byTaxonomyLink = $byTaxonomy.find('a');
 
