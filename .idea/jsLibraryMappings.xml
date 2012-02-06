@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptLibraryMappings">
+    <file url="file://$PROJECT_DIR$/grails-app/views/layouts/ala2.gsp" libraries="{html5, jquery.autocomplete, jquery.min, uservoice}" />
+    <file url="file://$PROJECT_DIR$/grails-app/views/regions/region.gsp" libraries="{jquery.fancybox-1.3.4.pack}" />
+  </component>
+</project>
+
