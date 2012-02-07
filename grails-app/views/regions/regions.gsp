@@ -32,8 +32,7 @@
       <div id="header">
         <!--Breadcrumbs-->
         <nav id="breadcrumb"><ol>
-          <li><a href="${ConfigurationHolder.config.ala.baseURL}">Home</a></li>
-          <li><a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a></li>
+          <rg:breadcrumbTrail/>
           <li class="last">Regions</li></ol></nav>
         <div class="section full-width">
           <g:if test="${flash.message}">
