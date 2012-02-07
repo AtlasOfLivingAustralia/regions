@@ -29,18 +29,17 @@
     <div id="content" class="clearfix">
       <div id="header">
         <!--Breadcrumbs-->
-        <div id="breadcrumb">
-          <a href="${ConfigurationHolder.config.ala.baseURL}">Home</a>
-          <a href="${ConfigurationHolder.config.ala.baseURL}/explore/">Explore</a>
-          <a href="${ConfigurationHolder.config.grails.serverURL}#rt=${region.type}">Regions</a>
+          <nav id="breadcrumb"><ol>
+              <rg:breadcrumbTrail/>
+              <li><a href="${ConfigurationHolder.config.grails.serverURL}#rt=${region.type}">Regions</a></li>
           %{--TODO: do the following in a tag to support any depth --}%
           <g:if test="${region.parent}">
-              <a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a>
+              <li><a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a></li>
               <g:if test="${region.parent.child}">
-                  <a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a>
+                  <li><a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a></li>
               </g:if>
           </g:if>
-          <span class="current">${region.name}</span></div>
+          <span class="current">${region.name}</span></ol></nav>
         <div class="section full-width">
           <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
