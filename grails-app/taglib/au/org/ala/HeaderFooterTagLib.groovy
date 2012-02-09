@@ -13,6 +13,7 @@ class HeaderFooterTagLib {
      *  ala.baseURL - usually "http://www.ala.org.au"
      *  bie.baseURL - usually "http://bie.ala.org.au"
      *  bie.searchPath - usually "/search"
+     *  headerAndFooter.baseURL - usually "http://www2.ala.org.au/datasets"
      *
      *  The banner include assumes that ala-cas-client exists in the app library.
      */
