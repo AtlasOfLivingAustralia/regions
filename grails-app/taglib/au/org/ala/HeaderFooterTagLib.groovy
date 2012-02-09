@@ -11,10 +11,8 @@ class HeaderFooterTagLib {
      * All includes assume the existence of these config declarations:
      *
      *  ala.baseURL - usually "http://www.ala.org.au"
-     *  bie.baseURL - usually "http://bie.ala.org.au/"
-     *  bie.searchPath - usually "search"
-     *
-     *  TODO: Apologies for the inconsistent slashes. These should be fixed.
+     *  bie.baseURL - usually "http://bie.ala.org.au"
+     *  bie.searchPath - usually "/search"
      */
 
     /**
