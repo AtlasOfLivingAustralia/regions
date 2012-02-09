@@ -117,7 +117,10 @@ class HeaderFooterTagLib {
         content = content.replaceAll(/::centralServer::/, ConfigurationHolder.config.ala.baseURL)
         content = content.replaceAll(/::searchServer::/, ConfigurationHolder.config.bie.baseURL)
         content = content.replaceAll(/::searchPath::/, ConfigurationHolder.config.bie.searchPath)
-        content = content.replaceAll(/::loginLogoutListItem::/, buildLoginoutLink(attrs))
+        if (content =~ "::loginLogoutListItem::") {
+            // only do the work if it is needed
+            content = content.replaceAll(/::loginLogoutListItem::/, buildLoginoutLink(attrs))
+        }
         return content
     }
 
@@ -134,7 +137,7 @@ class HeaderFooterTagLib {
         def casLoginUrl = attrs.casLoginUrl ?: ConfigurationHolder.config.security.cas.loginUrl
         def casLogoutUrl = attrs.casLogoutUrl ?: ConfigurationHolder.config.security.cas.logoutUrl
 
-        if ((!attrs.ignoreCookie &&
+        if ((attrs.ignoreCookie != "true" &&
                 AuthenticationCookieUtils.cookieExists(request, AuthenticationCookieUtils.ALA_AUTH_COOKIE)) ||
                 request.userPrincipal) {
             return "<a href='${logoutUrl}" +
