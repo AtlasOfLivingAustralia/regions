@@ -73,7 +73,7 @@ if (!ala.baseURL) {
     ala.baseURL = "http://www.ala.org.au"
 }
 if (!headerAndFooter.baseURL) {
-    headerAndFooter.baseURL = "http://www2.ala.org.au/datasets"
+    headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
 }
 // spatial services
 if (!spatial.wms.url) {
