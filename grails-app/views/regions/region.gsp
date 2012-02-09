@@ -162,16 +162,20 @@
                         </div>
                     </div>
 
-                    <div>LatLng: <span id="location"></span></div>
+                    %{--<div>LatLng: <span id="location"></span></div>
                     <div>Zoom: <span id="zoom"></span> <span id="using-bbox-hack"></span></div>
-
-                    <div><span id="bbox"></span></div>
+                    <div><span id="bbox"></span></div>--}%
                 </div>
             </div>
 
         </section><!--close section-->
 
         <div style="clear:both;"> </div>
+
+        <section class="section">
+            <h3>Alerts</h3>
+            <div id="alerts"></div>
+        </section>
 
         <section id="subRegions" class="section">
             <h2>Regions within ${region.name}</h2>
@@ -289,7 +293,7 @@
 
     <script type="text/javascript">
 
-        var bieUrl = "${ConfigurationHolder.config.bie.baseURL}",
+        var bieUrl = "${ConfigurationHolder.config.bie.baseURL}/",
             baseUrl = "${ConfigurationHolder.config.grails.serverURL}",
             bbox;
 
@@ -402,7 +406,7 @@
             showEmblem("Marine emblem", "${emblems?.marineEmblem}");
 
             var config = {
-                speciesPageUrl: "${ConfigurationHolder.config.bie.baseURL}species/",
+                speciesPageUrl: "${ConfigurationHolder.config.bie.baseURL}/species/",
                 biocacheServiceUrl: "${ConfigurationHolder.config.biocache.baseURL}ws",
                 biocacheWebappUrl: "${ConfigurationHolder.config.biocache.baseURL}",
                 spatialWmsUrl: "${ConfigurationHolder.config.spatial.baseURL}geoserver/ALA/wms?",
@@ -432,6 +436,9 @@
 
             initRegionMap("${region.type}", "${region.name}", "${region.layerName}",
                     "${region.pid}", bbox, config);
+
+            // show alert messages
+            initAlerts("${rg.loggedInUsername()}");
 
         });
 
