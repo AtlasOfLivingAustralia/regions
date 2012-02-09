@@ -48,11 +48,20 @@ reloadable.cfgs = ["file:/data/regions/config/regions-config.properties"]
 if (!ala.skin) {
     ala.skin = 'ala2';
 }
+/*if (!ala.skin.loginoutLinkTag.method) {
+    ala.skin.loginoutLinkTag.method = "buildLoginoutLink"
+}
+if (!ala.skin.loginoutLinkTag.clazz) {
+    ala.skin.loginoutLinkTag.clazz = "RegionsTagLib"
+}*/
 /******************************************************************************\
  *  EXTERNAL SERVERS
 \******************************************************************************/
 if (!bie.baseURL) {
-     bie.baseURL = "http://bie.ala.org.au/"
+     bie.baseURL = "http://bie.ala.org.au"
+}
+if (!bie.searchPath) {
+     bie.searchPath = "/search"
 }
 if (!biocache.baseURL) {
      biocache.baseURL = "http://biocache.ala.org.au/"
@@ -62,6 +71,9 @@ if (!spatial.baseURL) {
 }
 if (!ala.baseURL) {
     ala.baseURL = "http://www.ala.org.au"
+}
+if (!headerAndFooter.baseURL) {
+    headerAndFooter.baseURL = "http://www2.ala.org.au/datasets"
 }
 // spatial services
 if (!spatial.wms.url) {
@@ -73,6 +85,20 @@ if (!spatial.wms.cache.url) {
 if (!spatial.layers.service.url) {
     spatial.layers.service.url = spatial.baseURL + "layers-service"
 }
+
+/******************************************************************************\
+ *  SECURITY
+ \******************************************************************************/
+if (!security.cas.urlPattern) {
+    security.cas.urlPattern = ""
+}
+if (!security.cas.loginUrl) {
+    security.cas.loginUrl = "https://auth.ala.org.au/cas/login"
+}
+if (!security.cas.logoutUrl) {
+    security.cas.logoutUrl = "https://auth.ala.org.au/cas/logout"
+}
+
 grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
 grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
 grails.mime.use.accept.header = false
@@ -118,11 +144,13 @@ grails.exceptionresolver.params.exclude = ['password']
 environments {
     production {
         grails.serverURL = "http://regions.ala.org.au"
+        security.cas.serverName = grails.serverURL
     }
     development {
         //grails.serverURL = "http://mark1-be.nexus.csiro.au:8080/${appName}"
         grails.serverURL = "http://woodfired.ala.org.au:8080/${appName}"
         //grails.serverURL = "http://localhost:8080/${appName}"
+        security.cas.serverName = "http://woodfired.ala.org.au:8080"
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
