@@ -1,6 +1,7 @@
 package au.org.ala
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import au.org.ala.cas.util.AuthenticationCookieUtils
 
 class HeaderFooterTagLib {
 
@@ -13,7 +14,7 @@ class HeaderFooterTagLib {
      *  bie.baseURL - usually "http://bie.ala.org.au"
      *  bie.searchPath - usually "/search"
      *
-     *  The banner include assumes that AuthenticationCookieUtils exists in the au.org.ala package.
+     *  The banner include assumes that ala-cas-client exists in the app library.
      */
 
     /**
