@@ -14,6 +14,8 @@ class HeaderFooterTagLib {
      *  bie.baseURL - usually "http://bie.ala.org.au"
      *  bie.searchPath - usually "/search"
      *  headerAndFooter.baseURL - usually "http://www2.ala.org.au/commonui"
+     *  security.cas.loginUrl - usually "https://auth.ala.org.au/cas/login"
+     *  security.cas.logoutUrl - usually "https://auth.ala.org.au/cas/logout"
      *
      *  The banner include assumes that ala-cas-client exists in the app library.
      */
@@ -163,8 +165,10 @@ class HeaderFooterTagLib {
      * @param urlString
      * @return
      */
-    private String removeContext(urlString) {
+    String removeContext(urlString) {
         def url = urlString.toURL()
-        return url.protocol + "://"+ url.host + ":" + url.port
+        def protocol = url.protocol != -1 ? url.protocol + "://" : ""
+        def port = url.port != -1 ? ":" + url.port : ""
+        return protocol + url.host + port
     }
 }
