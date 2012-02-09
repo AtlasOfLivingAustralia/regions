@@ -27,7 +27,7 @@
         </script>
         <g:javascript library="jquery.ba-bbq.min" />
     </head>
-    <body>
+    <body class='regions'>
     <div id="content" class="clearfix">
       <div id="header">
         <!--Breadcrumbs-->
