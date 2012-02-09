@@ -631,11 +631,11 @@ function initRegionMap(type, name, layer, pid, bbox) {
     /*****************************************\
     | Bind some events
     \*****************************************/
-    google.maps.event.addListener(map, 'mousemove', mouseMove);
+    /*google.maps.event.addListener(map, 'mousemove', mouseMove);
     google.maps.event.addListener(map, 'mouseout', mouseOut);
     google.maps.event.addListener(map, 'zoom_changed', function() {
         $('#zoom').html("" + map.getZoom());
-    });
+    });*/
 
     // layer toggling
     $("#toggleOccurrences").click(function() {
@@ -658,7 +658,7 @@ function initRegionMap(type, name, layer, pid, bbox) {
             new google.maps.LatLng(-14, 153)))) {
         // try the bounds of the occurrence records (TEMP: until we get proper bbox's)
         //var url = urlConcat(config.biocacheServiceUrl, "webportal/bounds?q=") + buildRegionFacet(regionType, regionName);
-        var url = urlConcat(config.biocacheServiceUrl, 'webportal/bounds?q="Alinytjara%20Wilurara"');
+        //var url = urlConcat(config.biocacheServiceUrl, 'webportal/bounds?q="Alinytjara%20Wilurara"');
         $.ajax({
             url: baseUrl + "/proxy/bbox?q=" + buildRegionFacet(regionType, regionName),
             //url: url,
@@ -890,6 +890,37 @@ function wmsTileLoaded(numtiles) {
     $('#maploading').fadeOut("slow");
 }
 
+
+/******************************\
+ * alerts
+ ******************************/
+
+// only deal with the whole region for now
+function initAlerts(username) {
+    if (username) {
+        // find current alerts
+        $.ajax({
+            url: "http://alerts.ala.org.au/webservice/regionAlerts",
+            dataType: 'jsonp',
+            jsonp: false,
+            data: {layerId: layerFid, regionName: regionName},
+            jsonpCallback: 'alertsCallback',
+            success: function(data) {
+                if (data.alertExists){
+                    $('#alerts').html('<p>You have an alert setup for new records in <strong>'+data.name+'</strong>. ' +
+                            '<a href="' + data.link + '">Click here to manage your alerts</a></p>');
+                } else {
+                    data.link = data.link.slice(0,data.link.length - 4) + document.location.href;
+                    $('#alerts').html('<p><a href="' + data.link + '">Notify me when new records come online for ' +
+                            '<strong>'+data.name+'</strong></a></p>');
+                }
+            }
+        });
+    }
+    else {
+        $('#alerts').parent().css('display', 'none');
+    }
+}
 
 /******************************\
  * event handlers
