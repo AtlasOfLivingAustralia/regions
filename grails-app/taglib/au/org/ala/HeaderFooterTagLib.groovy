@@ -1,7 +1,6 @@
 package au.org.ala
 
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import au.org.ala.regions.AuthenticationCookieUtils
 
 class HeaderFooterTagLib {
 
@@ -13,10 +12,14 @@ class HeaderFooterTagLib {
      *  ala.baseURL - usually "http://www.ala.org.au"
      *  bie.baseURL - usually "http://bie.ala.org.au"
      *  bie.searchPath - usually "/search"
+     *
+     *  The banner include assumes that AuthenticationCookieUtils exists in the au.org.ala package.
      */
 
     /**
      * Display the page banner. Includes login/logout link and search box.
+     *
+     * Usage: <hf:banner [param=""]../>
      *
      * @attr logoutUrl the local url that should invalidate the session and redirect to the auth
      *  logout url - defaults to {CH.config.grails.serverURL}/session/logout
@@ -36,6 +39,8 @@ class HeaderFooterTagLib {
      *
      * Note that highlighting of the current menu item is done by including the apropriate class in the
      * body tag, eg class="collections".
+     *
+     * Usage: <hf:menu/>
      */
     def menu = {
         out << load('menu', [:])
@@ -43,6 +48,8 @@ class HeaderFooterTagLib {
 
     /**
      * Displays the page footer.
+     *
+     * Usage: <hf:footer/>
      */
     def footer = {
         out << load('footer', [:])
