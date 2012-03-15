@@ -20,7 +20,7 @@
 
  The 2 main 'classes' represent region types and regions.
 
- Region types (RegionSet class) are groups of regions such as states and ibras. A bucket for other regions holds
+ Region types (RegionSet class) are groups of regions such as states or ibras. A bucket for other regions holds
  miscellaneous regions or sets of regions such as GER.
 
  Regions (Region class) are usually a specific object in a layer (or field) such as Victoria but, in the case of
@@ -178,13 +178,20 @@ RegionSet.prototype = {
             dataType: 'json',
             context: this,
             success: function (data) {
-                // add to cache
-                this.objects = data.objects;
-                this.sortedList = data.names;
-                this[callbackOnSuccess](callbackParam);
+                // check for errors
+                if (data.error === true) {
+                    this.error = data.errorMessage;
+                    $('#' + this.name).html(this.error);
+                } else {
+                    // add to cache
+                    this.objects = data.objects;
+                    this.sortedList = data.names;
+                    this[callbackOnSuccess](callbackParam);
+                }
             },
             error: function (jqXHR, textStatus) {
                 this.error = textStatus;
+                $('#' + this.name).html(this.error);
             }
         });
     },
@@ -269,14 +276,18 @@ RegionSet.prototype = {
 };
 
 /* Create the regions sets to be displayed */
-var layers = {
-    states: new RegionSet('states','aus1','cl22','aus_states',0,'name_1'),
-    lgas: new RegionSet('lgas','aus2','cl23','gadm_admin',1,'name_2'),
-    ibras: new RegionSet('ibras','ibra_merged','cl20','ibra_no_states',2,'reg_name'),
-    imcras: new RegionSet('imcras','imcra4_pb','cl21','imcra',3,'pb_name'),
-    nrms: new RegionSet('nrms','nrm_regions_2010','cl916','nrm',4,'nrm_region'),
-    other: new RegionSet('other','','','',5,'')
-};
+var layers = {};
+
+// (name, layerName, fid, bieContext, order, displayName)
+function createRegionTypes() {
+    if (REGIONS == undefined) { REGIONS = {}}
+    for (var rtype in REGIONS.metadata) {
+        if (REGIONS.metadata.hasOwnProperty(rtype)) {
+            var md = REGIONS.metadata[rtype];
+            layers[rtype] = new RegionSet(md.name, md.layerName, md.fid, md.bieContext, md.order, "");
+        }
+    }
+}
 
 /*** Region represents a single region *******************************************************************************\
  * May be an object in a field, eg an individual state, OR
@@ -561,6 +572,11 @@ function init (options) {
     config.spatialServiceUrl = options.spatialService;
     config.spatialWmsUrl = options.spatialWms;
     config.spatialCacheUrl = options.spatialCache;
+
+    /*****************************************\
+    | Create the region types from metadata
+    \*****************************************/
+    createRegionTypes();
 
     /*****************************************\
     | Set state from hash params
