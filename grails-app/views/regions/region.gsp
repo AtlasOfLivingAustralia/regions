@@ -5,6 +5,7 @@
         <meta name="layout" content="${ConfigurationHolder.config.ala.skin}" />
         <title>${region.name} | Atlas of Living Australia</title>
         <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
+        <!--[if IE 7]> <link href="${ConfigurationHolder.config.grails.serverURL}/css/regions-ie.css" rel="stylesheet" type="text/css"> <![endif]-->
         <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/base.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="http://biocache.ala.org.au/static/css/ala/biocache.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="http://biocache.ala.org.au/static/js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
@@ -26,7 +27,7 @@
         </script>
     </head>
     <body>
-    <div id="content" class="clearfix">
+    <div id="content" class="clearfix inner">
       <div id="header">
         <!--Breadcrumbs-->
           <nav id="breadcrumb"><ol>
@@ -60,7 +61,7 @@
             </section>
         </g:if>
 
-        <section class="section">
+        <section id="regionPage" class="section">
             <h2 id="occurrenceRecords">Occurrence records</h2>
 
             <div id="explore">
@@ -173,10 +174,11 @@
         <div style="clear:both;"> </div>
 
         <section class="section">
-            <h3>Alerts</h3>
+            <h2>Alerts</h2>
             <div id="alerts"></div>
         </section>
 
+        <g:if test="${subRegions.ibras||subRegions.nrms||subRegions.imcras||subRegions.subs}">
         <section id="subRegions" class="section">
             <h2>Regions within ${region.name}</h2>
             <g:if test="${subRegions.ibras}">
@@ -212,7 +214,9 @@
                 </ul>
             </g:if>
         </section>
+        </g:if>
 
+        <g:if test="${documents.factSheets||documents.publications||documents.links}">
         <section id="docs" class="section">
             <h2>Documents and Links</h2>
             <g:if test="${documents.factSheets}">
@@ -248,6 +252,7 @@
 
             <g:link elementId="manage-doc-link" action="documents">Add or manage documents and links</g:link>
         </section>
+        </g:if>
 
         <div style="display:none">
 
