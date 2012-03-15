@@ -12,6 +12,7 @@
         <g:javascript library="jquery.cookie" />
         <script type="text/javascript">
         </script>
+        <script src="${ConfigurationHolder.config.grails.serverURL}/data/regionsMetadataJavascript.js"></script>
         <g:javascript library="regions" />
         %{--<g:javascript library="datadumper" />--}%
         <script type="text/javascript">
@@ -28,7 +29,7 @@
         <g:javascript library="jquery.ba-bbq.min" />
     </head>
     <body class='regions'>
-    <div id="content" class="clearfix">
+    <div id="content" class="clearfix inner">
       <div id="header">
         <!--Breadcrumbs-->
         <nav id="breadcrumb"><ol>
