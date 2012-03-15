@@ -88,7 +88,7 @@ div.emblem h3 {
     position: relative;
     overflow: hidden;
     width: 484px;
-    height:550px;
+    height:610px;
     margin: 10px 0 0 -10px;
     /* for IE7 */
     *margin-left: 2px;
@@ -244,6 +244,10 @@ ul.explore-tabs a.current {
     padding: 0;
 }
 
+#regionPage #map {
+    margin-top: 40px;
+}
+
 #region-map {
     width: 500px;
     height: 470px;
@@ -283,18 +287,20 @@ div.tish {
 /* time controls */
 #timeContainer {
     position: absolute;
-    top: 380px;
+    top: 445px;
     width: 480px;
     height: 130px;
     left: 0;
     padding: 5px;
     /* for IE */
-    top: 400px\9;
+    top: 450px\9;
+    /* for IE7 */
+    *top: 460px;
 }
 
 /* for FF */
 body:not(:-moz-handler-blocked) #timeContainer {
-    top: 400px;
+    top: 460px;
 }
 
 #timeContainer p:first-child {
