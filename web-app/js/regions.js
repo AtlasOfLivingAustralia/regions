@@ -366,6 +366,14 @@ Region.prototype = {
         ov = new WMSTileLayer('regionLayer', config.spatialWmsUrl, params, map.wmsTileLoaded, getRegionOpacity());
         map.setRegionOverlay(ov);
     },
+    /* Build the url to view the current region */
+    urlToViewRegion: function () {
+        if (this.other) {
+            return config.baseUrl + "/layer/" + this.name;
+        } else {
+            return config.baseUrl + "/" + selectedRegionType.name + "/" + this.name;
+        }
+    },
     /* Write the region link and optional subregion name and zoom link at the top of the map.
      * @param subregion the name of the subregion */
     setLinks: function (subregion) {
@@ -374,13 +382,15 @@ Region.prototype = {
             if (subregion) {
                 extra = "<span id='extra'>(" + subregion + ")</span>";
             }
-            showInfo("<a href='" + config.baseUrl + "/layer/" + this.name + "'>" + this.name + "</a>" +
+            showInfo("<a href='" + this.urlToViewRegion() + "</a>" +
                     "<span id='zoomTo'>Zoom to region</span>" + extra);
-        }
-        else {
-            showInfo("<a href='" + config.baseUrl + "/" + selectedRegionType.name + "/" + this.name + "'>" +
+        } else {
+            showInfo("<a href='" + this.urlToViewRegion() + "'>" +
                     this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>");
         }
+        $('#click-info').animate({backgroundColor: '#fee6d2'}, 700, function () {
+            $('#click-info').animate({backgroundColor: 'white'}, 700);
+        });
     }
 };
 
@@ -398,11 +408,7 @@ map = {
     initialBounds: new google.maps.LatLngBounds(
             new google.maps.LatLng(-41.5, 114),
             new google.maps.LatLng(-13.5, 154)),
-    // this helps handle double click events
-    dblclicked: false,
     clickedRegion: "",
-    waitingForDblClick: false,
-    dblClickOccurred: false,
     init: function () {
         var options = {
             scrollwheel: false,
@@ -426,7 +432,6 @@ map = {
         this.gmap.enableKeyDragZoom();
 
         google.maps.event.addListener(this.gmap, 'click', this.clickHandler);
-        google.maps.event.addListener(this.gmap, 'dblclick', this.dblclickHandler);
     },
     /* Set the layer overlay */
     setLayerOverlay: function (wms) {
@@ -439,8 +444,6 @@ map = {
     /* Set the region overlay */
     setRegionOverlay: function (wms) {
         this.gmap.overlayMapTypes.setAt(1, wms);
-        this.dblClickOccurred = false;
-        this.waitingForDblClick = false;
         this.clickedRegion = null;
     },
     /* Clear the region overlay */
@@ -465,7 +468,8 @@ map = {
     clickHandler: function (event) {
         var location = event.latLng,
             fid = selectedRegionType.getFid(),
-            features = [];
+            features = [],
+            that = this;
         this.clickedRegion = null;
         $.ajax({
             url: config.baseUrl + "/proxy?format=json&url=" + config.spatialServiceUrl + "/intersect/" + fid + "/" +
@@ -497,28 +501,16 @@ map = {
                             selectedRegion.setSubregion(features[0].value, features[0].pid);
                         }
                         else {
-                            if (this.dblClickOccurred) {
-                                location.assign(config.baseUrl + "/" + selectedRegionType.name +
-                                        "/" + features[0].value + "?which=2");
+                            that.clickedRegion = features[0].value;
+                            var name = features[0].value;
+                            if (selectedRegion !== null && name === selectedRegion.name) {
+                                document.location.href = selectedRegion.urlToViewRegion();
                             }
-                            else {
-                                this.clickedRegion = features[0].value;
-                                this.waitingForDblClick = true;
-                                //setTimeout("delayNewRegion('" + features[0].value + "')", 300);
-                                new Region(features[0].value).set();
-                            }
+                            new Region(name).set();
                         }
                 }
             }
         });
-    },
-    /* Handle double clicks on the map */
-    dblclickHandler: function () {
-        this.dblClickOccurred = true;
-        if (this.waitingForDblClick) {
-            //google.maps.event.clearInstanceListeners(map.gmap);
-            window.location.assign(config.baseUrl + "/" + selectedRegionType.name + "/" + this.clickedRegion + "?which=1");
-        }
     },
     /**
      * Called when the overlays are loaded. Currently does nothing.
@@ -601,7 +593,11 @@ function init (options) {
     | Handle region clicks
     \*****************************************/
     $('li.regionLink').live('click', function () {
-        new Region($(this).html()).set();
+        var name = $(this).html();
+        if (selectedRegion !== null && name === selectedRegion.name) {
+            document.location.href = selectedRegion.urlToViewRegion();
+        }
+        new Region(name).set();
     });
 
     /*****************************************\
