@@ -897,6 +897,7 @@ function wmsTileLoaded(numtiles) {
 
 // only deal with the whole region for now
 function initAlerts(username) {
+    //console.log("user = " + username);
     if (username) {
         // find current alerts
         $.ajax({
@@ -906,6 +907,7 @@ function initAlerts(username) {
             data: {layerId: layerFid, regionName: regionName},
             jsonpCallback: 'alertsCallback',
             success: function(data) {
+                //console.log(data);
                 if (data.alertExists){
                     $('#alerts').html('<p>You have an alert setup for new records in <strong>'+data.name+'</strong>. ' +
                             '<a href="' + data.link + '">Click here to manage your alerts</a></p>');
@@ -1111,7 +1113,8 @@ function buildRegionFacet(regionType, regionName) {
         return layerFid + ":[* TO *]";
     }
     else {
-        return facetNameFromRegionType(regionType) + ':"' + regionName + '"';
+        return layerFid + ':"' + regionName + '"';
+        //return facetNameFromRegionType(regionType) + ':"' + regionName + '"';
     }
 }
 
