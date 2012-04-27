@@ -382,8 +382,8 @@ Region.prototype = {
             if (subregion) {
                 extra = "<span id='extra'>(" + subregion + ")</span>";
             }
-            showInfo("<a href='" + this.urlToViewRegion() + "</a>" +
-                    "<span id='zoomTo'>Zoom to region</span>" + extra);
+            showInfo("<a href='" + this.urlToViewRegion() + "'>" +
+                    this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>" + extra);
         } else {
             showInfo("<a href='" + this.urlToViewRegion() + "'>" +
                     this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>");
@@ -637,7 +637,8 @@ function init (options) {
     | Handle zoom to region
     \*****************************************/
     $('#zoomTo').live('click', function () {
-        map.zoomToRegion($(this).prev().html());
+        var name = $(this).prev().html();
+        map.zoomToRegion(name);
     });
 
     /*****************************************\
