@@ -66,7 +66,7 @@ var pageSize = 60;
 
 var layers = {
     states: {layer: 'states', name: 'aus1', displayName: 'name_1', keyField: 'gid' /*'id_1'*/, bieContext: 'aus_states'},
-    lgas: {layer: 'lgas', name: 'aus2', displayName: 'name_2', keyField: 'gid' /*'id_2'*/, bieContext: 'gadm_admin'},
+    lgas: {layer: 'lgas', name: 'lga_aust', displayName: 'name_2', keyField: 'gid' /*'id_2'*/, bieContext: 'gadm_admin'},
     ibras: {layer: 'ibras', name: 'ibra_merged', displayName: 'reg_name', keyField: 'gid' /*'reg_no'*/, bieContext: 'ibra_no_states'},
     imcras: {layer: 'imcras', name: 'imcra4_pb', displayName: 'pb_name', keyField: 'gid' /*'pb_num'*/, bieContext: 'imcra'},
     nrms: {layer: 'nrms', name: 'nrm_regions_2010', displayName: 'nrm_region', keyField: 'gid', bieContext: 'nrm'},
