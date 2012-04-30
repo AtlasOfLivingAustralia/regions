@@ -158,7 +158,8 @@ RegionSet.prototype = {
     /* Return the pid for the specified object in this set (or for the subregion of a sub-set)
      * @param name of the object */
     getPid: function (name) {
-        return this.other ? selectedRegion.subregionPid : this.objects[name].pid;
+        return this.other ? selectedRegion.subregionPid :
+              (this.objects[name] ? this.objects[name].pid : null);
     },
     /* Return metadata for the region in this set with the specified name
      * @param name of the region */
@@ -310,8 +311,10 @@ Region.prototype = {
     set: function () {
         clearSelectedRegion();
         selectedRegion = this;
-        $.bbq.pushState({region: this.name});
-        selectedRegionType.highlightInList(this.name);
+        if (this.name.toLowerCase() !== 'n/a') {
+            $.bbq.pushState({region: this.name});
+            selectedRegionType.highlightInList(this.name);
+        }
         this.setLinks();
         if (this.other) {
             this.id = layers.other.objects[this.name].fid;
@@ -378,15 +381,19 @@ Region.prototype = {
      * @param subregion the name of the subregion */
     setLinks: function (subregion) {
         var extra = "";
-        if (this.other) {
-            if (subregion) {
-                extra = "<span id='extra'>(" + subregion + ")</span>";
-            }
-            showInfo("<a href='" + this.urlToViewRegion() + "'>" +
-                    this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>" + extra);
+        if (this.name.toLowerCase() === 'n/a') {
+            showInfo("N/A");
         } else {
-            showInfo("<a href='" + this.urlToViewRegion() + "'>" +
-                    this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>");
+            if (this.other) {
+                if (subregion) {
+                    extra = "<span id='extra'>(" + subregion + ")</span>";
+                }
+                showInfo("<a href='" + this.urlToViewRegion() + "'>" +
+                        this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>" + extra);
+            } else {
+                showInfo("<a href='" + this.urlToViewRegion() + "'>" +
+                        this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>");
+            }
         }
         $('#click-info').animate({backgroundColor: '#fee6d2'}, 700, function () {
             $('#click-info').animate({backgroundColor: 'white'}, 700);
@@ -503,7 +510,8 @@ map = {
                         else {
                             that.clickedRegion = features[0].value;
                             var name = features[0].value;
-                            if (selectedRegion !== null && name === selectedRegion.name) {
+                            if (selectedRegion !== null && name === selectedRegion.name &&
+                                    name.toLowerCase() !== 'n/a') {
                                 document.location.href = selectedRegion.urlToViewRegion();
                             }
                             new Region(name).set();
