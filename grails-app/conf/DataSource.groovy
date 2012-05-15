@@ -26,7 +26,7 @@ environments {
     production {
         dataSource {
             dbCreate = "update"
-            url = "jdbc:hsqldb:file:/home/woo44j/tempdb/regionsDb;shutdown=true"
+            url = "jdbc:hsqldb:file:/tmp/regionsDb"
         }
     }
 }
