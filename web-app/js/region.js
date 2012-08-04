@@ -544,7 +544,7 @@ var infoWindow;
 
 var useReflectService = true;
 
-var overlayFormat = ($.browser.msie && $.browser.version.slice(0,1) == '6') ? "image/gif" : "image/png";
+var overlayFormat = /*($.browser.msie && $.browser.version.slice(0,1) == '6') ? "image/gif" :*/ "image/png";
 
 /**
  * Initialise the map - called by owner page
@@ -643,6 +643,18 @@ function initRegionMap(type, name, layer, pid, bbox) {
     });
     $("#toggleRegion").click(function() {
         toggleOverlay(0, this.checked);
+    });
+
+    // map controls toggling
+    var $controlsToggle = $('#controls-toggle');
+    $controlsToggle.click(function () {
+        $controlsToggle.toggle();
+        $('#controls').toggle('slideDown');
+    });
+    $('#hide-controls').click(function () {
+        $('#controls').toggle('slideDown', function() {
+            $controlsToggle.toggle();
+        });
     });
 
     google.maps.event.addListener(map, 'click', function(event) {

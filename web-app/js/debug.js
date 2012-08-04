@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 function examine(obj) {
-    var $dialog = $('<div>' + inspect(obj) + '</div>')
+    var $dialog = $('<div>' + inspect(obj, 10) + '</div>')
         .dialog({close: function() {$dialog.dialog('destroy')} });
 }
 
@@ -18,7 +18,7 @@ function inspect(obj, maxLevels, level) {
     if(level == null)  level = 0;
 
     // At least you want to show the first level
-    if(maxLevels == null) maxLevels = 1;
+    if(maxLevels == null) maxLevels = 5;
     if(maxLevels < 1)
         return '<font color="red">Error: Levels number must be > 0</font>';
 

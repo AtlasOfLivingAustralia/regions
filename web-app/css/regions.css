@@ -88,7 +88,7 @@ div.emblem h3 {
     position: relative;
     overflow: hidden;
     width: 484px;
-    height:610px;
+    height:580px;
     margin: 10px 0 0 -10px;
     /* for IE7 */
     *margin-left: 2px;
@@ -244,10 +244,6 @@ ul.explore-tabs a.current {
     padding: 0;
 }
 
-#regionPage #map {
-    margin-top: 40px;
-}
-
 #region-map {
     width: 500px;
     height: 470px;
@@ -255,7 +251,6 @@ ul.explore-tabs a.current {
 }
 
 #region-map-container {
-    margin-bottom: 10px;
 }
 
 .ui-slider {
@@ -270,14 +265,22 @@ div.tish {
 
 #controls {
     padding-top: 4px;
+    min-height: 21px;
 }
 
 #controls label {
     width: 100px;
 }
 
-/* reset control */
+#controls-toggle {
+    float: right;
+}
 
+#hide-controls {
+    float: right;
+}
+
+/* reset control */
 #resetButton {
     position: relative;
     left: 410px;
@@ -286,21 +289,9 @@ div.tish {
 
 /* time controls */
 #timeContainer {
-    position: absolute;
-    top: 445px;
     width: 480px;
-    height: 130px;
     left: 0;
-    padding: 5px;
-    /* for IE */
-    top: 450px\9;
-    /* for IE7 */
-    *top: 460px;
-}
-
-/* for FF */
-body:not(:-moz-handler-blocked) #timeContainer {
-    top: 460px;
+    padding: 5px 5px 0 5px;
 }
 
 #timeContainer p:first-child {
@@ -343,8 +334,21 @@ body:not(:-moz-handler-blocked) #timeContainer {
     padding-left: 4px;
 }
 
+#date-heading {
+    font-size: 15px;
+    color: black;
+}
+
+#date-hint {
+    padding-left: 30px;
+    color: #666;
+}
+
 #playControls {
-    margin-top: -8px;
+    display: inline;
+    float: right;
+    position: relative;
+    top: -5px;
 }
 
 /**************************
@@ -361,3 +365,5 @@ used to be in old wp styles
 section.section {
     padding-left: 15px;
 }
+
+/* override detrimental change in search.css */
