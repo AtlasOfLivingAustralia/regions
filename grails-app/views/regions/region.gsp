@@ -103,7 +103,7 @@
                             <div id="taxa-links" style="clear:both;">
                                 <ul>
                                     <li>
-                                        <span id="viewRecords" class="link">View all records</span>
+                                        <span id="viewRecords" class="link under">View all records</span>
                                     </li>
 %{--
                                     <li>
@@ -123,27 +123,27 @@
                 </div>
                 <button id="resetButton" type="button" onclick="resetAll()">Reset all</button>
 
+            </div>
+
+            <div id="map" class="section">
                 <div id="timeContainer">
-                    <p>Explore by date</p>
-                    <p>Drag handles to restrict records by date of observation/collection.</p>
-                    <div id="timeValues"><span id="from">1850</span> <span id="to">2010</span></div>
-                    <div id="timeSlider"></div>
-                    <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
-                    <div id="debugTime"></div>
+                    <span id="date-heading">Explore by date</span><span id="date-hint">Drag handles to restrict date or play by decade.</span>
                     <div id="playControls"><span id="play">
                         <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
                         <img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
                         <img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
                     </span></div>
+                    %{--<p>Drag handles to restrict records by date of observation/collection.</p>--}%
+                    <div id="timeValues"><span id="from">1850</span> <span id="to">2010</span></div>
+                    <div id="timeSlider"></div>
+                    <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
+                    <div id="debugTime"></div>
                 </div>
-            </div>
-
-            <div id="map" class="section">
                 <div id="region-map-container">
                     <div id="region-map"></div>
 
-                    <div id="controls">
-
+                    <span id="controls-toggle" class="link under">Advanced map controls</span>
+                    <div id="controls" class="ui-helper-hidden">
                         <div>
                             <div class="tish">
                                 <label for="toggleOccurrences">
@@ -151,6 +151,7 @@
                                     Occurrences</label></div>
 
                             <div id="occurrencesOpacity"></div>
+                            <span id="hide-controls" class="link under">Hide</span>
                         </div>
 
                         <div>
