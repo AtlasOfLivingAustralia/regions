@@ -314,7 +314,7 @@
             if (guid == "") return;
             // call the bie to get details
             $.ajax({
-              url: bieUrl + "species/moreInfo/" + guid + ".json",
+              url: bieUrl + "ws/species/moreInfo/" + guid + ".json",
               dataType: 'jsonp',
               error: function() {
                 cleanUp();
