@@ -348,7 +348,7 @@ function processSpeciesJsonData(data, appendResults) {
     $('#loadMoreSpecies a').click(
         function(e) {
             e.preventDefault(); // ignore the href text - used for data
-            var thisTaxon = $('#taxa-level-0 tr.activeRow').find('a.taxonBrowse').attr('id');
+            var thisTaxon = $('#taxa-level-0 tr.activeRow').find('a.taxonBrowse').attr('id'),
             taxa = []; // array of taxa
             taxa = (thisTaxon.indexOf("|") > 0) ? thisTaxon.split("|") : thisTaxon;
             var start = $(this).attr('href');
