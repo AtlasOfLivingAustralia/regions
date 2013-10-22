@@ -486,14 +486,18 @@ function activateLinks() {
     // catch download submit button
     $("#downloadSubmitButton").click(function(e) {
         e.preventDefault();
-        var url = biocacheServicesUrl + '/occurrences/download?' + buildQueryForSelectedGroup();
-        var reason = $("#reason").val();
-        if(typeof reason == "undefined")
-            reason = "";
-        url += "&type=&email="+$("#email").val()+"&reason="+encodeURIComponent(reason)+"&file="+$("#filename").val();
-        //alert("downloadUrl = " + url);
-        window.location.href = url;
-        $.fancybox.close();
+        //check to see if the download provides a reason
+        if($("#reasonTypeId option:selected").val()){
+            var url = biocacheServicesUrl + '/occurrences/download?' + buildQueryForSelectedGroup();
+            var reason = $("#reasonTypeId").val();
+
+            url += "&type=&email="+$("#email").val()+"&reasonTypeId="+encodeURIComponent(reason)+"&file="+$("#filename").val();
+            //alert("downloadUrl = " + url);
+            window.location.href = url;
+            $.fancybox.close();
+        } else{
+            alert("Please select a \"download reason\" from the drop-down list");
+        }
     });
     // catch checklist download submit button
     $("#downloadCheckListSubmitButton").click(function(e) {

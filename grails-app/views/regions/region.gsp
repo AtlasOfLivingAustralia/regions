@@ -269,6 +269,7 @@
                 <input type="hidden" name="url" id="downloadUrl" value="http://biocache.ala.org.au/ws/occurrences/download?q=state:&#034;South Australia&#034;&amp;qc="/>
                 <input type="hidden" name="url" id="downloadChecklistUrl" value="http://biocache.ala.org.au/ws/occurrences/facets/download?q=state:&#034;South Australia&#034;&amp;qc="/>
                 <input type="hidden" name="url" id="downloadFieldGuideUrl" value="http://biocache.ala.org.au/occurrences/fieldguide/download?q=state:&#034;South Australia&#034;&amp;qc="/>
+                <input type="hidden" name="url" id="fastDownloadUrl" value="http://biocache.ala.org.au/ws/occurrences/index/download?q=state:&#034;South Australia&#034;&amp;qc="/>
 
                 <fieldset>
                     <p><label for="email">Email</label>
@@ -277,9 +278,17 @@
                     <p><label for="filename">File Name</label>
                         <input type="text" name="filename" id="filename" value="data" size="30"  />
                     </p>
-                    <p><label for="reason" style="vertical-align: top">Download Reason</label>
-                        <textarea name="reason" rows="5" cols="30" id="reason"  ></textarea>
+                    <p><label for="reasonTypeId" style="">Download Reason *</label>
+                        <select name="reasonTypeId" id="reasonTypeId">
+                            <option value="">-- select a reason --</option>
+                            <g:each in="${downloadReasons}" var="reason">
+                                <option value="${reason.key}">${reason.value}</option>
+                            </g:each>
+                        </select>
                     </p>
+                    %{--<p><label for="reason" style="vertical-align: top">Download Reason</label>--}%
+                        %{--<textarea name="reason" rows="5" cols="30" id="reason"  ></textarea>--}%
+                    %{--</p>--}%
                     <input type="submit" value="Download All Records" id="downloadSubmitButton"/>&nbsp;
                     <input type="submit" value="Download Species Checklist" id="downloadCheckListSubmitButton"/>&nbsp;
                     <input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;

@@ -27,12 +27,41 @@ class MetadataService {
     static otherRegions = null
     //static otherRegionsCacheLastRefreshed = [:]
 
+    static logReasonCache =loadLoggerReasons()
+
     /* cache management */
     def clearCaches = {
         regionsMetadataCache = null
         regionCache = [:]
         otherRegions = null
+        logReasonCache=loadLoggerReasons()
     }
+
+    static def loadLoggerReasons(){
+        println("Refreshing the download reasons")
+        String url = "http://logger.ala.org.au/service/logger/reasons"
+        def conn = new URL(url).openConnection()
+        def map = [:]
+        try{
+            conn.setConnectTimeout(10000)
+            conn.setReadTimeout(50000)
+            def json = conn.content.text
+            def result = JSON.parse(json)
+            println("JSON :: " + json)
+            println(result)
+            result.each{
+                map[it.id] = it.name
+            }
+            println("log reason map::" + map)
+        } catch (Exception e){
+            //load the default
+            println("Using the default list...")
+            return defaultRegionsMetadata
+        }
+        return map
+    }
+
+
 
     /**
      * Get some metadata for a region.
@@ -367,6 +396,20 @@ class MetadataService {
             imcras: [name: 'imcras', layerName: 'imcra4_pb', fid: 'cl21', bieContext: 'imcra', order: 3],
             nrms: [name: 'nrms', layerName: 'nrm_regions_2010', fid: 'cl916', bieContext: 'nrm', order: 4],
             other: [name: 'other', layerName: '', fid: 'other', bieContext: '', order: 5]
+    ]
+
+    static defaultLoggerReasons =[
+            0: "conservation management/planning",
+            1: "biosecurity management",
+            2: "environmental impact, site assessment",
+            3: "education",
+            4: "scientific research",
+            5: "collection management",
+            6: "other",
+            7: "ecological research",
+            8: "systematic research",
+            9: "other scientific research",
+            10: "testing"
     ]
 
     /**

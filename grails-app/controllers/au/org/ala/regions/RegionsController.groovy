@@ -172,7 +172,7 @@ class RegionsController {
 
         // render
         [region: region, emblems: emblemGuids, subRegions: subRegions,
-                documents: docs, useReflect: params.reflect == 'false' ? false : true]
+                documents: docs, useReflect: params.reflect == 'false' ? false : true, downloadReasons:MetadataService.logReasonCache]
     }
 
     def reloadConfig = {
