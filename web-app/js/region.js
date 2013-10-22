@@ -488,7 +488,7 @@ function activateLinks() {
         e.preventDefault();
         //check to see if the download provides a reason
         if($("#reasonTypeId option:selected").val()){
-            var url = biocacheServicesUrl + '/occurrences/download?' + buildQueryForSelectedGroup();
+            var url = biocacheServicesUrl + '/occurrences/index/download?' + buildQueryForSelectedGroup();
             var reason = $("#reasonTypeId").val();
 
             url += "&type=&email="+$("#email").val()+"&reasonTypeId="+encodeURIComponent(reason)+"&file="+$("#filename").val();
