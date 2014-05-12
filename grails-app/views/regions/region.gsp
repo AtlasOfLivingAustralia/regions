@@ -7,11 +7,11 @@
         <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
         <!--[if IE 7]> <link href="${ConfigurationHolder.config.grails.serverURL}/css/regions-ie.css" rel="stylesheet" type="text/css"> <![endif]-->
         <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/base.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="http://biocache.ala.org.au/static/css/ala/biocache.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="http://biocache.ala.org.au/static/js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
+        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/biocache.css" type="text/css" media="screen" />
+        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
         <script type="text/javascript" language="javascript" src="http://www.google.com/jsapi"></script>
         %{--<script type="text/javascript" src="http://collections.ala.org.au/js/charts.js"></script>--}%
-        <script type="text/javascript" src="http://biocache.ala.org.au/static/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+        <script type="text/javascript" src="${ConfigurationHolder.config.grails.serverURL}/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
         <g:javascript library="charts2"/>
         <g:javascript library="jquery.jsonp-2.1.4.min"/>
         <g:javascript library="jquery.cookie" />
