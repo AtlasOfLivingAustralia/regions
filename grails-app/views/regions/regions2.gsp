@@ -42,17 +42,20 @@
               <h2><a href="#">States<span id="allButtonTotal">Show states and territories.</span></a></h2>
             </div>
             <div class="fauna" id="lgas" onclick="toggleButton(this);return false;">
-              <h2><a href="#">Local Government<span>Show local government areas (LGA).</span></a></h2>
+              <h2><a href="#">Local government<span>Show local government areas (LGA).</span></a></h2>
             </div>
             <div class="insects" id="ibras" onclick="toggleButton(this);return false;">
-              <h2><a href="#">Biogeographic Regions<span>Interim Biogeographic Regionalisation of Australia (IBRA).</span></a></h2>
+              <h2><a href="#">Biogeographic regions<span>Interim Biogeographic Regionalisation of Australia (IBRA).</span></a></h2>
             </div>
             <div class="microbes" id="imcras" onclick="toggleButton(this);return false;">
-              <h2><a href="#">Marine Regions<span>Integrated Marine and Coastal Regionalisation of Australia (IMCRA).</span></a></h2>
+              <h2><a href="#">Marine regions<span>Integrated Marine and Coastal Regionalisation of Australia (IMCRA).</span></a></h2>
             </div>
             <div class="plants" id="nrms" onclick="toggleButton(this);return false;">
-              <h2><a href="#">Management Regions<span>Natural Resource Management (NRM) regions.</span></a></h2>
+              <h2><a href="#">Management regions<span>Natural Resource Management (NRM) regions.</span></a></h2>
             </div>
+            <div class="plants" id="ipa_7aug13" onclick="toggleButton(this);return false;">
+              <h2><a href="#">Indigenous protected areas<span>Indigenous protected areas.</span></a></h2>
+            </div>            
           </div><!--close section-->
         </div><!--close column-one-->
 

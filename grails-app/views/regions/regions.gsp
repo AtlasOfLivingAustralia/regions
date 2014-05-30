@@ -57,19 +57,25 @@
             <h2><a href="#">States and territories</a></h2>
             <div id="states"><span class="loading">Loading..</span>
             </div>
-            <h2><a href="#">Local Government</a></h2>
+            <h2><a href="#">Local government</a></h2>
             <div id="lgas"><span class="loading">Loading..</span>
             </div>
-            <h2><a href="#">Biogeographic Regions</a></h2>
+            <h2><a href="#">Biogeographic regions</a></h2>
             <div id="ibras"><span class="loading">Loading..</span>
             </div>
-            <h2><a href="#">Marine Regions</a></h2>
+            <h2><a href="#">Marine regions</a></h2>
             <div id="imcras"><span class="loading">Loading..</span>
             </div>
-            <h2><a href="#">Management Regions</a></h2>
+            <h2><a href="#">Management regions</a></h2>
             <div id="nrms"><span class="loading">Loading..</span>
             </div>
-            <h2><a href="#">Other Regions</a></h2>
+            <h2><a href="#">Indigenous protected areas</a></h2>
+            <div id="ipa_7aug13"><span class="loading">Loading..</span>
+            </div>  
+            <h2><a href="#">Indigenous land use agreements</a></h2>
+            <div id="ilua"><span class="loading">Loading..</span>
+            </div>                        
+            <h2><a href="#">Other regions</a></h2>
             <div id="other"><span class="loading">Loading..</span>
             </div>
           </div><!--close accordion-->

@@ -4,13 +4,13 @@ class UrlMappings {
 
         "/$regionType/$regionName" (controller: 'regions', action: 'region') {
             constraints {
-                regionType(inList:['states','lgas','ibras','imcras','nrms','layer'])
+                regionType(inList:['states','lgas','ibras','imcras','nrms','ipa_7aug13','ilua','layer'])
             }
         }
         
         "/$regionType" (controller: 'regions', action: 'regions') {
             constraints {
-                regionType(inList:['states','lgas','ibras','imcras','nrms','layer'])
+                regionType(inList:['states','lgas','ibras','imcras','nrms','ipa_7aug13', 'ilua','layer'])
             }
         }
 
