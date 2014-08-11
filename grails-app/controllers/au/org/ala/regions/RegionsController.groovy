@@ -108,17 +108,18 @@ class RegionsController {
                 subRegions.nrms = ['ACT']
                 break
             case "Great Eastern Ranges":
-                subRegions.subs = ['Hunter','Border Ranges', 'Kosciuszko to coast','Slopes to summit']
+                subRegions.subs = ['Hunter','Border Ranges', 'Kosciuszko to coast','Slopes to summit',
+                                   'Southern Highlands','Kanangra Wyangala','Jaliigirr','Illawarra Shoalhaven']
                 break
-            case "Hunter":
-                subRegions.subs = ['Hunter Areas of Interest','Upper Hunter Focus Area']
-                break
-            case "Slopes to summit":
-                subRegions.subs = ['S2S Priority Areas','S2S Priority Area Billabong Creek']
-                break
-            case "Kosciuszko to coast":
-                subRegions.subs = ['K2C Management Regions']
-                break
+            //case "Hunter":
+            //    subRegions.subs = ['Hunter Areas of Interest','Upper Hunter Focus Area']
+            //    break
+            //case "Slopes to summit":
+            //    subRegions.subs = ['S2S Priority Areas','S2S Priority Area Billabong Creek']
+            //    break
+            //case "Kosciuszko to coast":
+            //    subRegions.subs = ['K2C Management Regions']
+            //    break
         }
         /* end hack */
 

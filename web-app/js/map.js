@@ -74,11 +74,10 @@ var layers = {
     k2c: {layer: 'k2c', name: 'ger_kosciuszko_to_coast', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'},
     border: {layer: 'border_ranges', name: 'ger_border_ranges', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'},
     slopes: {layer: 'slopes_to_summit', name: 'ger_slopes_to_summit', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'},*/
-    ger: {layer: 'ger', name: 'ger_geri_boundary_v102_australia', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'}
+    ger: {layer: 'ger', name: 'ger_border_ranges_20121031', displayName: 'ala_id', keyField: 'gid', bieContext: 'ger'}
 };
 
 var sld = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><StyledLayerDescriptor version=\"1.0.0\" xsi:schemaLocation=\"http://www.opengis.net/sld%20http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd\" xmlns=\"http://www.opengis.net/sld\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:se=\"http://www.opengis.net/se\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><NamedLayer><Name>region</Name><UserStyle><Title>xxx</Title><FeatureTypeStyle><Rule><PolygonSymbolizer><Fill><CssParameter name=\"fill\">#ff0000</CssParameter></Fill></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>";
-
 //var theSLD_BODY= '<?xml version="1.0" encoding="utf-8"?>' + '<StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/sld+http://schemas.opengeospatial.net/sld/1.0.0/StyledLayerDescriptor.xsd"><NamedLayer><Name>COUNTRY</Name><UserStyle><FeatureTypeStyle><Rule><PolygonSymbolizer><Fill><CssParameter name="fill">#5599DD</CssParameter></Fill><Stroke><CssParameter name="stroke">#FF0000</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>';
 
 var proxy;
