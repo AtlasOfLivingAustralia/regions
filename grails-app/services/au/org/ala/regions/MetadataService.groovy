@@ -418,7 +418,7 @@ class MetadataService {
     static defaultOtherRegions = [
             'Great Eastern Ranges': [
                     name: 'Great Eastern Ranges',
-                    layerName: 'ger_geri_boundary_v102_australia'
+                    layerName: 'ger_national_corridor_20121031'
             ],
             'RAMSAR wetland regions': [
                     name: 'RAMSAR wetland regions',
@@ -466,18 +466,22 @@ class MetadataService {
      */
     String lookupLayerName(name) {
         switch (name.toLowerCase()) {
-            case "great eastern ranges": return "ger_geri_boundary_v102_australia"
+            case "great eastern ranges": return "ger_national_corridor_20121031" //replaces ger_geri_boundary_v102_australia
             case "ramsar wetland regions": return "ramsar"
-            case "hunter": return "ger_hunter"
-            case "slopes to summit": return "ger_slopes_to_summit"
-            case "kosciuszko to coast": return "ger_kosciuszko_to_coast"
-            case "border ranges": return "ger_border_ranges"
-            case "k2c management regions": return "ger_k2c_management_regions_oct2009";
-            case "s2s priority area billabong creek": return "ger_s2s_priority_area_billabong_creek_v01";
-            case "s2s priority areas": return "ger_s2s_priority_areas_v05";
-            case "hunter areas of interest": return "ger_hunter_areas_of_interest";
-            case "upper hunter focus area": return "ger_upper_hunter_focus_area_v2";
+            case "hunter": return "ger_hunter_valley_20121031" //replaces ger_hunter
+            case "slopes to summit": return "ger_slopes_to_summit_20121031" //replaces ger_slopes_to_summit
+            case "kosciuszko to coast": return "ger_kosciuszko2coast_20121031" //replaces ger_kosciuszko_to_coast
+            case "border ranges": return "ger_border_ranges_20121031" //replaces ger_border_ranges
+            //case "k2c management regions": return "ger_k2c_management_regions_oct2009"
+            //case "s2s priority area billabong creek": return "ger_s2s_priority_area_billabong_creek_v01";
+            //case "s2s priority areas": return "ger_s2s_priority_areas_v05";
+            //case "hunter areas of interest": return "ger_hunter_areas_of_interest";
+            //case "upper hunter focus area": return "ger_upper_hunter_focus_area_v2";
             case "myrtle rust observations": return "myrtle_rust";
+            case "kanangra wyangala": return "ger_kanangra_wyangala_20121031";
+            case "jaliigirr": return "ger_jaliigirr_20121031";
+            case "illawarra shoalhaven": return "ger_illawarra_shoalhaven_20121031";
+            case "southern highlands": return "ger_southern_highlands_20121031";
             default: return metadataService.regionMetadata('other',null)[name]?.layerName
         }
     }
@@ -494,11 +498,15 @@ class MetadataService {
             case "slopes to summit": return [type:'layer',name:'Great Eastern Ranges']
             case "kosciuszko to coast": return [type:'layer',name:'Great Eastern Ranges']
             case "border ranges": return [type:'layer',name:'Great Eastern Ranges']
-            case "k2c management regions": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Kosciuszko to coast']]
-            case "s2s priority area billabong creek": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Slopes to summit']]
-            case "s2s priority areas": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Slopes to summit']]
-            case "hunter areas of interest": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Hunter']]
-            case "upper hunter focus area": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Hunter']]
+            //case "k2c management regions": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Kosciuszko to coast']]
+            //case "s2s priority area billabong creek": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Slopes to summit']]
+            //case "s2s priority areas": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Slopes to summit']]
+            //case "hunter areas of interest": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Hunter']]
+            //case "upper hunter focus area": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Hunter']]
+            case "kanangra wyangala": return [type:'layer',name:'Great Eastern Ranges']
+            case "jaliigirr": return [type:'layer',name:'Great Eastern Ranges']
+            case "illawarra shoalhaven": return [type:'layer',name:'Great Eastern Ranges']
+            case "southern highlands": return [type:'layer',name:'Great Eastern Ranges']
             default: return [:]
         }
     }
@@ -515,11 +523,14 @@ class MetadataService {
             case "slopes to summit": return 'The S2S area connects inland temperate woodland and grassland ecosystems with intact and well-conserved mountain forests and alpine ecosystems.'
             case "kosciuszko to coast": return 'The Kosciusko to Coast region links the Australian Alps National Parks through natural temperate grasslands and woodlands to tablelands, forests and coastal ecosystems.'
             case "border ranges": return "The Border Ranges is one of Australia's most biologically diverse regions, a spectacular backdrop to local communities, and home to many unique plants and animals. It is part of the World Heritage listed Gondwana Rainforests of Australia."
-            case "k2c management regions": return ''
-            case "s2s priority area billabong creek": return ''
-            case "s2s priority areas": return ''
-            case "hunter areas of interest": return ''
+            //case "k2c management regions": return ''
+            //case "s2s priority area billabong creek": return ''
+            //case "s2s priority areas": return ''
+            //case "hunter areas of interest": return ''
             case "southern highlands": return 'Although many parts of the Southern Highlands have been extensively cleared for agriculture and urban expansion. It contains 4 north-south habitat links and is significant for coastal wetland birds travelling inland during wetter seasons.'
+            case "kanangra wyangala": return ''
+            case "jaliigirr": return ''
+            case "illawarra shoalhaven": return ''
             default: return ""
         }
     }
@@ -531,18 +542,22 @@ class MetadataService {
      */
     private fidForLayer(region) {
         switch (region) {
-            case "Great Eastern Ranges": return "cl904";
+            case "Great Eastern Ranges": return "cl1068" //replaces cl904;
             case "RAMSAR wetland regions": return "cl935";
-            case "Hunter": return "cl905";
-            case "Border Ranges": return "cl903";
-            case "Kosciuszko to coast": return "cl909";
-            case "Slopes to summit": return "cl912";
-            case "K2C Management Regions": return "cl908";
-            case "S2S Priority Area Billabong Creek": return "cl910";
-            case "S2S Priority Areas": return "cl911";
-            case "Hunter Areas of Interest": return "cl907";
-            case "Upper Hunter Focus Area": return "cl913";
+            case "Hunter": return "cl1063"; //replaces cl905
+            case "Border Ranges": return "cl1062"; //replaces cl903
+            case "Kosciuszko to coast": return "cl1067"; //replaces cl909
+            case "Slopes to summit": return "cl1069"; //replaces cl912
+            //case "K2C Management Regions": return "cl908";
+            //case "S2S Priority Area Billabong Creek": return "cl910";
+            //case "S2S Priority Areas": return "cl911";
+            //case "Hunter Areas of Interest": return "cl907";
+            //case "Upper Hunter Focus Area": return "cl913";
             case "Myrtle Rust Observations": return "cl934";
+            case "Southern Highlands": return 'cl1070';
+            case "Kanangra Wyangala": return 'cl1066';
+            case "Jaliigirr": return 'cl1065';
+            case "Illawarra Shoalhaven": return 'cl1064';
             default: return metadataService.regionMetadata('other',null)[region]?.fid
         }
     }
