@@ -108,8 +108,9 @@ class RegionsController {
                 subRegions.nrms = ['ACT']
                 break
             case "Great Eastern Ranges":
-                subRegions.subs = ['Hunter','Border Ranges', 'Kosciuszko to coast','Slopes to summit',
-                                   'Southern Highlands','Kanangra Wyangala','Jaliigirr','Illawarra Shoalhaven']
+                subRegions.subs = ['Hunter Valley Partnership','Border Ranges Alliance', 'Kosciuszko to Coast','Slopes to Summit',
+                                   'Southern Highlands Link','Kanangra-Boyd to Wyangala Link','Jaliigirr Biodiversity Alliance','Illawarra to Shoalhaven',
+                                   'Hinterland Bush Links', 'Central Victorian Biolinks']
                 break
             //case "Hunter":
             //    subRegions.subs = ['Hunter Areas of Interest','Upper Hunter Focus Area']
@@ -145,7 +146,6 @@ class RegionsController {
         if (region.type == 'states') {
             // lookup state emblems
             def emblems = metadataService.getStateEmblems()[region.name]
-            println emblems
             if (emblems) {
                 ['animal','plant','marine','bird'].each {
                     if (emblems[it]) {
@@ -154,23 +154,9 @@ class RegionsController {
                 }
             }
         }
-        println emblemGuids
 
+        // Documents will render under the map on the layer page. They were previously used by the GER region page, currently unused.
         def docs = [:]
-        // hack - to inject some document info - this should come from a bie service
-        if (region.name == 'Great Eastern Ranges') {
-            docs.factSheets = [
-                    [linkText: 'What is Connectivity Conservation?', otherText: '[PDF 951KB]',url: 'http://www.greateasternranges.org.au/images/stories/downloads/connectivity-conservation.pdf', type: 'fact-sheet'],
-                    [linkText: 'Fast Facts: Why the Great Eastern Ranges Are Important', otherText: '[PDF 690KB]',url: 'http://www.greateasternranges.org.au/images/stories/downloads/fast-facts.pdf', type: 'fact-sheet']
-            ]
-            docs.publications = [
-                    [linkText: 'High Country Heritage Report', otherText: '',url: 'http://www.greateasternranges.org.au/images/stories/downloads/high-country-heritage-v4-web-nov-10.pdf', type: 'publication']
-            ]
-            docs.links = [
-                    [linkText: 'Great Eastern Ranges Initiative website', otherText: '[PDF 3.5 MB]',url: 'http://www.greateasternranges.org.au/', type: 'link']
-            ]
-        }
-
         // render
         [region: region, emblems: emblemGuids, subRegions: subRegions,
                 documents: docs, useReflect: params.reflect == 'false' ? false : true, downloadReasons:MetadataService.logReasonCache]

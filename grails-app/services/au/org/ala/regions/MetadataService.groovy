@@ -466,23 +466,20 @@ class MetadataService {
      */
     String lookupLayerName(name) {
         switch (name.toLowerCase()) {
-            case "great eastern ranges": return "ger_national_corridor_20121031" //replaces ger_geri_boundary_v102_australia
+            case "great eastern ranges": return "GER_311213" //replaces ger_geri_boundary_v102_australia
             case "ramsar wetland regions": return "ramsar"
-            case "hunter": return "ger_hunter_valley_20121031" //replaces ger_hunter
+            case "hunter valley partnership": return "ger_hunter_valley_20121031" //replaces ger_hunter
             case "slopes to summit": return "ger_slopes_to_summit_20121031" //replaces ger_slopes_to_summit
             case "kosciuszko to coast": return "ger_kosciuszko2coast_20121031" //replaces ger_kosciuszko_to_coast
-            case "border ranges": return "ger_border_ranges_20121031" //replaces ger_border_ranges
-            //case "k2c management regions": return "ger_k2c_management_regions_oct2009"
-            //case "s2s priority area billabong creek": return "ger_s2s_priority_area_billabong_creek_v01";
-            //case "s2s priority areas": return "ger_s2s_priority_areas_v05";
-            //case "hunter areas of interest": return "ger_hunter_areas_of_interest";
-            //case "upper hunter focus area": return "ger_upper_hunter_focus_area_v2";
+            case "border ranges alliance": return "ger_border_ranges_20121031" //replaces ger_border_ranges
             case "myrtle rust observations": return "myrtle_rust";
-            case "kanangra wyangala": return "ger_kanangra_wyangala_20121031";
-            case "jaliigirr": return "ger_jaliigirr_20121031";
-            case "illawarra shoalhaven": return "ger_illawarra_shoalhaven_20121031";
-            case "southern highlands": return "ger_southern_highlands_20121031";
-            default: return metadataService.regionMetadata('other',null)[name]?.layerName
+            case "kanangra-boyd to wyangala link": return "ger_kanangra_wyangala_20121031";
+            case "jaliigirr biodiversity alliance": return "ger_jaliigirr_20121031";
+            case "illawarra to shoalhaven": return "ger_illawarra_shoalhaven_20121031";
+            case "southern highlands link": return "ger_southern_highlands_20121031";
+            case "hinterland bush links": return ""
+            case "central victorian biolinks": return ""
+            default: return regionMetadata('other',null)[name]?.layerName
         }
     }
 
@@ -494,19 +491,16 @@ class MetadataService {
      */
     Map lookupParentChain(name) {
         switch (name.toLowerCase()) {
-            case "hunter": return [type:'layer',name:'Great Eastern Ranges']
+            case "hunter valley partnership": return [type:'layer',name:'Great Eastern Ranges']
             case "slopes to summit": return [type:'layer',name:'Great Eastern Ranges']
             case "kosciuszko to coast": return [type:'layer',name:'Great Eastern Ranges']
-            case "border ranges": return [type:'layer',name:'Great Eastern Ranges']
-            //case "k2c management regions": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Kosciuszko to coast']]
-            //case "s2s priority area billabong creek": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Slopes to summit']]
-            //case "s2s priority areas": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Slopes to summit']]
-            //case "hunter areas of interest": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Hunter']]
-            //case "upper hunter focus area": return [type:'layer',name:'Great Eastern Ranges', child: [type:'layer',name:'Hunter']]
-            case "kanangra wyangala": return [type:'layer',name:'Great Eastern Ranges']
-            case "jaliigirr": return [type:'layer',name:'Great Eastern Ranges']
-            case "illawarra shoalhaven": return [type:'layer',name:'Great Eastern Ranges']
-            case "southern highlands": return [type:'layer',name:'Great Eastern Ranges']
+            case "border ranges alliance": return [type:'layer',name:'Great Eastern Ranges']
+            case "kanangra-boyd to wyangala link": return [type:'layer',name:'Great Eastern Ranges']
+            case "jaliigirr biodiversity alliance": return [type:'layer',name:'Great Eastern Ranges']
+            case "illawarra to shoalhaven": return [type:'layer',name:'Great Eastern Ranges']
+            case "southern highlands link": return [type:'layer',name:'Great Eastern Ranges']
+            case "hinterland bush links": return [type:'layer',name:'Great Eastern Ranges']
+            case "central victorian biolinks": return [type:'layer',name:'Great Eastern Ranges']
             default: return [:]
         }
     }
@@ -518,19 +512,17 @@ class MetadataService {
      */
     String lookupDescription(name) {
         switch (name.toLowerCase()) {
-            case "great eastern ranges": return "The 1,200 km New South Wales section of the Great Eastern Ranges will help protect water supplies for over 93% of eastern Australia's population, our richest assemblages of plants and animals, and significant nature-based tourism assets."
-            case "hunter": return 'The Hunter Valley is one of only 3 areas on the eastern seaboard where inland ecosystems extend over the ranges toward the coast. It contains a mix of rich ecosystems at risk from urban and industrial development and coal mining.'
+            case "great eastern ranges": return "The Great Eastern Ranges Initiative (GER) is bringing people and organisations together to protect, link and restore healthy habitats over 3,600 kilometers from Western Victoria, through NSW and the ACT, to Far North Queensland. GER is a strategic response to mitigate the potential impacts of climate change, invasive species, land clearing and other environmental changes on the Great Eastern Ranges. This vast area contains Australia’s richest diversity of plants and animals and catchments that provide a reliable, clean source of water for over 90% of eastern Australia’s population. Visit <a href=\"http://www.greateasternranges.org.au\">www.greateasternranges.org.au</a> for more information. "
+            case "hunter valley partnership": return 'The Hunter Valley is one of only 3 areas on the eastern seaboard where inland ecosystems extend over the ranges toward the coast. It contains a mix of rich ecosystems at risk from urban and industrial development and coal mining.'
             case "slopes to summit": return 'The S2S area connects inland temperate woodland and grassland ecosystems with intact and well-conserved mountain forests and alpine ecosystems.'
             case "kosciuszko to coast": return 'The Kosciusko to Coast region links the Australian Alps National Parks through natural temperate grasslands and woodlands to tablelands, forests and coastal ecosystems.'
-            case "border ranges": return "The Border Ranges is one of Australia's most biologically diverse regions, a spectacular backdrop to local communities, and home to many unique plants and animals. It is part of the World Heritage listed Gondwana Rainforests of Australia."
-            //case "k2c management regions": return ''
-            //case "s2s priority area billabong creek": return ''
-            //case "s2s priority areas": return ''
-            //case "hunter areas of interest": return ''
-            case "southern highlands": return 'Although many parts of the Southern Highlands have been extensively cleared for agriculture and urban expansion. It contains 4 north-south habitat links and is significant for coastal wetland birds travelling inland during wetter seasons.'
-            case "kanangra wyangala": return ''
-            case "jaliigirr": return ''
-            case "illawarra shoalhaven": return ''
+            case "border ranges alliance": return "The Border Ranges is one of Australia's most biologically diverse regions, a spectacular backdrop to local communities, and home to many unique plants and animals. It is part of the World Heritage listed Gondwana Rainforests of Australia."
+            case "southern highlands link": return 'Although many parts of the Southern Highlands have been extensively cleared for agriculture and urban expansion. It contains 4 north-south habitat links and is significant for coastal wetland birds travelling inland during wetter seasons.'
+            case "kanangra-boyd to wyangala link": return ''
+            case "jaliigirr biodiversity alliance": return ''
+            case "illawarra to shoalhaven": return ''
+            case "hinterland bush links": return ''
+            case "central victorian biolinks": return ''
             default: return ""
         }
     }
@@ -541,24 +533,21 @@ class MetadataService {
      * @param region
      */
     private fidForLayer(region) {
-        switch (region) {
-            case "Great Eastern Ranges": return "cl1068" //replaces cl904;
-            case "RAMSAR wetland regions": return "cl935";
-            case "Hunter": return "cl1063"; //replaces cl905
-            case "Border Ranges": return "cl1062"; //replaces cl903
-            case "Kosciuszko to coast": return "cl1067"; //replaces cl909
-            case "Slopes to summit": return "cl1069"; //replaces cl912
-            //case "K2C Management Regions": return "cl908";
-            //case "S2S Priority Area Billabong Creek": return "cl910";
-            //case "S2S Priority Areas": return "cl911";
-            //case "Hunter Areas of Interest": return "cl907";
-            //case "Upper Hunter Focus Area": return "cl913";
+        switch (region.toLowerCase()) {
+            case "great eastern ranges": return "cl1068" //replaces cl904;
+            case "ramsar wetland regions": return "cl935";
+            case "hunter valley partnership": return "cl1063"; //replaces cl905
+            case "border ranges alliance": return "cl1062"; //replaces cl903
+            case "kosciuszko to coast": return "cl1067"; //replaces cl909
+            case "slopes to summit": return "cl1069"; //replaces cl912
             case "Myrtle Rust Observations": return "cl934";
-            case "Southern Highlands": return 'cl1070';
-            case "Kanangra Wyangala": return 'cl1066';
-            case "Jaliigirr": return 'cl1065';
-            case "Illawarra Shoalhaven": return 'cl1064';
-            default: return metadataService.regionMetadata('other',null)[region]?.fid
+            case "southern highlands link": return 'cl1070';
+            case "kanangra-boyd to wyangala link": return 'cl1066';
+            case "jaliigirr biodiversity alliance": return 'cl1065';
+            case "illawarra to shoalhaven": return 'cl1064';
+            case "hinterland bush links": return ''
+            case "central victorian biolinks": return ''
+            default: return regionMetadata('other',null)[region]?.fid
         }
     }
 
