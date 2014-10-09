@@ -418,7 +418,7 @@ class MetadataService {
     static defaultOtherRegions = [
             'Great Eastern Ranges': [
                     name: 'Great Eastern Ranges',
-                    layerName: 'ger_national_corridor_20121031'
+                    layerName: 'ger_boundary_140813'
             ],
             'RAMSAR wetland regions': [
                     name: 'RAMSAR wetland regions',
@@ -466,12 +466,12 @@ class MetadataService {
      */
     String lookupLayerName(name) {
         switch (name.toLowerCase()) {
-            case "great eastern ranges": return "GER_311213" //replaces ger_geri_boundary_v102_australia
+            case "great eastern ranges": return "ger_boundary_140813"
             case "ramsar wetland regions": return "ramsar"
-            case "hunter valley partnership": return "ger_hunter_valley_20121031" //replaces ger_hunter
-            case "slopes to summit": return "ger_slopes_to_summit_20121031" //replaces ger_slopes_to_summit
-            case "kosciuszko to coast": return "ger_kosciuszko2coast_20121031" //replaces ger_kosciuszko_to_coast
-            case "border ranges alliance": return "ger_border_ranges_20121031" //replaces ger_border_ranges
+            case "hunter valley partnership": return "ger_hunter_valley_20121031"
+            case "slopes to summit": return "ger_slopes_to_summit_20121031"
+            case "kosciuszko to coast": return "ger_kosciuszko2coast_20121031"
+            case "border ranges alliance": return "ger_border_ranges_20121031"
             case "myrtle rust observations": return "myrtle_rust";
             case "kanangra-boyd to wyangala link": return "ger_kanangra_wyangala_20121031";
             case "jaliigirr biodiversity alliance": return "ger_jaliigirr_20121031";
@@ -534,7 +534,7 @@ class MetadataService {
      */
     private fidForLayer(region) {
         switch (region.toLowerCase()) {
-            case "great eastern ranges": return "cl1068" //replaces cl904;
+            case "great eastern ranges": return "cl2047" //replaces cl904;
             case "ramsar wetland regions": return "cl935";
             case "hunter valley partnership": return "cl1063"; //replaces cl905
             case "border ranges alliance": return "cl1062"; //replaces cl903
@@ -546,7 +546,7 @@ class MetadataService {
             case "jaliigirr biodiversity alliance": return 'cl1065';
             case "illawarra to shoalhaven": return 'cl1064';
             case "hinterland bush links": return ''
-            case "central victorian biolinks": return ''
+            case "central victorian biolinks": return 'cl2046'
             default: return regionMetadata('other',null)[region]?.fid
         }
     }
