@@ -424,7 +424,7 @@ class MetadataService {
      */
     static defaultOtherRegions = [
             'Great Eastern Ranges': [
-                    name: 'Great Eastern Ranges',
+                    name: 'Great Eastern Ranges Initiative',
                     layerName: 'ger_initiative'
             ],
             'RAMSAR wetland regions': [
@@ -473,7 +473,7 @@ class MetadataService {
      */
     String lookupLayerName(name) {
         switch (name.toLowerCase()) {
-            case "great eastern ranges": return "ger_initiative"
+            case "great eastern ranges initiative": return "ger_initiative"
             case "ramsar wetland regions": return "ramsar"
             case "hunter valley partnership": return "ger_hunter_valley_20121031"
             case "slopes to summit": return "ger_slopes_to_summit_20121031"
@@ -519,7 +519,7 @@ class MetadataService {
      */
     String lookupDescription(name) {
         switch (name.toLowerCase()) {
-            case "great eastern ranges": return 'The Great Eastern Ranges Initiative (GER) is bringing people and organisations together to protect, link and restore healthy habitats over 3,600 kilometers from Western Victoria, through NSW and the ACT, to Far North Queensland. GER is a strategic response to mitigate the potential impacts of climate change, invasive species, land clearing and other environmental changes on the Great Eastern Ranges. This vast area contains Australia’s richest diversity of plants and animals and catchments that provide a reliable, clean source of water for over 90% of eastern Australia’s population. Visit <a href="http://www.greateasternranges.org.au">www.greateasternranges.org.au</a> for more information.'
+            case "great eastern ranges initiative": return 'The Great Eastern Ranges Initiative (GER) is bringing people and organisations together to protect, link and restore healthy habitats over 3,600 kilometers from Western Victoria, through NSW and the ACT, to Far North Queensland. GER is a strategic response to mitigate the potential impacts of climate change, invasive species, land clearing and other environmental changes on the Great Eastern Ranges. This vast area contains Australia’s richest diversity of plants and animals and catchments that provide a reliable, clean source of water for over 90% of eastern Australia’s population. Visit <a href="http://www.greateasternranges.org.au">www.greateasternranges.org.au</a> for more information.'
             case "hunter valley partnership": return 'The Hunter Valley comprises a complex region of east-west and north-south connections, in one of the few parts of the GER corridor where the Great Dividing Range diminishes to a naturally low and narrow line of hills. The landscape supports of complex mix of inland and coastal species, and forms a natural ‘bottle-neck’ for forest and woodland species migrating along the ranges. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/hunter-valley-partnership/">Click here for more information.</a>'
             case "slopes to summit": return 'The Slopes to Summit landscape area forms a natural altitudinal gradient linking the high country habitats of the Australian Alps and northern central Victoria, with the temperate woodlands and grasslands of inland NSW. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/slopes-to-summit/">Click here for more information.</a>'
             case "kosciuszko to coast": return 'The Kosciuszko to Coast region links the Australian Alps National Parks through natural temperate grasslands and woodlands to tablelands, forests and coastal ecosystems. This creates the tallest altitudinal gradient in the GER corridor between Australia’s highest peak Mount Kosciuszko (2,228 meters) and sea level. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/kosciusko2coast/">Click here for more information.</a>'
@@ -541,7 +541,7 @@ class MetadataService {
      */
     private fidForLayer(region) {
         switch (region.toLowerCase()) {
-            case "great eastern ranges": return "cl2049" //replaces cl904;
+            case "great eastern ranges initiative": return "cl2049" //replaces cl904;
             case "ramsar wetland regions": return "cl935";
             case "hunter valley partnership": return "cl1063"; //replaces cl905
             case "border ranges alliance": return "cl1062"; //replaces cl903
