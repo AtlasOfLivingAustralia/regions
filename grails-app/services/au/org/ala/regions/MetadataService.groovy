@@ -148,8 +148,15 @@ class MetadataService {
      */
     def getLayerMetadata(name, property) {
         if (!getOtherRegions()[name]) {
+
             // we don't know about it
-            // do hack lookup for now
+            // Check if it's a subregion
+            def result = lookupLayerMetadata(lookupLayerName(name))
+
+            if (result && result[property]) {
+                return result[property]
+            }
+
             if (property == 'fid') {
                 return fidForLayer(name)
             }
@@ -418,7 +425,7 @@ class MetadataService {
     static defaultOtherRegions = [
             'Great Eastern Ranges': [
                     name: 'Great Eastern Ranges',
-                    layerName: 'ger_boundary_140813'
+                    layerName: 'ger_initiative'
             ],
             'RAMSAR wetland regions': [
                     name: 'RAMSAR wetland regions',
@@ -466,19 +473,19 @@ class MetadataService {
      */
     String lookupLayerName(name) {
         switch (name.toLowerCase()) {
-            case "great eastern ranges": return "ger_boundary_140813"
+            case "great eastern ranges": return "ger_initiative"
             case "ramsar wetland regions": return "ramsar"
             case "hunter valley partnership": return "ger_hunter_valley_20121031"
             case "slopes to summit": return "ger_slopes_to_summit_20121031"
             case "kosciuszko to coast": return "ger_kosciuszko2coast_20121031"
             case "border ranges alliance": return "ger_border_ranges_20121031"
             case "myrtle rust observations": return "myrtle_rust";
-            case "kanangra-boyd to wyangala link": return "ger_kanangra_wyangala_20121031";
+            case "kanangra-boyd to wyangala link": return "ger_kanangra_wyangala";
             case "jaliigirr biodiversity alliance": return "ger_jaliigirr_20121031";
             case "illawarra to shoalhaven": return "ger_illawarra_shoalhaven_20121031";
             case "southern highlands link": return "ger_southern_highlands_20121031";
             case "hinterland bush links": return ""
-            case "central victorian biolinks": return ""
+            case "central victorian biolinks": return "ger_cvb2"
             default: return regionMetadata('other',null)[name]?.layerName
         }
     }
@@ -512,17 +519,17 @@ class MetadataService {
      */
     String lookupDescription(name) {
         switch (name.toLowerCase()) {
-            case "great eastern ranges": return "The Great Eastern Ranges Initiative (GER) is bringing people and organisations together to protect, link and restore healthy habitats over 3,600 kilometers from Western Victoria, through NSW and the ACT, to Far North Queensland. GER is a strategic response to mitigate the potential impacts of climate change, invasive species, land clearing and other environmental changes on the Great Eastern Ranges. This vast area contains Australia’s richest diversity of plants and animals and catchments that provide a reliable, clean source of water for over 90% of eastern Australia’s population. Visit <a href=\"http://www.greateasternranges.org.au\">www.greateasternranges.org.au</a> for more information. "
-            case "hunter valley partnership": return 'The Hunter Valley is one of only 3 areas on the eastern seaboard where inland ecosystems extend over the ranges toward the coast. It contains a mix of rich ecosystems at risk from urban and industrial development and coal mining.'
-            case "slopes to summit": return 'The S2S area connects inland temperate woodland and grassland ecosystems with intact and well-conserved mountain forests and alpine ecosystems.'
-            case "kosciuszko to coast": return 'The Kosciusko to Coast region links the Australian Alps National Parks through natural temperate grasslands and woodlands to tablelands, forests and coastal ecosystems.'
-            case "border ranges alliance": return "The Border Ranges is one of Australia's most biologically diverse regions, a spectacular backdrop to local communities, and home to many unique plants and animals. It is part of the World Heritage listed Gondwana Rainforests of Australia."
-            case "southern highlands link": return 'Although many parts of the Southern Highlands have been extensively cleared for agriculture and urban expansion. It contains 4 north-south habitat links and is significant for coastal wetland birds travelling inland during wetter seasons.'
-            case "kanangra-boyd to wyangala link": return ''
-            case "jaliigirr biodiversity alliance": return ''
-            case "illawarra to shoalhaven": return ''
-            case "hinterland bush links": return ''
-            case "central victorian biolinks": return ''
+            case "great eastern ranges": return 'The Great Eastern Ranges Initiative (GER) is bringing people and organisations together to protect, link and restore healthy habitats over 3,600 kilometers from Western Victoria, through NSW and the ACT, to Far North Queensland. GER is a strategic response to mitigate the potential impacts of climate change, invasive species, land clearing and other environmental changes on the Great Eastern Ranges. This vast area contains Australia’s richest diversity of plants and animals and catchments that provide a reliable, clean source of water for over 90% of eastern Australia’s population. Visit <a href="http://www.greateasternranges.org.au">www.greateasternranges.org.au</a> for more information.'
+            case "hunter valley partnership": return 'The Hunter Valley comprises a complex region of east-west and north-south connections, in one of the few parts of the GER corridor where the Great Dividing Range diminishes to a naturally low and narrow line of hills. The landscape supports of complex mix of inland and coastal species, and forms a natural ‘bottle-neck’ for forest and woodland species migrating along the ranges. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/hunter-valley-partnership/">Click here for more information.</a>'
+            case "slopes to summit": return 'The Slopes to Summit landscape area forms a natural altitudinal gradient linking the high country habitats of the Australian Alps and northern central Victoria, with the temperate woodlands and grasslands of inland NSW. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/slopes-to-summit/">Click here for more information.</a>'
+            case "kosciuszko to coast": return 'The Kosciuszko to Coast region links the Australian Alps National Parks through natural temperate grasslands and woodlands to tablelands, forests and coastal ecosystems. This creates the tallest altitudinal gradient in the GER corridor between Australia’s highest peak Mount Kosciuszko (2,228 meters) and sea level. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/kosciusko2coast/">Click here for more information.</a>'
+            case "border ranges alliance": return "The Border Ranges is one of Australia's most biologically diverse regions, a spectacular backdrop to local communities, and home to many unique plants and animals. It is part of the World Heritage listed Gondwana Rainforests of Australia. <a href=\"http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/border-ranges-alliance/\">Click here for more information.</a>"
+            case "southern highlands link": return 'The Southern Highlands Link provides several connections linking the World Heritage-listed reserves of the Greater Blue Mountains with major sandstone reserves to the south. Although parts of the Southern Highlands have been extensively cleared for agriculture and urban expansion, it remains an important landscape for a variety of bird migrations along the ranges and between the coast and inland. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/southern-highlands-link/">Click here for more information.</a>'
+            case "kanangra-boyd to wyangala link": return 'The Kanangra-Boyd to Wyangala Link forms a natural corridor connecting the cool forests of Australia’s east coast with the drier temperate and semi-arid woodlands of the interior. The corridor allows species which are normally associated with forest environments to occupy habitat which is not available in the surrounding landscape, and also provides a refuge for woodland species during periods of prolonged drought. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/kanangra-boyd-to-wyangala-link/">Click here for more information.</a>'
+            case "jaliigirr biodiversity alliance": return 'The Jaliigirr (Coffs Coast hinterland) landscape is located at the convergence of tropical, subtropical and temperate zones creating a unique diversity and complexity of habitats and species. These ecological communities provide our water supply, clean air, crop pollination, nutrient recycling, food, medicines, building materials and the regeneration of primary production soils, contributing billions of dollars to our local economy annually. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/jalliigirr-biodiversity-alliance/">Click here for more information.</a>'
+            case "illawarra to shoalhaven": return 'The Illawarra to Shoalhaven landscape comprises both a major north-south rainforest corridor formed by the Illawarra and Cambewarra escarpments, and a series of altitudinal linkages enabling seasonal migration of species between coastal reserves, the Southern Highlands and beyond. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/illawarra-to-shoalhaven/">Click here for more information.</a>'
+            case "hinterland bush links": return 'Centred on the Glasshouse Mountains, the Sunshine Coast Hinterland Bush Links connects habitats comprising a natural biodiversity hotspot between Caboolture and Gympie, and from the coast to Nanango. Populations of many species are declining in the area due to loss, degradation and fragmentation of habitat, making the landscape important for locally resident species as well as migratory fauna. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/hinterland-bush-links/">Click here for more information</a>'
+            case "central victorian biolinks": return 'The Central Victorian BioLinks landscape comprises a complex mosaic of local and continental scale landscape linkages connecting the Grampians with the Victorian Alps, and supporting seasonal species movements between the Murray River and the Macedon Ranges. The landscape occurs on a naturally low section of the eastern ranges, making the woodlands and riparian forests of the landscape even more important for nomadic and migratory species. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/central-victorian-biolinks/">Click here for more information.</a>'
             default: return ""
         }
     }
@@ -534,7 +541,7 @@ class MetadataService {
      */
     private fidForLayer(region) {
         switch (region.toLowerCase()) {
-            case "great eastern ranges": return "cl2047" //replaces cl904;
+            case "great eastern ranges": return "cl2049" //replaces cl904;
             case "ramsar wetland regions": return "cl935";
             case "hunter valley partnership": return "cl1063"; //replaces cl905
             case "border ranges alliance": return "cl1062"; //replaces cl903
@@ -542,11 +549,11 @@ class MetadataService {
             case "slopes to summit": return "cl1069"; //replaces cl912
             case "Myrtle Rust Observations": return "cl934";
             case "southern highlands link": return 'cl1070';
-            case "kanangra-boyd to wyangala link": return 'cl1066';
+            case "kanangra-boyd to wyangala link": return 'cl2050';
             case "jaliigirr biodiversity alliance": return 'cl1065';
             case "illawarra to shoalhaven": return 'cl1064';
             case "hinterland bush links": return ''
-            case "central victorian biolinks": return 'cl2046'
+            case "central victorian biolinks": return 'cl2048'
             default: return regionMetadata('other',null)[region]?.fid
         }
     }
