@@ -423,7 +423,7 @@ class MetadataService {
      * Backup other regions metadata - for when all other sources are unavailable
      */
     static defaultOtherRegions = [
-            'Great Eastern Ranges': [
+            'Great Eastern Ranges Initiative': [
                     name: 'Great Eastern Ranges Initiative',
                     layerName: 'ger_initiative'
             ],
@@ -498,16 +498,16 @@ class MetadataService {
      */
     Map lookupParentChain(name) {
         switch (name.toLowerCase()) {
-            case "hunter valley partnership": return [type:'layer',name:'Great Eastern Ranges']
-            case "slopes to summit": return [type:'layer',name:'Great Eastern Ranges']
-            case "kosciuszko to coast": return [type:'layer',name:'Great Eastern Ranges']
-            case "border ranges alliance": return [type:'layer',name:'Great Eastern Ranges']
-            case "kanangra-boyd to wyangala link": return [type:'layer',name:'Great Eastern Ranges']
-            case "jaliigirr biodiversity alliance": return [type:'layer',name:'Great Eastern Ranges']
-            case "illawarra to shoalhaven": return [type:'layer',name:'Great Eastern Ranges']
-            case "southern highlands link": return [type:'layer',name:'Great Eastern Ranges']
-            case "hinterland bush links": return [type:'layer',name:'Great Eastern Ranges']
-            case "central victorian biolinks": return [type:'layer',name:'Great Eastern Ranges']
+            case "hunter valley partnership": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "slopes to summit": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "kosciuszko to coast": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "border ranges alliance": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "kanangra-boyd to wyangala link": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "jaliigirr biodiversity alliance": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "illawarra to shoalhaven": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "southern highlands link": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "hinterland bush links": return [type:'layer',name:'Great Eastern Ranges Initiative']
+            case "central victorian biolinks": return [type:'layer',name:'Great Eastern Ranges Initiative']
             default: return [:]
         }
     }
