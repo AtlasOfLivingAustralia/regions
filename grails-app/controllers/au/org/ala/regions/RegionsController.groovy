@@ -107,7 +107,7 @@ class RegionsController {
                 subRegions.imcras = ['Southeast Shelf Transition']
                 subRegions.nrms = ['ACT']
                 break
-            case "Great Eastern Ranges":
+            case "Great Eastern Ranges Initiative":
                 subRegions.subs = ['Hunter Valley Partnership','Border Ranges Alliance', 'Kosciuszko to Coast','Slopes to Summit',
                                    'Southern Highlands Link','Kanangra-Boyd to Wyangala Link','Jaliigirr Biodiversity Alliance','Illawarra to Shoalhaven',
                                    'Hinterland Bush Links', 'Central Victorian Biolinks']
