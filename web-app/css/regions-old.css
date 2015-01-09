@@ -1,0 +1,369 @@
+/************************************************************************************\
+| Regions page
+\************************************************************************************/
+/* regions front page */
+
+#header h1 {
+    padding-left: 0 !important;
+}
+#map_canvas {
+    height:470px;
+    border: 1px solid black;
+    margin: 9px 0 0 0;
+}
+
+#accordion {
+    margin: 9px 0 0 5px;
+    height: 446px;
+}
+#accordion h2 a {
+    font-size: 15px;
+    color: #333;
+}
+#accordion ul {
+    list-style: none;
+    margin: 0;
+    font-size: 1em;
+}
+.ui-widget {
+    font-family: Verdana,Arial,sans-serif !important;
+}
+#click-info {
+    font-size: 15px;
+}
+#zoomTo, #reset-map {
+    padding-left: 20px;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+}
+li.regionLink {
+    cursor:pointer;
+}
+.ui-accordion-content li.selected {
+    font-weight: bold;
+}
+#extra {
+    padding-left: 20px;
+    font-size: 14px;
+}
+/************************************************************************************\
+| Region page
+\************************************************************************************/
+#content {
+    min-width: 998px;
+}
+
+/*** state emblems ***/
+#emblems {
+    float: right;
+}
+
+div.emblem {
+    display: inline;
+    float: left;
+    font-size: 12px;
+    width: 240px;
+}
+
+div.emblem img {
+    float: left;
+    padding-right: 4px;
+    border-radius: 0;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    -khtml-border-radius: 0 !important;
+    -icab-border-radius: 0 !important;
+    -o-border-radius: 0 !important;
+}
+
+div.emblem h3 {
+    display: inline;
+    font-size: 16px;
+}
+
+/*** tabs ***/
+#explore {
+    float: left;
+    position: relative;
+    overflow: hidden;
+    width: 484px;
+    height:580px;
+    margin: 10px 0 0 -10px;
+    /* for IE7 */
+    *margin-left: 2px;
+}
+
+/* for IE8 */
+.ie8 #explore {
+    margin-left : 2px;
+}
+.ie8 h1 {
+    margin-left: 10px;
+}
+
+#slider-pane {
+    margin: 0;
+    width: 990px;
+    position: absolute;
+    left: 0;
+    top: 20px;
+}
+
+.explore-tabs {
+    list-style:none;
+    margin:0 !important;
+    padding: 0 0 0 2px!important;
+    height:30px;
+    border-bottom:1px solid #666;
+}
+
+.explore-tabs li {
+    float:left;
+    text-indent:0;
+    padding:0;
+    margin: 0 0 0 3px !important;
+    list-style-image:none !important;
+}
+
+/* link inside the tab. uses a background image */
+ul.explore-tabs a {
+    float:left;
+    font-size:15px;
+    display:block;
+    padding:5px 30px;
+    text-decoration:none;
+    border:1px solid #666;
+    border-bottom:0px;
+    height:18px;
+    background-color:#efefef;
+    color:#777;
+    margin-right:2px;
+    position:relative;
+    top:1px;
+    outline:0;
+    -moz-border-radius: 5px 5px 0 0;
+    border-radius: 5px 5px 0 0;
+}
+
+ul.explore-tabs a:hover {
+    background-color:#F7F7F7;
+    color:#333;
+}
+
+/* selected tab */
+ul.explore-tabs a.current {
+    background-color: white;
+    border-bottom:1px solid white;
+    color:#000;
+    cursor:default;
+}
+
+/*** charts ***/
+#taxonomy {
+    float: left;
+    margin: 15px 0 0 20px;
+    z-index: 10;
+    background-color: white;
+}
+
+.link {
+    color: #01716E;
+    cursor: pointer;
+}
+.link:hover, .link:active {
+    color:#dd3102;
+    text-decoration:underline;
+    outline:none;
+}
+.under {
+    text-decoration: underline;
+}
+
+/*** taxa box ***/
+#species {
+    width: 480px;
+    margin: 15px 0 0 0;
+    float: left;
+}
+#species h3 {
+    margin-left: 10px;
+}
+#taxaBox div#rightList {
+    width: 299px !important;
+}
+#taxa-links {
+    padding-top: 2px;
+}
+#taxa-links ul {
+    list-style: none;
+    margin: 0;
+    width: 100%;
+}
+#taxa-links li {
+    float: left;
+    text-align: center;
+    width: 41%;
+    padding: 0 3px;
+}
+
+#taxaBox table {
+    border-top: none !important;
+}
+/*** sub regions ***/
+#subRegions {
+    float:left;
+    width: 480px;
+}
+/*#subRegions a {
+    text-decoration: underline;
+}*/
+#subRegions ul {
+    list-style: none;
+    margin-left: 0;
+}
+
+/*** docs ***/
+#docs {
+    float: left;
+    padding-left: 5px;
+
+}
+#docs ul {
+    list-style: none;
+    margin-left: 0;
+}
+#manage-doc-link {
+    background: transparent url(../images/documents.gif)  left no-repeat;
+    padding-left: 20px;
+}
+/*** map ***/
+#map {
+    float: right;
+    margin: 0 2px 0 0;
+    padding: 0;
+}
+
+#region-map {
+    width: 500px;
+    height: 470px;
+    border: 1px solid black;
+}
+
+#region-map-container {
+}
+
+.ui-slider {
+    width: 300px;
+    display: inline-block;
+}
+
+div.tish {
+    display: inline-block;
+    width: 120px;
+}
+
+#controls {
+    padding-top: 4px;
+    min-height: 21px;
+}
+
+#controls label {
+    width: 100px;
+}
+
+#controls-toggle {
+    float: right;
+}
+
+#hide-controls {
+    float: right;
+}
+
+/* reset control */
+#resetButton {
+    position: relative;
+    left: 410px;
+    top: -30px;
+}
+
+/* time controls */
+#timeContainer {
+    width: 480px;
+    left: 0;
+    padding: 5px 5px 0 5px;
+}
+
+#timeContainer p:first-child {
+    font-size: 15px;
+}
+
+#timeContainer p {
+    padding-bottom: 2px;
+}
+
+#timeSlider {
+    margin-left: 8px;
+    width: 450px;
+}
+
+#timeValues {
+    margin-left: -10px;
+}
+
+#from {
+    position: relative;
+    left: 0;
+}
+
+#to {
+    position: relative;
+    left: 410px;
+}
+
+#timeValues span {
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+#play img {
+    margin: 0 -3px;
+}
+
+#timeTicks {
+    padding-left: 4px;
+}
+
+#date-heading {
+    font-size: 15px;
+    color: black;
+}
+
+#date-hint {
+    padding-left: 30px;
+    color: #666;
+}
+
+#playControls {
+    display: inline;
+    float: right;
+    position: relative;
+    top: -5px;
+}
+
+/**************************
+used to be in old wp styles
+***************************/
+.hrgroup {
+    padding:0 15px;
+}
+
+#breadcrumb {
+    padding: 10px 15px 10px 15px;
+}
+
+section.section {
+    padding-left: 15px;
+}
+
+/* override detrimental change in search.css */

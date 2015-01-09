@@ -1,5 +1,6 @@
 package au.org.ala.regions
 
+import groovy.xml.MarkupBuilder
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import au.org.ala.cas.util.AuthenticationCookieUtils
 
@@ -56,14 +57,20 @@ class RegionsTagLib {
      * @attr atBase true if the page is the base page of the root (no link is added)
      */
     def breadcrumbTrail = {attrs ->
-        if (ConfigurationHolder.config.ala.skin == 'ala') {
-            out << "<li><a href='${ConfigurationHolder.config.ala.baseURL}'>Home</a></li>" +
-                "<li> <a href='${ConfigurationHolder.config.ala.baseURL}/explore/'>Explore</a></li>"
+        if (grailsApplication.config.ala.skin == 'ala') {
+            out << """
+<li><a href='${grailsApplication.config.ala.baseURL}'>Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+<li><a href='${grailsApplication.config.ala.baseURL}/explore/'>Explore</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+"""
         }
         else {
-            out << "<li><a href='${ConfigurationHolder.config.ala.baseURL}'>Home</a></li>" +
-                "<li> <a href='${ConfigurationHolder.config.ala.baseURL}/species-by-location/'>Locations</a></li>"
+            out << """
+<li><a href='${grailsApplication.config.ala.baseURL}'>Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+<li><a href='${grailsApplication.config.ala.baseURL}/species-by-location/'>Locations</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+"""
         }
+
+        return out
     }
 
 }
