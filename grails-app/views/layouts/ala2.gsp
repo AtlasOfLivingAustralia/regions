@@ -25,9 +25,9 @@
     <link rel="stylesheet" href="${resource(dir:'css/smoothness',file:'jquery-ui-1.8.14.custom.css')}" type="text/css" media="screen"/>
 
     %{--<script language="JavaScript" type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>--}%
-    <g:javascript library="application" />
-    <g:javascript library="jquery-1.7.min"/>
-    <g:javascript library="jquery-ui-1.8.14.custom-notabs.min"/>
+    <g:javascript src="application.js"/>
+    <g:javascript src="jquery-1.7.min.js"/>
+    <g:javascript src="jquery-ui-1.8.14.custom-notabs.min.js"/>
     <g:layoutHead />
     <script type="text/javascript" src="http://www.ala.org.au/wp-content/themes/ala2011/scripts/html5.js"></script>
     <script language="JavaScript" type="text/javascript" src="http://www.ala.org.au/wp-content/themes/ala2011/scripts/superfish/superfish.js"></script>

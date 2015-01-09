@@ -1,3 +1,5 @@
+import grails.util.Environment
+
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
@@ -27,5 +29,22 @@ grails.project.dependency.resolution = {
 
     plugins {
         build ":tomcat:7.0.54"
+        build ":release:3.0.1"
+
+        compile ":font-awesome-resources:4.2.0.0"
+
+
+        runtime ':resources:1.2.8'
+        if (Environment.current == Environment.PRODUCTION) {
+            runtime ":zipped-resources:1.0"
+            runtime ":yui-minify-resources:0.1.5"
+        }
+
+        runtime (":ala-web-theme:0.8.5") {
+            exclude "svn"
+            exclude "cache"
+            exclude "cache-ehcache"
+        }
+        runtime ":jquery:1.11.1"
     }
 }

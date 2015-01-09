@@ -7,13 +7,13 @@
         <title>Regions | Atlas of Living Australia</title>
         <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
         <script src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
-        <g:javascript library="keydragzoom" />
-        <g:javascript library="wms" />
-        <g:javascript library="jquery.cookie" />
+        <g:javascript src="keydragzoom.js" />
+        <g:javascript src="wms.js" />
+        <g:javascript src="jquery.cookie.js" />
         <script type="text/javascript">
         </script>
         <script src="${ConfigurationHolder.config.grails.serverURL}/data/regionsMetadataJavascript.js"></script>
-        <g:javascript library="regions" />
+        <g:javascript src="regions.js" />
         %{--<g:javascript library="datadumper" />--}%
         <script type="text/javascript">
           var altMap = true;
@@ -26,7 +26,7 @@
             //greyInitialValues();
           });
         </script>
-        <g:javascript library="jquery.ba-bbq.min" />
+        <g:javascript src="jquery.ba-bbq.min.js" />
     </head>
     <body class='regions'>
     <div id="content" class="clearfix inner">
