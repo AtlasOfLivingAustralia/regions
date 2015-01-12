@@ -1,13 +1,13 @@
 // resource bundles
 modules = {
     regions {
-        dependsOn  'jquery-ui', 'map'
+        dependsOn  'jquery-ui', 'map', 'font-awesome'
         resource url: '/js/regions.js'
         resource url: '/css/regions.css', attrs:[media:'all']
     }
 
     region {
-        dependsOn 'jquery-ui', 'map', 'fancybox', 'charts', 'jsonp', 'number-functions'
+        dependsOn 'jquery-ui', 'map', 'fancybox', 'charts', 'jsonp', 'number-functions', 'font-awesome'
 
         resource url: '/js/region.js', disposition: 'head'
         resource url: '/css/regions.css', attrs:[media:'all']

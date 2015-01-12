@@ -1,51 +1,57 @@
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="layout" content="main" />
-        <title>${region.name} | Atlas of Living Australia</title>
-        <r:require modules="region"/>
-        <script type="text/javascript">
-          var altMap = true;
-        </script>
-    </head>
-    <body>
-    <div id="content" class="clearfix inner">
-      <div id="header">
-        <!--Breadcrumbs-->
-          <nav id="breadcrumb"><ol>
-              <rg:breadcrumbTrail/>
-              <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a></li>
-          %{--TODO: do the following in a tag to support any depth --}%
-          <g:if test="${region.parent}">
-              <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a></li>
-              <g:if test="${region.parent.child}">
-                  <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a></li>
-              </g:if>
-          </g:if>
-          <span class="current">${region.name}</span></ol></nav>
-        <div class="section full-width">
-          <g:if test="${flash.message}">
-            <div class="message">${flash.message}</div>
-          </g:if>
-          <header class="hrgroup">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="layout" content="main" />
+    <title>${region.name} | Atlas of Living Australia</title>
+    <r:require modules="region"/>
+    <script type="text/javascript">
+      var altMap = true;
+    </script>
+</head>
+<body>
+
+    <div class="row">
+        <div class="span12">
+            <ul class="breadcrumb">
+                <rg:breadcrumbTrail/>
+                <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                <g:if test="${region.parent}">
+                    <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                    <g:if test="${region.parent.child}">
+                        <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                    </g:if>
+                </g:if>
+                <li class="active">${region.name}</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="span12">
+            <g:if test="${flash.message}">
+                <div class="message">${flash.message}</div>
+            </g:if>
             <h1>${region.name}</h1>
             <div id="emblems"></div>
-          </header><!--close hrgroup header-->
+        </div>
+    </div>
 
-        </div><!--close section-->
-      </div><!--close header-->
+    <div class="row">
+        <div class="span12">
+            <g:if test="${region.description || region.notes}">
+                <section class="section">
+                    <h2>Description</h2>
+                    <g:if test="${region.description}"><p>${region.description}</p></g:if>
+                    <g:if test="${region.notes}"><h3>Notes on the map layer</h3><p>${region.notes}</p></g:if>
+                </section>
+            </g:if>
 
-        <g:if test="${region.description || region.notes}">
-            <section class="section">
-              <h2>Description</h2>
-              <g:if test="${region.description}"><p>${region.description}</p></g:if>
-              <g:if test="${region.notes}"><h3>Notes on the map layer</h3><p>${region.notes}</p></g:if>
-            </section>
-        </g:if>
-
-        <section id="regionPage" class="section">
             <h2 id="occurrenceRecords">Occurrence records</h2>
+        </div>
+    </div>
 
+    <div class="row">
+        <div class="span6">
             <div id="explore">
                 <ul class='explore-tabs'>
                     <li><a href="#" class="current">Explore by species</a></li>
@@ -87,12 +93,12 @@
                                     <li>
                                         <span id="viewRecords" class="link under">View all records</span>
                                     </li>
-%{--
-                                    <li>
-                                        <img src="${resource(dir:'images',file: 'species-images-icon.png')}"/><br/>
-                                        <span id="viewImages" class="link">View images for species</span>
-                                    </li>
---}%
+                                    %{--
+                                                                        <li>
+                                                                            <img src="${resource(dir:'images',file: 'species-images-icon.png')}"/><br/>
+                                                                            <span id="viewImages" class="link">View images for species</span>
+                                                                        </li>
+                                    --}%
                                     <li>
                                         <a href="#download" id="downloadLink" title="Download records OR species checklist">Download all</a>
                                     </li>
@@ -106,7 +112,9 @@
                 <button id="resetButton" type="button" onclick="resetAll()">Reset all</button>
 
             </div>
+        </div>
 
+        <div class="span6">
             <div id="map" class="section">
                 <div id="timeContainer">
                     <span id="date-heading">Explore by date</span><span id="date-hint">Drag handles to restrict date or play by decade.</span>
@@ -145,24 +153,21 @@
                             <div id="regionOpacity"></div>
                         </div>
                     </div>
-
-                    %{--<div>LatLng: <span id="location"></span></div>
-                    <div>Zoom: <span id="zoom"></span> <span id="using-bbox-hack"></span></div>
-                    <div><span id="bbox"></span></div>--}%
                 </div>
             </div>
+        </div>
+    </div>
 
-        </section><!--close section-->
-
-        <div style="clear:both;"> </div>
-
-        <section class="section">
+    <div class="row">
+        <div class="span12">
             <h2>Alerts</h2>
             <div id="alerts"></div>
-        </section>
+        </div>
+    </div>
 
-        <g:if test="${subRegions.ibras||subRegions.nrms||subRegions.imcras||subRegions.subs}">
-        <section id="subRegions" class="section">
+    <g:if test="${subRegions.ibras||subRegions.nrms||subRegions.imcras||subRegions.subs}">
+    <div class="row">
+        <div class="span12" id="subRegions">
             <h2>Regions within ${region.name}</h2>
             <g:if test="${subRegions.ibras}">
                 <h3>Biogeographic (IBRA)</h3>
@@ -196,11 +201,13 @@
                     </g:each>
                 </ul>
             </g:if>
-        </section>
-        </g:if>
+        </div>
+    </div>
+    </g:if>
 
-        <g:if test="${documents.factSheets||documents.publications||documents.links}">
-        <section id="docs" class="section">
+    <g:if test="${documents.factSheets||documents.publications||documents.links}">
+    <div class="row">
+        <div class="span12" id="docs">
             <h2>Documents and Links</h2>
             <g:if test="${documents.factSheets}">
                 <h3>Fact sheets</h3>
@@ -234,10 +241,11 @@
             </g:if>
 
             <g:link elementId="manage-doc-link" action="documents">Add or manage documents and links</g:link>
-        </section>
-        </g:if>
+        </div>
+    </div>
+    </g:if>
 
-        <div style="display:none">
+    <div style="display:none">
 
         <div id="download">
             <p id="termsOfUseDownload">
@@ -269,14 +277,14 @@
                         </select>
                     </p>
                     %{--<p><label for="reason" style="vertical-align: top">Download Reason</label>--}%
-                        %{--<textarea name="reason" rows="5" cols="30" id="reason"  ></textarea>--}%
+                    %{--<textarea name="reason" rows="5" cols="30" id="reason"  ></textarea>--}%
                     %{--</p>--}%
                     <input type="submit" value="Download All Records" id="downloadSubmitButton"/>&nbsp;
                     <input type="submit" value="Download Species Checklist" id="downloadCheckListSubmitButton"/>&nbsp;
                     <input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;
-                    <!--
-                    <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
-                    -->
+                <!--
+                        <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
+                        -->
                     <p style="margin-top:10px;">
                         <strong>Note</strong>: The field guide may take several minutes to prepare and download.
                     </p>
@@ -284,9 +292,7 @@
             </form>
         </div>
 
-        </div>
-
-    </div><!--close content-->
+    </div>
 
     <script type="text/javascript">
 
