@@ -44,6 +44,7 @@ grails.project.dependency.resolution = {
             exclude "svn"
             exclude "cache"
             exclude "cache-ehcache"
+            exclude "jquery"
         }
     }
 }

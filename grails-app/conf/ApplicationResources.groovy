@@ -1,10 +1,20 @@
 // resource bundles
 modules = {
     regions {
-        dependsOn  'jquery-ui', 'map', 'font-awesome'
-
+        dependsOn  'jquery-ui', 'map'
         resource url: '/js/regions.js'
         resource url: '/css/regions.css', attrs:[media:'all']
+    }
+
+    region {
+        dependsOn 'jquery-ui', 'map', 'fancybox', 'charts', 'jsonp', 'number-functions'
+
+        resource url: '/js/region.js', disposition: 'head'
+        resource url: '/css/regions.css', attrs:[media:'all']
+    }
+
+    jquery {
+        resource url: '/js/jquery-1.7.min.js', disposition: 'head'
     }
 
     'jquery-ui' {
@@ -26,7 +36,7 @@ modules = {
         resource url: '/js/keydragzoom.js'
         resource url: '/js/wms.js'
         resource url: '/js/jquery.cookie.js'
-        resource url: '/js/jquery.ba-bbq.min.js'
+        resource url: '/js/jquery.ba-bbq.min.js', disposition: 'head'
 
     }
 
@@ -34,7 +44,25 @@ modules = {
         resource  url: 'http://maps.google.com/maps/api/js?sensor=false', attrs: [type: "js"], disposition: 'head'
     }
 
+    fancybox {
+        dependsOn 'jquery'
 
+        resource url: '/js/fancybox/jquery.fancybox-1.3.4.pack.js', disposition: 'head'
+        resource url: '/js/fancybox/jquery.fancybox-1.3.4.css'
+    }
+
+    charts {
+        resource url: 'https://www.google.com/jsapi', attrs: [type: 'js'], disposition: 'head'
+        resource url: '/js/charts2.js', disposition: 'head'
+    }
+
+    jsonp {
+        resource url: '/js/jquery.jsonp-2.1.4.min.js', disposition: 'head'
+    }
+
+    'number-functions' {
+        resource url: '/js/number-functions.js', disposition: 'head'
+    }
 
 }
 

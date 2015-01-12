@@ -1,27 +1,9 @@
-<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="layout" content="${ConfigurationHolder.config.ala.skin}" />
+        <meta name="layout" content="main" />
         <title>${region.name} | Atlas of Living Australia</title>
-        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
-        <!--[if IE 7]> <link href="${ConfigurationHolder.config.grails.serverURL}/css/regions-ie.css" rel="stylesheet" type="text/css"> <![endif]-->
-        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/base.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/biocache.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
-        <script type="text/javascript" language="javascript" src="http://www.google.com/jsapi"></script>
-        %{--<script type="text/javascript" src="http://collections.ala.org.au/js/charts.js"></script>--}%
-        <script type="text/javascript" src="${ConfigurationHolder.config.grails.serverURL}/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-        <g:javascript library="charts2"/>
-        <g:javascript library="jquery.jsonp-2.1.4.min"/>
-        <g:javascript library="jquery.cookie" />
-        <g:javascript library="region" />
-        <g:javascript library="wms" />
-        %{--<g:javascript library="datadumper" />--}%
-        <g:javascript library="number-functions" />
-        <g:javascript library="jquery.ba-bbq.min" />
-        <script src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
-        <g:javascript library="keydragzoom" />
+        <r:require modules="region"/>
         <script type="text/javascript">
           var altMap = true;
         </script>
@@ -32,12 +14,12 @@
         <!--Breadcrumbs-->
           <nav id="breadcrumb"><ol>
               <rg:breadcrumbTrail/>
-              <li><a href="${ConfigurationHolder.config.grails.serverURL}#rt=${region.type}">Regions</a></li>
+              <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a></li>
           %{--TODO: do the following in a tag to support any depth --}%
           <g:if test="${region.parent}">
-              <li><a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a></li>
+              <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a></li>
               <g:if test="${region.parent.child}">
-                  <li><a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a></li>
+                  <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a></li>
               </g:if>
           </g:if>
           <span class="current">${region.name}</span></ol></nav>
@@ -308,8 +290,8 @@
 
     <script type="text/javascript">
 
-        var bieUrl = "${ConfigurationHolder.config.bie.baseURL}/",
-            baseUrl = "${ConfigurationHolder.config.grails.serverURL}",
+        var bieUrl = "${grailsApplication.config.bie.baseURL}/",
+            baseUrl = "${grailsApplication.config.grails.serverURL}",
             bbox;
 
         layerFid = "${region.fid}";
@@ -358,9 +340,9 @@
             width: 450,
             clickThru: false,
             notifyChange: "taxonChartChange",
-            collectionsUrl: "${ConfigurationHolder.config.grails.serverURL}",
-            biocacheServicesUrl: "${ConfigurationHolder.config.biocache.baseURL}ws",
-            displayRecordsUrl: "${ConfigurationHolder.config.biocache.baseURL}"
+            collectionsUrl: "${grailsApplication.config.grails.serverURL}",
+            biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}ws",
+            displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}"
         };
 
         bbox = {sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
@@ -421,12 +403,12 @@
             showEmblem("Marine emblem", "${emblems?.marineEmblem}");
 
             var config = {
-                speciesPageUrl: "${ConfigurationHolder.config.bie.baseURL}/species/",
-                biocacheServiceUrl: "${ConfigurationHolder.config.biocache.baseURL}ws",
-                biocacheWebappUrl: "${ConfigurationHolder.config.biocache.baseURL}",
-                spatialWmsUrl: "${ConfigurationHolder.config.spatial.baseURL}geoserver/ALA/wms?",
-                spatialCacheUrl: "${ConfigurationHolder.config.spatial.baseURL}geoserver/gwc/service/wms?",
-                spatialServiceUrl: "${ConfigurationHolder.config.spatial.baseURL}layers-service"
+                speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
+                biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}ws",
+                biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
+                spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}geoserver/ALA/wms?",
+                spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}geoserver/gwc/service/wms?",
+                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}layers-service"
             };
 
             // init time controls
