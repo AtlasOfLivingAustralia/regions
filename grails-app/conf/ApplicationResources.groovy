@@ -1,7 +1,7 @@
 // resource bundles
 modules = {
     regions {
-        dependsOn  'jquery-ui','jquery-migration', 'map', 'font-awesome'
+        dependsOn  'jquery-ui', 'map', 'font-awesome'
 
         resource url: '/js/regions.js'
         resource url: '/css/regions.css', attrs:[media:'all']
@@ -10,7 +10,7 @@ modules = {
     'jquery-ui' {
         dependsOn 'jquery'
 
-        resource url: '/js/jquery-ui-1.8.14.custom-notabs.min.js'
+        resource url: '/js/jquery-ui-1.8.14.custom-notabs.min.js', disposition: 'head'
         resource url: '/css/smoothness/jquery-ui-1.8.14.custom.css', attrs:[media:'all']
     }
 

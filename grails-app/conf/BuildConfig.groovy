@@ -45,6 +45,5 @@ grails.project.dependency.resolution = {
             exclude "cache"
             exclude "cache-ehcache"
         }
-        runtime ":jquery:1.11.1"
     }
 }

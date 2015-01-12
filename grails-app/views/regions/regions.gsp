@@ -65,6 +65,44 @@
                 </div>
             </div>
         </div>
+
+        <div id='right-side'>
+            <div>
+                <div>
+                    <span id="click-info">Click on the map to select an area.</span>
+                    <span style="float:right;" id="reset-map">Reset map</span>
+                </div>
+            </div>
+            <div id="mapListOuter" style="height:560px;position:relative;overflow:hidden;">
+                <div id="map" style="left:0;position:absolute;top:0; width: 100%">
+                    <div class="map-column">
+                        <div id="map-container">
+                            <div id="map_canvas"></div>
+                        </div>
+                        <div id="controls">
+
+                            <div>
+                                <div class="tish">
+                                    <label for="toggleLayer">
+                                        <input type="checkbox" name="layer" id="toggleLayer" value="1" checked/>
+                                        All regions</label></div>
+
+                                <div id="layerOpacity"></div>
+                            </div>
+
+                            <div>
+                                <div class="tish">
+                                    <label for="toggleRegion">
+                                        <input type="checkbox" name="region" id="toggleRegion" value="1" checked disabled/>
+                                        Selected region</label></div>
+
+                                <div id="regionOpacity"></div>
+                            </div>
+                        </div>
+                    </div><!--close column-two-->
+                </div><!--close map-->
+            </div>
+        </div>
     </div>
 </div>
 
