@@ -25,18 +25,27 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
         compile "au.org.ala:ala-cas-client:2.1-SNAPSHOT"
+
+        /* WebJars */
+        compile 'org.webjars:jquery:1.11.2'
+        compile 'org.webjars:jquery-ui:1.11.2'
+        compile 'org.webjars:jquery-ui-themes:1.11.2'
     }
 
     plugins {
         build ":tomcat:7.0.54"
-        build ":release:3.0.1"
+        build (":release:3.0.1") {
+            exclude "rest-client-builder"
+        }
+        build ":modules-manager:0.2.2-SNAPSHOT"
 
         compile ":font-awesome-resources:4.2.0.0"
+        compile ":rest-client-builder:2.0.3"
 
-
-        runtime ':resources:1.2.8'
+        runtime ':resources:1.2.14'
         if (Environment.current == Environment.PRODUCTION) {
-            runtime ":zipped-resources:1.0"
+            runtime ":zipped-resources:1.0.1"
+            runtime ":cached-resources:1.1"
             runtime ":yui-minify-resources:0.1.5"
         }
 
@@ -45,6 +54,9 @@ grails.project.dependency.resolution = {
             exclude "cache"
             exclude "cache-ehcache"
             exclude "jquery"
+            exclude "rest"
         }
+
+        runtime ":jquery:1.7.2"
     }
 }

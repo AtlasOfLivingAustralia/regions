@@ -10,45 +10,66 @@
 </head>
 <body>
 
-    <div class="row">
-        <div class="span12">
-            <ul class="breadcrumb">
-                <rg:breadcrumbTrail/>
-                <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-                <g:if test="${region.parent}">
-                    <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-                    <g:if test="${region.parent.child}">
-                        <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-                    </g:if>
+<div class="row">
+    <div class="span12">
+        <ul class="breadcrumb">
+            <rg:breadcrumbTrail/>
+            <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+            <g:if test="${region.parent}">
+                <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                <g:if test="${region.parent.child}">
+                    <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
                 </g:if>
-                <li class="active">${region.name}</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="span12">
-            <g:if test="${flash.message}">
-                <div class="message">${flash.message}</div>
             </g:if>
-            <h1>${region.name}</h1>
-            <div id="emblems"></div>
+            <li class="active">${region.name}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
+        <g:if test="${flash.message}">
+            <div class="message">${flash.message}</div>
+        </g:if>
+        <h1>${region.name}</h1>
+        <div id="emblems">
+            <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
+        <g:if test="${region.description || region.notes}">
+            <section class="section">
+                <h2>Description</h2>
+                <g:if test="${region.description}"><p>${region.description}</p></g:if>
+                <g:if test="${region.notes}"><h3>Notes on the map layer</h3><p>${region.notes}</p></g:if>
+            </section>
+        </g:if>
+
+        <h2 id="occurrenceRecords">Occurrence records</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span6">
+        <ul class="nav nav-tabs" id="explorer">
+            <li id="speciesTab" class="active"><a href="#species" data-toggle="tab">Explore by species</a></li>
+            <li id="taxonomyTab"><a href="#taxonomy" data-toggle="tab">Explore by taxonomy</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="species">...</div>
+            <div class="tab-pane" id="taxonomy">
+                <div id="taxonomy"><div id="charts"></div></div>
+            </div>
         </div>
     </div>
+    <div class="span6">
 
-    <div class="row">
-        <div class="span12">
-            <g:if test="${region.description || region.notes}">
-                <section class="section">
-                    <h2>Description</h2>
-                    <g:if test="${region.description}"><p>${region.description}</p></g:if>
-                    <g:if test="${region.notes}"><h3>Notes on the map layer</h3><p>${region.notes}</p></g:if>
-                </section>
-            </g:if>
-
-            <h2 id="occurrenceRecords">Occurrence records</h2>
-        </div>
     </div>
+</div>
 
     <div class="row">
         <div class="span6">
@@ -107,7 +128,7 @@
                         </div>
                     </div>
 
-                    <div id="taxonomy"><div id="charts"></div></div>
+                    %{--<div id="taxonomy"><div id="charts"></div></div>--}%
                 </div>
                 <button id="resetButton" type="button" onclick="resetAll()">Reset all</button>
 
@@ -296,6 +317,16 @@
 
     <script type="text/javascript">
 
+        $(function() {
+            ${g.remoteFunction(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name], update: 'emblems')}
+
+            $('#explorer a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            })
+
+        });
+
         var bieUrl = "${grailsApplication.config.bie.baseURL}/",
             baseUrl = "${grailsApplication.config.grails.serverURL}",
             bbox;
@@ -306,38 +337,6 @@
             useReflectService = false;
         }
 
-        var $emblems = $('#emblems');
-        function showEmblem(emblemType, guid) {
-            if (guid == "") return;
-            // call the bie to get details
-            $.ajax({
-              url: bieUrl + "ws/species/moreInfo/" + guid + ".json",
-              dataType: 'jsonp',
-              error: function() {
-                cleanUp();
-              },
-              success: function(data) {
-                  var imageSrc = "http://bie.ala.org.au/static/images/noImage85.jpg";
-                  if (data.images && data.images.length > 0) {
-                      imageSrc = data.images[0].thumbnail;
-                  }
-                  var sciName = data.taxonConcept.nameString;
-                  var commonName = "";
-                  if (data.commonNames && data.commonNames.length > 0) {
-                      commonName = data.commonNames[0].nameString;
-                  }
-                  var link = bieUrl + "species/" + guid;
-                  var frag =
-                  '<div class="emblem">' +
-                  '<a id="' + makeId(emblemType) + '" href="' + link + '"><img src="' + imageSrc + '" class="emblemThumb" alt="' +
-                  sciName + ' image"/></a>' +
-                  '<h3>' + emblemType + '</h3>' +
-                  '<div id="' + makeId(emblemType) + '"><i>' + sciName + '</i><br> ' + commonName + '</div>' +
-                  '</div>';
-                  $emblems.append($(frag));
-              }
-            });
-        }
         var query = buildRegionFacet("${region.type}","${region.name}"),
             taxonomyChartOptions = {
             query: query,
@@ -359,54 +358,9 @@
         // load visualisations
         google.load("visualization", "1", {packages:["corechart"]});
 
-        // wire tabs
-        var $bySpecies = $('ul.explore-tabs li:first-child');
-        var $byTaxonomy = $('ul.explore-tabs li:last-child');
-        var $bySpeciesLink = $bySpecies.find('a');
-        var $byTaxonomyLink = $byTaxonomy.find('a');
-
-        $byTaxonomy.click(function() {
-            $byTaxonomyLink.addClass('current');
-            $bySpeciesLink.removeClass('current');
-            $('#slider-pane').animate({left: '-480px'}, 500, function() {
-                // don't fire notification until animation is complete - else animation can be jerky
-                taxonomySelected();
-            });
-            return false;
-        });
-        $bySpecies.click(function() {
-            $bySpeciesLink.addClass('current');
-            $byTaxonomyLink.removeClass('current');
-            $('#slider-pane').animate({left: '0'}, 500, function() {
-                speciesSelected();
-            });
-            return false;
-        });
-
-        function setTab(tab) {
-            if (tab == 'species' && !$bySpecies.hasClass('current')) {
-                $bySpeciesLink.addClass('current');
-                $byTaxonomyLink.removeClass('current');
-                $('#slider-pane').css('left', 0);
-            }
-            else {
-                $byTaxonomyLink.addClass('current');
-                $bySpeciesLink.removeClass('current');
-                $('#slider-pane').css('left', '-480px');
-            }
-        }
-
-        // get any tab state from url
-        var currentTab = $.bbq.getState('tab');
-        if (currentTab) { setTab(currentTab) }
-
         // do stuff
         google.setOnLoadCallback(function() {
 
-            showEmblem("Bird emblem", "${emblems?.birdEmblem}");
-            showEmblem("Animal emblem", "${emblems?.animalEmblem}");
-            showEmblem("Plant emblem", "${emblems?.plantEmblem}");
-            showEmblem("Marine emblem", "${emblems?.marineEmblem}");
 
             var config = {
                 speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
@@ -428,7 +382,7 @@
             });
 
             // initialise the visible tab first
-            if (false) {
+            if (false) { // TODO WTF!!
                 taxonomyChart.load(taxonomyChartOptions);
                 initTaxaBox("${region.type}","${region.name}", config);
             }

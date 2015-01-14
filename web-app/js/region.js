@@ -1,3 +1,8 @@
+var region = {
+
+};
+
+
 /*
  *  Copyright (C) 2011 Atlas of Living Australia
  *  All Rights Reserved.
@@ -803,7 +808,7 @@ function drawRecordsOverlay2() {
     }
 
     var fqParam = "";
-    if ($byTaxonomyLink.hasClass('current')) {
+    if ($("#taxonomyTab").hasClass('active')) {
         // show records based on taxonomy chart
         if (taxonomyChart.rank && taxonomyChart.name) {
             fqParam = "fq=" + taxonomyChart.rank + ":" + taxonomyChart.name;
@@ -852,7 +857,7 @@ function drawRecordsOverlay() {
     var searchParam = encodeURI("?q=" + query.q + "&fq=" + query.fq + "&fq=geospatial_kosher:true");
 
     var fqParam = "";
-    if ($byTaxonomyLink.hasClass('current')) {
+    if ($("#taxonomyTab").hasClass('active')) {
         // show records based on taxonomy chart
         if (taxonomyChart.rank && taxonomyChart.name) {
             fqParam = "&fq=" + taxonomyChart.rank + ":" + taxonomyChart.name;

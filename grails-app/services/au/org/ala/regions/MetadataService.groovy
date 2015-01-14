@@ -1,7 +1,10 @@
 package au.org.ala.regions
 
 import grails.converters.JSON
+import grails.plugins.rest.client.RestBuilder
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+
+import javax.annotation.PostConstruct
 
 class MetadataService {
 
@@ -35,6 +38,59 @@ class MetadataService {
         regionCache = [:]
         otherRegions = null
         logReasonCache=loadLoggerReasons()
+    }
+
+    def grailsApplication
+    RestBuilder rest = new RestBuilder()
+
+    String BIE_URL, DEFAULT_IMG_URL
+
+    @PostConstruct
+    def init() {
+        BIE_URL = grailsApplication.config.bie.baseURL
+        DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
+    }
+
+    /**
+     *
+     * @param regionType
+     * @param regionName
+     * @return List<Map< with format: [[imgUrl: ...,<br/>
+     * scientificName: ...,<br/>
+     * commonName: ..., <br/>
+     * speciesUrl: ..., <br/>
+     * emblemType: ...], ...]
+     */
+    List<Map> getEmblemsMetadata(String regionType, String regionName) {
+        Map emblemGuids = [:]
+
+        if (regionType == 'states') {
+            // lookup state emblems
+            def emblems = getStateEmblems()[regionName]
+            if (emblems) {
+                ['animal','plant','marine','bird'].each {
+                    if (emblems[it]) {
+                        emblemGuids[it] = emblems."${it}".guid
+                    }
+                }
+            }
+        }
+
+        List<Map> emblemMetadata = []
+
+        emblemGuids.sort({it.key}).each {key, guid ->
+            String emblemInfoUrl = "${BIE_URL}/ws/species/moreInfo/${guid}.json"
+            def emblemInfo = rest.get(emblemInfoUrl).json
+            emblemMetadata << [
+                "imgUrl":  emblemInfo?.images && emblemInfo?.images[0]?.thumbnail ? emblemInfo?.images[0]?.thumbnail : DEFAULT_IMG_URL,
+                "scientificName": emblemInfo?.taxonConcept?.nameString,
+                "commonName": emblemInfo?.commonNames && emblemInfo?.commonNames?.size() > 0 ? emblemInfo?.commonNames[0]?.nameString : "",
+                "speciesUrl": "${BIE_URL}/species/${guid}",
+                "emblemType": "${key.capitalize()} emblem"
+            ]
+        }
+
+        return emblemMetadata
     }
 
     static def loadLoggerReasons(){
