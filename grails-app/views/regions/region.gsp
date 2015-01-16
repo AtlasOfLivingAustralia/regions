@@ -32,9 +32,9 @@
             <div class="message">${flash.message}</div>
         </g:if>
         <h1>${region.name}</h1>
-        <div id="emblems">
+        <aa:zone id="emblems" onLoadFragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name])}">
             <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
-        </div>
+        </aa:zone>
 
     </div>
 </div>
@@ -60,7 +60,22 @@
             <li id="taxonomyTab"><a href="#taxonomy" data-toggle="tab">Explore by taxonomy</a></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane active" id="species">...</div>
+            <div class="tab-pane active" id="species">
+                <div id="rightList" class="tableContainer">
+                    <table class="table table-condensed">
+                        <thead class="fixedHeader">
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Species</th>
+                            <th>Records</th>
+                        </tr>
+                        </thead>
+                        <tbody class="scrollContent">
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
             <div class="tab-pane" id="taxonomy">
                 <div id="taxonomy"><div id="charts"></div></div>
             </div>
@@ -71,29 +86,19 @@
     </div>
 </div>
 
+<hr/>
+
     <div class="row">
         <div class="span6">
             <div id="explore">
-                <ul class='explore-tabs'>
-                    <li><a href="#" class="current">Explore by species</a></li>
-                    <li><a href="#">Explore by taxonomy</a></li>
-                </ul>
+                %{--<ul class='explore-tabs'>--}%
+                    %{--<li><a href="#" class="current">Explore by species</a></li>--}%
+                    %{--<li><a href="#">Explore by taxonomy</a></li>--}%
+                %{--</ul>--}%
                 <div id="slider-pane">
                     <div id="species">
                         <div id="taxaBox">
-                            <div id="rightList" class="tableContainer">
-                                <table>
-                                    <thead class="fixedHeader">
-                                    <tr>
-                                        <th>&nbsp;</th>
-                                        <th>Species</th>
-                                        <th>Records</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="scrollContent">
-                                    </tbody>
-                                </table>
-                            </div>
+
 
                             <div id="leftList">
                                 <table id="taxa-level-0">
@@ -318,7 +323,7 @@
     <script type="text/javascript">
 
         $(function() {
-            ${g.remoteFunction(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name], update: 'emblems')}
+            %{--${g.remoteFunction(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name], update: 'emblems')}--}%
 
             $('#explorer a').click(function (e) {
                 e.preventDefault();
@@ -326,6 +331,8 @@
             })
 
         });
+
+        //////////////
 
         var bieUrl = "${grailsApplication.config.bie.baseURL}/",
             baseUrl = "${grailsApplication.config.grails.serverURL}",

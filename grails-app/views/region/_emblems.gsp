@@ -1,3 +1,4 @@
+<aa:zone id="emblems">
 <ul class="thumbnails">
 <g:each in="${emblems}" var="emblem">
 
@@ -14,3 +15,4 @@
     </li>
 </g:each>
 </ul>
+</aa:zone>

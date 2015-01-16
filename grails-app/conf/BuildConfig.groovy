@@ -8,6 +8,8 @@ grails.project.groupId = "au.org.ala"
 
 grails.project.dependency.resolver = "maven"
 
+grails.plugin.location."ajaxanywhere" = "../../aruizca/AjaxAnywhere-grails-plugin"
+
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
     inherits("global") {

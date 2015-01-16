@@ -9,4 +9,8 @@ class RegionController {
 
         render template: 'emblems', model: [emblems: emblemsMetadata]
     }
+
+    def showSpecies() {
+
+    }
 }

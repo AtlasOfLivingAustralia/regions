@@ -7,7 +7,7 @@ modules = {
     }
 
     region {
-        dependsOn 'jquery','jquery-ui', 'map', 'fancybox', 'charts', 'jsonp', 'number-functions', 'font-awesome'
+        dependsOn 'jquery','jquery-ui', 'ajaxanywhere', 'map', 'fancybox', 'charts', 'jsonp', 'number-functions', 'font-awesome'
 
         resource url: '/js/region.js', disposition: 'head'
         resource url: '/css/regions.css', attrs:[media:'all']
