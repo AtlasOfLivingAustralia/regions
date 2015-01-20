@@ -64,7 +64,7 @@ if (!bie.searchPath) {
      bie.searchPath = "/search"
 }
 if (!biocache.baseURL) {
-     biocache.baseURL = "http://biocache.ala.org.au/"
+     biocache.baseURL = "http://biocache.ala.org.au"
 }
 if (!spatial.baseURL) {
      spatial.baseURL = "http://spatial.ala.org.au/"

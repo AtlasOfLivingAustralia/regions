@@ -1,6 +1,54 @@
-var region = {
+var RegionWidget = function (config) {
 
+    var defaultFromYear = 1850;
+    var defaultToYear = new Date().getFullYear() - 1;
+
+    var state = {
+        regionName: null,
+        regionType: null,
+        regionFid: null,
+        playState: null,
+        group: null,
+        from: null,
+        to: null,
+        tab: null
+    };
+
+    var _private = {
+
+        init: function(config) {
+            state.regionName = config.regionName;
+            state.regionType = config.regionType;
+            state.regionFid = config.regionFid;
+            state.group = $.bbq.getState('group');
+            state.group = state.group ? state.group : 'ALL_SPECIES';
+            state.from = $.bbq.getState('from');
+            state.from = state.from ? state.from : defaultFromYear;
+            state.to = $.bbq.getState('to');
+            state.to = state.to ? state.to : defaultToYear;
+
+            if (state.from || state.to) {
+                timeSlider.set(state.from, state.to, true);
+            }
+        }
+    };
+
+    var _public = {
+
+        getCurrentState: function() {
+            return state;
+        },
+
+        updateState: function(newPartialState) {
+            $.extend(state, newPartialState);
+        }
+
+    };
+
+    _private.init(config);
+    return _public;
 };
+
 
 
 /*
@@ -30,7 +78,7 @@ var speciesGroup = "ALL_SPECIES",  // the currently selected species group
      */
     timeSlider = {
         defaultFrom: 1850,
-        defaultTo: 2010,
+        defaultTo: new Date().getFullYear() - 1,
         slider: $('#timeSlider'),
         eventsEnabled: true,
         isInit: function () {

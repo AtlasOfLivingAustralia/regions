@@ -4,9 +4,6 @@
     <meta name="layout" content="main" />
     <title>${region.name} | Atlas of Living Australia</title>
     <r:require modules="region"/>
-    <script type="text/javascript">
-      var altMap = true;
-    </script>
 </head>
 <body>
 
@@ -62,15 +59,19 @@
         <div class="tab-content">
             <div class="tab-pane active" id="species">
                 <div id="rightList" class="tableContainer">
-                    <table class="table table-condensed">
-                        <thead class="fixedHeader">
-                        <tr>
-                            <th>&nbsp;</th>
-                            <th>Species</th>
-                            <th>Records</th>
-                        </tr>
+                    <table class="table table-condensed" id="speciesGroups">
+                        <thead>
+                            <tr>
+                                <th>Group</th>
+                                <th>Species Count</th>
+                            </tr>
                         </thead>
-                        <tbody class="scrollContent">
+                        <tbody  class="scrollContent">
+                            <tr>
+                                <td colspan="2">
+                                    <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -150,7 +151,7 @@
                         <img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
                     </span></div>
                     %{--<p>Drag handles to restrict records by date of observation/collection.</p>--}%
-                    <div id="timeValues"><span id="from">1850</span> <span id="to">2010</span></div>
+                    <div id="timeValues"><span id="from">1850</span> <span id="to">2014</span></div>
                     <div id="timeSlider"></div>
                     <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
                     <div id="debugTime"></div>
@@ -324,6 +325,13 @@
 
         $(function() {
             %{--${g.remoteFunction(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name], update: 'emblems')}--}%
+            var region = new RegionWidget({
+                regionName: '${region.name}',
+                regionType: '${region.type}',
+                regionFid: '${region.fid}'
+            });
+            region.getCurrentState()
+
 
             $('#explorer a').click(function (e) {
                 e.preventDefault();
@@ -382,8 +390,8 @@
             $('#timeSlider').slider({
                 range: true,
                 min: 1850,
-                max: 2010,
-                values: [1850, 2010],
+                max: new Date().getFullYear() - 1,
+                values: [1850, new Date().getFullYear() - 1],
                 slide: slideHandler,
                 change: dateRangeChanged
             });
@@ -394,8 +402,8 @@
                 initTaxaBox("${region.type}","${region.name}", config);
             }
             else {
-                initTaxaBox("${region.type}","${region.name}", config);
-                taxonomyChart.load(taxonomyChartOptions);
+                %{--initTaxaBox("${region.type}","${region.name}", config);--}%
+                %{--taxonomyChart.load(taxonomyChartOptions);--}%
             }
 
             initRegionMap("${region.type}", "${region.name}", "${region.layerName}",

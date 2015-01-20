@@ -2,7 +2,10 @@ package au.org.ala.regions
 
 import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
+import groovyx.net.http.URIBuilder
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 import javax.annotation.PostConstruct
 
@@ -43,11 +46,12 @@ class MetadataService {
     def grailsApplication
     RestBuilder rest = new RestBuilder()
 
-    String BIE_URL, DEFAULT_IMG_URL
+    String BIE_URL, BIOCACHE_URL, DEFAULT_IMG_URL
 
     @PostConstruct
     def init() {
         BIE_URL = grailsApplication.config.bie.baseURL
+        BIOCACHE_URL = grailsApplication.config.biocache.baseURL
         DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
     }
 
@@ -91,6 +95,57 @@ class MetadataService {
         }
 
         return emblemMetadata
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param from
+     * @param to
+     * @return
+     */
+    JSONArray getGroups(String regionFid, String regionType, String regionName, String from = null, String to = null) {
+        rest.get(buildBiocacheUrl(regionFid, regionType, regionName, from, to)).json
+
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param from
+     * @param to
+     * @return
+     */
+    String buildBiocacheUrl(String regionFid, String regionType, String regionName, String from = null, String to = null) {
+        URLDecoder.decode(new URIBuilder("${BIOCACHE_URL}/ws/explore/groups.json").with {
+            query = buildBiocacheParams(regionFid, regionType, regionName, from, to)
+            return it
+        }.toString(), "UTF-8")
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param from
+     * @param to
+     * @return
+     */
+    private Map buildBiocacheParams(String regionFid, String regionType, String regionName, String from, String to) {
+        Map params =  [
+                q : regionType == 'layer' ? "${regionFid}:[* TO *]" : "${regionFid}:\"${regionName}\"",
+        ]
+
+        if (from && to) {
+            params << [fq: "occurrence_year:[${from} TO ${to}]"]
+        }
+
+        return params
     }
 
     static def loadLoggerReasons(){
