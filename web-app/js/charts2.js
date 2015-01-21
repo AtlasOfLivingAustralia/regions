@@ -6,7 +6,7 @@ var collectionsUrl = "http://collections.ala.org.au";  // should be overridden f
 // an instance of the biocache web services app - used for facet and taxonomic breakdowns
 var biocacheServicesUrl = "http://biocache.ala.org.au/ws";  // should be overridden from config by the calling page
 // an instance of a web app - used to display search results
-var biocacheWebappUrl = "http://biocache.ala.org.au";  // should be overridden from config by the calling page
+var biocacheWebappUrl = "http://biocache.ala.org.au/";  // should be overridden from config by the calling page
 
 // defaults for taxa chart
 var taxonomyPieChartOptions = {
@@ -321,7 +321,7 @@ var taxonomyChart = {
             this.threshold = chartOptions.threshold;
         }
 
-        var url = urlConcat(biocacheServicesUrl, "/breakdown.json?q=") + this.query;
+        var url = biocacheServicesUrl + "/breakdown.json?q=" + this.query;
 
         // add url params to set state
         if (this.rank) {

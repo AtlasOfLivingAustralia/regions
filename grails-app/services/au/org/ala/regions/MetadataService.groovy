@@ -106,7 +106,7 @@ class MetadataService {
      * @param to
      * @return
      */
-    JSONArray getGroups(String regionFid, String regionType, String regionName, String from = null, String to = null) {
+    def getGroups(String regionFid, String regionType, String regionName, String from = null, String to = null) {
         rest.get(buildBiocacheUrl(regionFid, regionType, regionName, from, to)).json
 
     }
@@ -124,7 +124,7 @@ class MetadataService {
         URLDecoder.decode(new URIBuilder("${BIOCACHE_URL}/ws/explore/groups.json").with {
             query = buildBiocacheParams(regionFid, regionType, regionName, from, to)
             return it
-        }.toString(), "UTF-8")
+        }.toString(), "UTF-8").toString()
     }
 
     /**
@@ -219,7 +219,7 @@ class MetadataService {
             println "clearing cache for ${fid}"
             regionCacheLastRefreshed[fid] = new Date()
             //println "new cache date is ${regionCacheLastRefreshed[fid]}"
-            def url = ConfigurationHolder.config.spatial.baseURL + 'ws/field/' + fid
+            def url = grailsApplication.config.spatial.baseURL + '/ws/field/' + fid
             def conn = new URL(url).openConnection()
             try {
                 conn.setConnectTimeout(10000)
@@ -296,7 +296,7 @@ class MetadataService {
      */
     def lookupLayerMetadata(layerName) {
         println "getting metadata for " + layerName
-        def url = ConfigurationHolder.config.spatial.baseURL + "layers/more/" +
+        def url = grailsApplication.config.spatial.baseURL + "/layers/more/" +
                 layerName.encodeAsURL() + ".json"
 
         def conn = new URL(url).openConnection()
@@ -443,7 +443,7 @@ class MetadataService {
      */
    def getObjectsForALayer(fid) {
         def results = [:]
-        def url = ConfigurationHolder.config.spatial.baseURL + 'layers-service/field/' + fid
+        def url = grailsApplication.config.spatial.baseURL + '/layers-service/field/' + fid
         def conn = new URL(url).openConnection()
         try {
             conn.setConnectTimeout(10000)

@@ -29,7 +29,7 @@
             <div class="message">${flash.message}</div>
         </g:if>
         <h1>${region.name}</h1>
-        <aa:zone id="emblems" onLoadFragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name])}">
+        <aa:zone id="emblems" fragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name])}">
             <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
         </aa:zone>
 
@@ -58,24 +58,24 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="species">
-                <div id="rightList" class="tableContainer">
-                    <table class="table table-condensed" id="speciesGroups">
-                        <thead>
-                            <tr>
-                                <th>Group</th>
-                                <th>Species Count</th>
-                            </tr>
-                        </thead>
-                        <tbody  class="scrollContent">
-                            <tr>
-                                <td colspan="2">
-                                    <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
+                <table class="table table-condensed" id="speciesGroups">
+                    <thead>
+                        <tr>
+                            <th>Group</th>
+                            <th>Species Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aa:zone id="groupsZone" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups')}"
+                            jsBefore="AjaxAnywhere.dynamicParams=regionWidget.getCurrentState();">
+                        <tr>
+                            <td colspan="2">
+                                <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
+                            </td>
+                        </tr>
+                        </aa:zone>
+                    </tbody>
+                </table>
             </div>
             <div class="tab-pane" id="taxonomy">
                 <div id="taxonomy"><div id="charts"></div></div>
@@ -99,7 +99,19 @@
                 <div id="slider-pane">
                     <div id="species">
                         <div id="taxaBox">
-
+                            <div id="rightList" class="tableContainer">
+                                <table>
+                                    <thead class="fixedHeader">
+                                    <tr>
+                                        <th>&nbsp;</th>
+                                        <th>Species</th>
+                                        <th>Records</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="scrollContent">
+                                    </tbody>
+                                </table>
+                            </div>
 
                             <div id="leftList">
                                 <table id="taxa-level-0">
@@ -323,15 +335,15 @@
 
     <script type="text/javascript">
 
+        var regionWidget;
+
         $(function() {
             %{--${g.remoteFunction(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name], update: 'emblems')}--}%
-            var region = new RegionWidget({
+            regionWidget = new RegionWidget({
                 regionName: '${region.name}',
                 regionType: '${region.type}',
                 regionFid: '${region.fid}'
             });
-            region.getCurrentState()
-
 
             $('#explorer a').click(function (e) {
                 e.preventDefault();
@@ -361,8 +373,8 @@
             clickThru: false,
             notifyChange: "taxonChartChange",
             collectionsUrl: "${grailsApplication.config.grails.serverURL}",
-            biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}ws",
-            displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}"
+            biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}/ws",
+            displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}/"
         };
 
         bbox = {sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
@@ -379,11 +391,11 @@
 
             var config = {
                 speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
-                biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}ws",
-                biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
-                spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}geoserver/ALA/wms?",
-                spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}geoserver/gwc/service/wms?",
-                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}layers-service"
+                biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
+                biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}/",
+                spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
+                spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
+                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service"
             };
 
             // init time controls
@@ -402,8 +414,8 @@
                 initTaxaBox("${region.type}","${region.name}", config);
             }
             else {
-                %{--initTaxaBox("${region.type}","${region.name}", config);--}%
-                %{--taxonomyChart.load(taxonomyChartOptions);--}%
+                initTaxaBox("${region.type}","${region.name}", config);
+                taxonomyChart.load(taxonomyChartOptions);
             }
 
             initRegionMap("${region.type}", "${region.name}", "${region.layerName}",

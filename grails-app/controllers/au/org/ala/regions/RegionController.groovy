@@ -1,5 +1,7 @@
 package au.org.ala.regions
 
+import org.codehaus.groovy.grails.web.json.JSONArray
+
 class RegionController {
 
     MetadataService metadataService
@@ -24,8 +26,8 @@ class RegionController {
      * @param from
      * @param to
      */
-    def showGroups(final String regionFid, final String regionType, final String regionName, final String from, final String to) {
-        List groups = metadataService.getGroups(regionFid, regionType, regionName, from, to)
+    def showGroups() {
+        def groups = metadataService.getGroups(params.regionFid, params.regionType, params.regionName, params.from, params.to)
 
         render template: 'groups', model: [groups: groups]
     }
