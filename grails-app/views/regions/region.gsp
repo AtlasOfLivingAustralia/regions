@@ -65,15 +65,13 @@
                             <th>Species Count</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <aa:zone id="groupsZone" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups')}"
-                            jsBefore="AjaxAnywhere.dynamicParams=regionWidget.getCurrentState();">
+                    <tbody id="groupsZone" fragment-url="${g.createLink(controller: 'region', action: 'showGroups')}"
+                           js-before="AjaxAnywhere.dynamicParams=regionWidget.getCurrentState();">
                         <tr>
                             <td colspan="2">
                                 <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
                             </td>
                         </tr>
-                        </aa:zone>
                     </tbody>
                 </table>
             </div>

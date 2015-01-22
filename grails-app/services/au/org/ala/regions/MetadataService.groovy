@@ -46,6 +46,10 @@ class MetadataService {
     def grailsApplication
     RestBuilder rest = new RestBuilder()
 
+    final static String WS_DATE_FROM_PREFIX = "-01-01T00:00:00Z"
+    final static String WS_DATE_TO_PREFIX = "-12-31T23:59:59Z"
+    final static String WS_DATE_FROM_DEFAULT = "1850"
+
     String BIE_URL, BIOCACHE_URL, DEFAULT_IMG_URL
 
     @PostConstruct
@@ -142,6 +146,8 @@ class MetadataService {
         ]
 
         if (from && to) {
+            from = from == WS_DATE_FROM_DEFAULT ? "*" : from + WS_DATE_FROM_PREFIX
+            to = to == Calendar.getInstance().get(Calendar.YEAR) ? "*" : to + WS_DATE_TO_PREFIX
             params << [fq: "occurrence_year:[${from} TO ${to}]"]
         }
 

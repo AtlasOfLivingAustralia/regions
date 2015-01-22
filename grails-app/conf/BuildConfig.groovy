@@ -27,6 +27,7 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
         compile "au.org.ala:ala-cas-client:2.1-SNAPSHOT"
+        compile 'com.yahoo.platform.yui:yuicompressor:2.4.8'
 
         /* WebJars */
         compile 'org.webjars:jquery:1.11.2'
@@ -48,6 +49,7 @@ grails.project.dependency.resolution = {
         if (Environment.current == Environment.PRODUCTION) {
             runtime ":zipped-resources:1.0.1"
             runtime ":cached-resources:1.1"
+            compile ":cache-headers:1.1.7"
             runtime ":yui-minify-resources:0.1.5"
         }
 

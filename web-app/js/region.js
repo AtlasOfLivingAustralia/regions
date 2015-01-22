@@ -1,7 +1,7 @@
 var RegionWidget = function (config) {
 
     var defaultFromYear = 1850;
-    var defaultToYear = new Date().getFullYear() - 1;
+    var defaultToYear = new Date().getFullYear();
 
     var state = {
         regionName: null,
