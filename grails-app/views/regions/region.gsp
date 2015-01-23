@@ -52,31 +52,31 @@
 
 <div class="row">
     <div class="span6">
-        <ul class="nav nav-tabs" id="explorer">
+        <ul class="nav nav-tabs" id="explorerTabs">
             <li id="speciesTab" class="active"><a href="#species" data-toggle="tab">Explore by species</a></li>
             <li id="taxonomyTab"><a href="#taxonomy" data-toggle="tab">Explore by taxonomy</a></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane active" id="species">
-                <table class="table table-condensed" id="speciesGroups">
+            <div class="tab-pane active">
+                <table class="table table-condensed table-hover" id="groups">
                     <thead>
                         <tr>
-                            <th>Group</th>
-                            <th>Species Count</th>
+                            <th class="text-center">Group</th>
+                            <th class="text-right">Species Count</th>
                         </tr>
                     </thead>
-                    <tbody id="groupsZone" fragment-url="${g.createLink(controller: 'region', action: 'showGroups')}"
-                           js-before="AjaxAnywhere.dynamicParams=regionWidget.getCurrentState();">
+                    <aa:zone id="groupsZone" tag="tbody" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups')}"
+                             jsBefore="AjaxAnywhere.dynamicParams=regionWidget.getCurrentState();">
                         <tr>
-                            <td colspan="2">
+                            <td colspan="2" class="text-center">
                                 <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
                             </td>
                         </tr>
-                    </tbody>
+                    </aa:zone>
                 </table>
             </div>
             <div class="tab-pane" id="taxonomy">
-                <div id="taxonomy"><div id="charts"></div></div>
+                <div id="charts"></div>
             </div>
         </div>
     </div>
