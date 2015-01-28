@@ -15,6 +15,25 @@
     text-align: center !important;
 }
 
+/* Common */
+.link {
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+.nav-tabs li a {
+    background-color: #f0f0e8;
+    border: 1px solid #ddd;
+    margin-right: 3px;
+}
+
+td.valign-middle {
+    vertical-align: middle;
+}
+
 /************************************************************************************\
 | Regions page
 \************************************************************************************/
@@ -86,11 +105,22 @@ li.regionLink {
     box-shadow: 3px 3px 8px 0px rgba(50, 50, 50, 0.7);
 }
 
+#emblems a {
+    color: inherit;
+}
+
+#emblems a:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
 #region-map {
     width: 500px;
     height: 470px;
     border: 1px solid black;
 }
+
+
 
 #species .scrollContent {
     height: 400px;
@@ -101,8 +131,33 @@ li.regionLink {
 }
 
 #groups {
+    border-right: 1px solid #dddddd;
+}
+
+
+#groups, #species {
+    /*border: solid 1px #dddddd;*/
+    height: 560px;
+    max-height: 560px;
+}
+
+#groups thead, #species thead{
+    height: 30px;
+    border-bottom: 1px solid #dddddd;
+}
+
+#groups tbody, #species tbody {
+    height: 530px;
+    max-height: 530px;
+}
+
+#groups tbody td, #species tbody td {
+    border: 0;
+}
+
+#groups {
+    float: left;
     width: 40%;
-    border: solid 1px #dddddd;
 }
 
 #groups th, #groups td {
@@ -113,9 +168,13 @@ li.regionLink {
     width: 40%;
 }
 
-#groups td {
+#groups td, #species td {
     padding: 1px 1.5em 1px 1em;
     font-size: .9em;
+}
+
+#species td:first-child {
+    padding-right: 0;
 }
 
 #groups td.level0, #groups td.level1 {
@@ -128,5 +187,56 @@ li.regionLink {
 
 #groups td.level3 {
     padding-left: 2.5em;
+}
+
+#species {
+    float: right;
+    table-layout: fixed;
+    width: 60%;
+}
+
+#species thead tr {
+    display: block;
+    position: relative;
+}
+
+#species thead th:first-child {
+    width: 85%;
+}
+
+#species tbody {
+    display: block;
+    overflow-y: scroll;
+}
+
+#species tbody .spinner {
+    height: 100%;
+    display: block;
+}
+
+#species tbody tr.link td:first-child {
+    width: 5%;
+}
+
+#species tr.infoRowLinks {
+    background-color: #F0F0E8;
+}
+
+#species tr.infoRowLinks td{
+    padding-bottom: 3px;
+}
+
+tr.groupSelected, tr.groupSelected:hover td {
+    background-color: #DF4A21 !important;
+    color: white;
+}
+
+tr.speciesSelected, tr.speciesSelected:hover td {
+    background-color: #DF4A21 !important;
+    color: white;
+}
+
+#showMoreSpeciesButton {
+    min-width: 60%;
 }
 

@@ -49,6 +49,7 @@ class MetadataService {
     final static String WS_DATE_FROM_PREFIX = "-01-01T00:00:00Z"
     final static String WS_DATE_TO_PREFIX = "-12-31T23:59:59Z"
     final static String WS_DATE_FROM_DEFAULT = "1850"
+    final static String PAGE_SIZE = "50";
 
     String BIE_URL, BIOCACHE_URL, DEFAULT_IMG_URL
 
@@ -124,11 +125,26 @@ class MetadataService {
      * @param to
      * @return
      */
-    String buildBiocacheUrl(String regionFid, String regionType, String regionName, String from = null, String to = null) {
-        URLDecoder.decode(new URIBuilder("${BIOCACHE_URL}/ws/explore/groups.json").with {
-            query = buildBiocacheParams(regionFid, regionType, regionName, from, to)
-            return it
-        }.toString(), "UTF-8").toString()
+    def getSpecies(String regionFid, String regionType, String regionName, String group, String pageIndex = "0", String from = null, String to = null) {
+        rest.get(buildBiocacheUrl(regionFid, regionType, regionName, from, to, group, pageIndex)).json
+
+    }
+
+    /**
+     *
+     * @param name
+     * @param rank
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param from
+     * @param to
+     * @return
+     */
+    String generateSpeciesRecordListUrl(String name, String rank, String regionFid, String regionType, String regionName, String from, String to) {
+        return "${BIOCACHE_URL}/occurrences/search?q=${rank == 'subspecies' ? 'subspecies_name' : rank}:\"${name}\"" +
+                "&fq=${buildRegionFacet(regionFid, regionType, regionName)}" +
+                "&fq=${buildTimeFacet(from, to)}"
     }
 
     /**
@@ -140,18 +156,65 @@ class MetadataService {
      * @param to
      * @return
      */
-    private Map buildBiocacheParams(String regionFid, String regionType, String regionName, String from, String to) {
+    String buildBiocacheUrl(String regionFid, String regionType, String regionName, String from = null, String to = null, String group = null, String pageIndex = '0') {
+        if (group) {
+            URLDecoder.decode(new URIBuilder("${BIOCACHE_URL}/ws/explore/group/${group}.json").with {
+                query = buildBiocacheParams(regionFid, regionType, regionName, from, to, pageIndex)
+                return it
+            }.toString(), "UTF-8").toString()
+        } else {
+            URLDecoder.decode(new URIBuilder("${BIOCACHE_URL}/ws/explore/groups.json").with {
+                query = buildBiocacheParams(regionFid, regionType, regionName, from, to, pageIndex)
+                return it
+            }.toString(), "UTF-8").toString()
+        }
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param from
+     * @param to
+     * @return
+     */
+    private Map buildBiocacheParams(String regionFid, String regionType, String regionName, String from, String to, String pageIndex = "0") {
         Map params =  [
-                q : regionType == 'layer' ? "${regionFid}:[* TO *]" : "${regionFid}:\"${regionName}\"",
+                q : buildRegionFacet(regionFid, regionType, regionName),
+                pageSize : PAGE_SIZE,
+                start: Integer.parseInt(pageIndex) * Integer.parseInt(PAGE_SIZE)
         ]
 
         if (from && to) {
-            from = from == WS_DATE_FROM_DEFAULT ? "*" : from + WS_DATE_FROM_PREFIX
-            to = to == Calendar.getInstance().get(Calendar.YEAR) ? "*" : to + WS_DATE_TO_PREFIX
-            params << [fq: "occurrence_year:[${from} TO ${to}]"]
+
+            params << [fq: buildTimeFacet(from, to)]
         }
 
         return params
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @return
+     */
+    public String buildRegionFacet(String regionFid, String regionType, String regionName) {
+        regionType == 'layer' ? "${regionFid}:[* TO *]" : "${regionFid}:\"${regionName}\""
+    }
+
+    /**
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public String buildTimeFacet(String from, String to) {
+        from = from.equals(WS_DATE_FROM_DEFAULT) ? "*" : from + WS_DATE_FROM_PREFIX
+        to = to.equals(Calendar.getInstance().get(Calendar.YEAR).toString()) ? "*" : to + WS_DATE_TO_PREFIX
+        "occurrence_year:[${from} TO ${to}]"
     }
 
     static def loadLoggerReasons(){
@@ -674,5 +737,4 @@ class MetadataService {
             default: return regionMetadata('other',null)[region]?.fid
         }
     }
-
 }

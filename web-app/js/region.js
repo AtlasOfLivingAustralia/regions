@@ -1,7 +1,23 @@
+/*
+ *  Copyright (C) 2011 Atlas of Living Australia
+ *  All Rights Reserved.
+ *
+ *  The contents of this file are subject to the Mozilla Public
+ *  License Version 1.1 (the "License"); you may not use this file
+ *  except in compliance with the License. You may obtain a copy of
+ *  the License at http://www.mozilla.org/MPL/
+ *
+ *  Software distributed under the License is distributed on an "AS
+ *  IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ *  implied. See the License for the specific language governing
+ *  rights and limitations under the License.
+ */
+
 var RegionWidget = function (config) {
 
     var defaultFromYear = 1850;
     var defaultToYear = new Date().getFullYear();
+    var defaultTab = 'speciesTab';
 
     var state = {
         regionName: null,
@@ -14,23 +30,77 @@ var RegionWidget = function (config) {
         tab: null
     };
 
-    var _private = {
+    /**
+     *
+     * @param config
+     */
+    var init =  function(config) {
+        state.regionName = config.regionName;
+        state.regionType = config.regionType;
+        state.regionFid = config.regionFid;
+        state.group = $.bbq.getState('group');
+        state.group = state.group ? state.group : 'ALL_SPECIES';
+        state.from = $.bbq.getState('from');
+        state.from = state.from ? state.from : defaultFromYear;
+        state.to = $.bbq.getState('to');
+        state.to = state.to ? state.to : defaultToYear;
+        state.tab = $.bbq.getState('tab');
+        state.tab = state.tab ? state.tab : defaultTab;
 
-        init: function(config) {
-            state.regionName = config.regionName;
-            state.regionType = config.regionType;
-            state.regionFid = config.regionFid;
-            state.group = $.bbq.getState('group');
-            state.group = state.group ? state.group : 'ALL_SPECIES';
-            state.from = $.bbq.getState('from');
-            state.from = state.from ? state.from : defaultFromYear;
-            state.to = $.bbq.getState('to');
-            state.to = state.to ? state.to : defaultToYear;
+        if (state.from || state.to) {
+            timeSlider.set(state.from, state.to, true);
+        }
 
-            if (state.from || state.to) {
-                timeSlider.set(state.from, state.to, true);
+        $(document).ajaxStart(
+            function (e) {
+                showTabSpinner();
+            }).ajaxComplete(function () {
+                hideTabSpinner();
+            });
+
+        $(document).on('click', "#species tbody tr.link", function() {
+            $("#species tbody tr.link").removeClass('speciesSelected')
+            $("#species tbody tr.infoRowLinks").hide();
+            var nextTr = $(this).next('tr');
+            $(this).addClass('speciesSelected');
+            $(nextTr).addClass('speciesSelected');
+            $(this).next('tr').show();
+
+        });
+    };
+
+    /**
+     *
+     * @param tabId
+     */
+    var hideTabSpinner = function (tabId) {
+        if ($.active == 1) {
+            if (tabId) {
+                $('#' + tabId + ' i').addClass('hidden');
+            } else {
+                $('#' + state.tab + ' i').addClass('hidden');
             }
         }
+    };
+
+    /**
+     *
+     * @param tabId
+     */
+    var showTabSpinner = function (tabId) {
+        if (tabId) {
+            $('#' + tabId + ' i').removeClass('hidden');
+        } else {
+            $('#' + state.tab + ' i').removeClass('hidden');
+        }
+    };
+
+    /**
+     *
+     */
+    var selectCurrentGroup = function() {
+        $('.group-row').removeClass('groupSelected');
+        $('#' + state.group + '-row').addClass('groupSelected');
     };
 
     var _public = {
@@ -41,11 +111,37 @@ var RegionWidget = function (config) {
 
         updateState: function(newPartialState) {
             $.extend(state, newPartialState);
-        }
+        },
 
+        groupsLoaded: function() {
+            $('#groups').show('highlight', 2000);
+            selectCurrentGroup();
+            this.loadSpecies();
+        },
+
+        selectGroup: function(group) {
+            if (group) {
+                this.updateState({group: group});
+                selectCurrentGroup();
+            }
+            AjaxAnywhere.dynamicParams=this.getCurrentState();
+        },
+
+        loadSpecies: function() {
+            $('#' + state.group + '-row').click();
+        },
+
+        speciesLoaded: function() {
+            $('#species').show('highlight', 2000);
+        },
+
+        showMoreSpecies: function() {
+            $('#showMoreSpeciesButton').html("<i class='fa fa-cog fa-spin'></i>");
+            AjaxAnywhere.dynamicParams=this.getCurrentState();
+        }
     };
 
-    _private.init(config);
+    init(config);
     return _public;
 };
 
@@ -78,7 +174,7 @@ var speciesGroup = "ALL_SPECIES",  // the currently selected species group
      */
     timeSlider = {
         defaultFrom: 1850,
-        defaultTo: new Date().getFullYear() - 1,
+        defaultTo: new Date().getFullYear(),
         slider: $('#timeSlider'),
         eventsEnabled: true,
         isInit: function () {

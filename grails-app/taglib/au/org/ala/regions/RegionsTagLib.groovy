@@ -8,6 +8,8 @@ class RegionsTagLib {
 
     static namespace = 'rg'
 
+    MetadataService metadataService
+
     /**
      * Returns the username of the user if logged in else blank
      *
@@ -71,6 +73,20 @@ class RegionsTagLib {
         }
 
         return out
+    }
+
+    /**
+     *
+     * @attr name
+     * @attr rank
+     * @attr regionFid
+     * @attr regionType
+     * @attr regionName
+     * @attr from
+     * @attr to
+     */
+    def speciesRecordListUrl = {attrs ->
+        out << metadataService.generateSpeciesRecordListUrl(attrs.name, attrs.rank, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.from, attrs.to)
     }
 
 }

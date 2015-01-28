@@ -30,7 +30,7 @@
         </g:if>
         <h1>${region.name}</h1>
         <aa:zone id="emblems" fragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name])}">
-            <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
+            <i class="fa fa-cog fa-spin fa-2x"></i>
         </aa:zone>
 
     </div>
@@ -53,8 +53,8 @@
 <div class="row">
     <div class="span6">
         <ul class="nav nav-tabs" id="explorerTabs">
-            <li id="speciesTab" class="active"><a href="#species" data-toggle="tab">Explore by species</a></li>
-            <li id="taxonomyTab"><a href="#taxonomy" data-toggle="tab">Explore by taxonomy</a></li>
+            <li id="speciesTab" class="active"><a href="#species" data-toggle="tab">Explore by species <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
+            <li id="taxonomyTab"><a href="#taxonomy" data-toggle="tab">Explore by taxonomy <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active">
@@ -66,13 +66,32 @@
                         </tr>
                     </thead>
                     <aa:zone id="groupsZone" tag="tbody" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups')}"
-                             jsBefore="AjaxAnywhere.dynamicParams=regionWidget.getCurrentState();">
+                             jsBefore="regionWidget.selectGroup();"
+                             jsAfter="regionWidget.groupsLoaded();">
                         <tr>
-                            <td colspan="2" class="text-center">
-                                <img alt="loading" src="${g.resource(dir: 'images', file: 'spinner.gif')}"/>
+                            <td colspan="2" class="text-center valign-middle">
+                                <i class="fa fa-cog fa-spin fa-2x"></i>
+                            </td>
+                        </tr>
+
+                    </aa:zone>
+                </table>
+                <table class="table table-condensed table-hover" id="species">
+                    <thead>
+                        <tr>
+                            <th colspan="2" class="text-center">Species</th>
+                            <th class="text-right">Records</th>
+                        </tr>
+                    </thead>
+                    <aa:zone id="speciesZone" tag="tbody">
+                        <tr class="spinner">
+                            <td colspan="3" class="spinner text-center valign-middle">
+                                <i class="fa fa-cog fa-spin fa-2x"></i>
                             </td>
                         </tr>
                     </aa:zone>
+
+
                 </table>
             </div>
             <div class="tab-pane" id="taxonomy">

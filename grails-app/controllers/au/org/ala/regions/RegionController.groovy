@@ -20,15 +20,28 @@ class RegionController {
 
     /**
      *
-     * @param regionFid
-     * @param regionType
-     * @param regionName
-     * @param from
-     * @param to
+     * @return
      */
     def showGroups() {
         def groups = metadataService.getGroups(params.regionFid, params.regionType, params.regionName, params.from, params.to)
 
         render template: 'groups', model: [groups: groups]
+    }
+
+    /**
+     *
+     * @return
+     */
+    def showSpecies() {
+        def species = metadataService.getSpecies(params.regionFid, params.regionType, params.regionName, params.group, params.pageIndex?:"0", params.from, params.to)
+
+        render template: 'species', model: [species        : species,
+                                            speciesPageUrl : "${metadataService.BIE_URL}/species",
+                                            regionFid      : params.regionFid,
+                                            regionType     : params.regionType,
+                                            regionName     : params.regionName,
+                                            pageIndex      : params.pageIndex ? Integer.parseInt(params.pageIndex) : 0,
+                                            from           : params.from,
+                                            to             : params.to]
     }
 }
