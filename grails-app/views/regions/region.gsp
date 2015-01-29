@@ -100,21 +100,40 @@
         </div>
     </div>
     <div class="span6">
-        <div id="timeContainer">
-            <span id="date-heading">Explore by date</span><span id="date-hint">Drag handles to restrict date or play by decade.</span>
-            <div id="playControls"><span id="play">
-                <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
-                <img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
-                <img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
-            </span></div>
-            %{--<p>Drag handles to restrict records by date of observation/collection.</p>--}%
-            <div id="timeValues"><span id="from">1850</span> <span id="to">${Calendar.getInstance().get(Calendar.YEAR)}</span></div>
+
+        <ul class="nav nav-tabs" id="controlsMapTab">
+            <li class="active">
+                <a href="#">Time Controls and Map <i class="fa fa-info-circle fa-lg "></i></a>
+            </li>
+
+        </ul>
+
+
+        %{--<div id="date-hint" class="span4">Drag handles to restrict date or play by decade.</div>--}%
+        <g:set var="currentYear" value="${Calendar.getInstance().get(Calendar.YEAR)}"/>
+        <div id="timeControls" class="text-center">
+            <span class="range pull-left"><strong>1850</strong></span>
+            <span>
+                <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
+                <img onclick="timeSlider.pause()" alt="Pause play" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
+                <img onclick="timeSlider.stop()" alt="Stop" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
+            </span>
+            <span class="range pull-right"><strong>${currentYear}</strong></span>
+
             <div id="timeSlider"></div>
-            <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
+            <ul id="timeline">
+                <g:each in="${(1850..currentYear).findAll {it == currentYear ? it : it % 10 == 0}}" var="year" status="y">
+                    <li style="left: ${year == 1850 ? 0 : "${g.formatNumber(number: ((year - 1850) * 100) / (currentYear - 1850), maxFractionDigits: 10)}%"}">
+                        <time>${year == currentYear ||  year == 1850 ? '' : year}</time>
+                    </li>
+                </g:each>
+            </ul>
             <div id="debugTime"></div>
         </div>
 
-        <div id="region-map"></div>
+
+            <div id="region-map"></div>
+
 
         <span id="controls-toggle" class="link under">Advanced map controls</span>
         <div id="controls" class="ui-helper-hidden">

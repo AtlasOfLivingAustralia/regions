@@ -254,7 +254,7 @@ var RegionMap = function (config) {
         useReflectService = config.useReflectService;
 
         var myOptions = {
-            scrollwheel: false,
+            scrollwheel: true,
             streetViewControl: false,
             mapTypeControl: true,
             mapTypeControlOptions: {

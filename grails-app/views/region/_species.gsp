@@ -18,10 +18,10 @@
     <tr class="infoRowLinks" style="display: none;">
         <td>&nbsp;</td>
         <td colspan="2">
-            <a href="${speciesPageUrl}/${singleSpecies.guid}" class="btn btn-mini btn-info" title="View Species page"><i class="fa fa-external-link"></i> Species Profile</a>
+            <a href="${speciesPageUrl}/${singleSpecies.guid}" class="btn btn-mini" title="View Species page"><i class="fa fa-external-link"></i> Species Profile</a>
             &nbsp;|&nbsp;
             <a href="${rg.speciesRecordListUrl([name: singleSpecies.name, rank: singleSpecies.rank, regionFid: regionFid, regionName: regionName, regionType: regionType, from: from, to: to])}"
-               class="btn btn-mini btn-success" title="View list of Records"><i class="fa fa-database"></i> List of Records</a>
+               class="btn btn-mini" title="View list of Records"><i class="fa fa-database"></i> List of Records</a>
         </td>
     </tr>
 </g:each>
@@ -33,7 +33,7 @@
                href="${g.createLink(controller: 'region', action: 'showSpecies', params: [pageIndex: pageIndex ? pageIndex + 1 : '1'])}"
                js-before="regionWidget.showMoreSpecies();"
                js-after=""
-               class="btn btn-primary btn-small"><i class="fa fa-plus"></i> Show more species</a>
+               class="btn btn-small"><i class="fa fa-plus"></i> Show more species</a>
         </td>
         <td></td>
     </aa:zone>
