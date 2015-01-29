@@ -1,10 +1,10 @@
-<g:if test="${!pageIndex}">
-<tbody>
+<g:if test="${!pageIndex || pageIndex == 0}">
+<tbody id="speciesZone">
 </g:if>
 
 
 <g:each in="${species}" var="singleSpecies" status="i">
-    <tr class="link">
+    <tr class="link" id="${singleSpecies.guid}">
         <td>
             ${(pageIndex * 50) + i + 1}.
         </td>
@@ -27,9 +27,9 @@
 </g:each>
 
 <g:if test="${species.size() % 50 == 0}">
-    <aa:zone id="speciesZone" tag="tr">
+    <aa:zone id="moreSpeciesZone" tag="tr">
         <td colspan="2" class="text-center">
-            <a aa-refresh-zones="speciesZone" id="showMoreSpeciesButton"
+            <a aa-refresh-zones="moreSpeciesZone" id="showMoreSpeciesButton"
                href="${g.createLink(controller: 'region', action: 'showSpecies', params: [pageIndex: pageIndex ? pageIndex + 1 : '1'])}"
                js-before="regionWidget.showMoreSpecies();"
                js-after=""
@@ -39,7 +39,7 @@
     </aa:zone>
 </g:if>
 
-<g:if test="${!pageIndex}">
+<g:if test="${!pageIndex || pageIndex == 0}">
 </tbody>
 </g:if>
 

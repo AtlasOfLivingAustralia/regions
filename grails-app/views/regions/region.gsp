@@ -3,6 +3,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <title>${region.name} | Atlas of Living Australia</title>
+    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
     <r:require modules="region"/>
 </head>
 <body>
@@ -32,7 +33,6 @@
         <aa:zone id="emblems" fragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name])}">
             <i class="fa fa-cog fa-spin fa-2x"></i>
         </aa:zone>
-
     </div>
 </div>
 
@@ -100,7 +100,43 @@
         </div>
     </div>
     <div class="span6">
+        <div id="timeContainer">
+            <span id="date-heading">Explore by date</span><span id="date-hint">Drag handles to restrict date or play by decade.</span>
+            <div id="playControls"><span id="play">
+                <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
+                <img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
+                <img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
+            </span></div>
+            %{--<p>Drag handles to restrict records by date of observation/collection.</p>--}%
+            <div id="timeValues"><span id="from">1850</span> <span id="to">${Calendar.getInstance().get(Calendar.YEAR)}</span></div>
+            <div id="timeSlider"></div>
+            <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
+            <div id="debugTime"></div>
+        </div>
 
+        <div id="region-map"></div>
+
+        <span id="controls-toggle" class="link under">Advanced map controls</span>
+        <div id="controls" class="ui-helper-hidden">
+            <div>
+                <div class="tish">
+                    <label for="toggleOccurrences">
+                        <input type="checkbox" name="occurrences" id="toggleOccurrences" value="1" checked/>
+                        Occurrences</label></div>
+
+                <div id="occurrencesOpacity"></div>
+                <span id="hide-controls" class="link under">Hide</span>
+            </div>
+
+            <div>
+                <div class="tish">
+                    <label for="toggleRegion">
+                        <input type="checkbox" name="region" id="toggleRegion" value="1" checked/>
+                        Region</label></div>
+
+                <div id="regionOpacity"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -114,35 +150,9 @@
                     %{--<li><a href="#">Explore by taxonomy</a></li>--}%
                 %{--</ul>--}%
                 <div id="slider-pane">
-                    <div id="species">
+                    <div>
                         <div id="taxaBox">
-                            <div id="rightList" class="tableContainer">
-                                <table>
-                                    <thead class="fixedHeader">
-                                    <tr>
-                                        <th>&nbsp;</th>
-                                        <th>Species</th>
-                                        <th>Records</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="scrollContent">
-                                    </tbody>
-                                </table>
-                            </div>
 
-                            <div id="leftList">
-                                <table id="taxa-level-0">
-                                    <thead>
-                                    <tr>
-                                        <th>Group</th>
-                                        <th>Species</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
-                            </div>
 
                             <div id="taxa-links" style="clear:both;">
                                 <ul>
@@ -171,46 +181,24 @@
         </div>
 
         <div class="span6">
-            <div id="map" class="section">
-                <div id="timeContainer">
-                    <span id="date-heading">Explore by date</span><span id="date-hint">Drag handles to restrict date or play by decade.</span>
-                    <div id="playControls"><span id="play">
-                        <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
-                        <img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
-                        <img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
-                    </span></div>
+            %{--<div id="map" class="section">--}%
+                %{--<div id="timeContainer">--}%
+                    %{--<span id="date-heading">Explore by date</span><span id="date-hint">Drag handles to restrict date or play by decade.</span>--}%
+                    %{--<div id="playControls"><span id="play">--}%
+                        %{--<img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>--}%
+                        %{--<img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>--}%
+                        %{--<img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>--}%
+                    %{--</span></div>--}%
                     %{--<p>Drag handles to restrict records by date of observation/collection.</p>--}%
-                    <div id="timeValues"><span id="from">1850</span> <span id="to">2014</span></div>
-                    <div id="timeSlider"></div>
-                    <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
-                    <div id="debugTime"></div>
-                </div>
-                <div id="region-map-container">
-                    <div id="region-map"></div>
+                    %{--<div id="timeValues"><span id="from">1850</span> <span id="to">2014</span></div>--}%
+                    %{--<div id="timeSlider"></div>--}%
+                    %{--<div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>--}%
+                    %{--<div id="debugTime"></div>--}%
+                %{--</div>--}%
+                %{--<div id="region-map-container">--}%
 
-                    <span id="controls-toggle" class="link under">Advanced map controls</span>
-                    <div id="controls" class="ui-helper-hidden">
-                        <div>
-                            <div class="tish">
-                                <label for="toggleOccurrences">
-                                    <input type="checkbox" name="occurrences" id="toggleOccurrences" value="1" checked/>
-                                    Occurrences</label></div>
-
-                            <div id="occurrencesOpacity"></div>
-                            <span id="hide-controls" class="link under">Hide</span>
-                        </div>
-
-                        <div>
-                            <div class="tish">
-                                <label for="toggleRegion">
-                                    <input type="checkbox" name="region" id="toggleRegion" value="1" checked/>
-                                    Region</label></div>
-
-                            <div id="regionOpacity"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                %{--</div>--}%
+            %{--</div>--}%
         </div>
     </div>
 
@@ -355,91 +343,60 @@
         var regionWidget;
 
         $(function() {
-            %{--${g.remoteFunction(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name], update: 'emblems')}--}%
             regionWidget = new RegionWidget({
                 regionName: '${region.name}',
                 regionType: '${region.type}',
-                regionFid: '${region.fid}'
+                regionFid: '${region.fid}',
+                regionPid: '${region.pid}',
+                regionLayerName: ${region.pid},
+                urls: {
+                    speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
+                    biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
+                    biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
+                    spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
+                    spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
+                    spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service"
+                }
             });
+
+            regionWidget.setMap(new RegionMap({
+                bbox: {
+                    sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
+                    ne: {lat: ${region.bbox?.maxLat}, lng: ${region.bbox?.maxLng}}
+                },
+                useReflectService: ${useReflect}
+            }));
 
             $('#explorer a').click(function (e) {
                 e.preventDefault();
                 $(this).tab('show');
-            })
+            });
 
-        });
+            var query = region.buildRegionFacet("${region.type}","${region.name}", "${region.fid}");
 
-        //////////////
-
-        var bieUrl = "${grailsApplication.config.bie.baseURL}/",
-            baseUrl = "${grailsApplication.config.grails.serverURL}",
-            bbox;
-
-        layerFid = "${region.fid}";
-
-        if (${useReflect == false}) {
-            useReflectService = false;
-        }
-
-        var query = buildRegionFacet("${region.type}","${region.name}"),
-            taxonomyChartOptions = {
-            query: query,
-            subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),
-            rank: "kingdom",
-            width: 450,
-            clickThru: false,
-            notifyChange: "taxonChartChange",
-            collectionsUrl: "${grailsApplication.config.grails.serverURL}",
-            biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}/ws",
-            displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}/"
-        };
-
-        bbox = {sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
-                ne: {lat: ${region.bbox?.maxLat}, lng: ${region.bbox?.maxLng}} };
-
-        // Load Google maps via AJAX API
-//        google.load("maps", "3.3", {other_params:"sensor=false"});
-        // load visualisations
-        google.load("visualization", "1", {packages:["corechart"]});
-
-        // do stuff
-        google.setOnLoadCallback(function() {
-
-
-            var config = {
-                speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
-                biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
-                biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}/",
-                spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
-                spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
-                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service"
+            var taxonomyChartOptions = {
+                query: query,
+                subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),
+                rank: "kingdom",
+                width: 450,
+                clickThru: false,
+                notifyChange: "taxonChartChange",
+                collectionsUrl: "${grailsApplication.config.grails.serverURL}",
+                biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}/ws",
+                displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}/"
             };
+
+//            taxonomyChart.load(taxonomyChartOptions);
 
             // init time controls
             $('#timeSlider').slider({
                 range: true,
                 min: 1850,
-                max: new Date().getFullYear() - 1,
-                values: [1850, new Date().getFullYear() - 1],
+                max: new Date().getFullYear(),
+                values: [1850, new Date().getFullYear()],
                 slide: slideHandler,
                 change: dateRangeChanged
             });
-
-            // initialise the visible tab first
-            if (false) { // TODO WTF!!
-                taxonomyChart.load(taxonomyChartOptions);
-                initTaxaBox("${region.type}","${region.name}", config);
-            }
-            else {
-                initTaxaBox("${region.type}","${region.name}", config);
-                taxonomyChart.load(taxonomyChartOptions);
-            }
-
-            initRegionMap("${region.type}", "${region.name}", "${region.layerName}",
-                    "${region.pid}", bbox, config);
-
-            // show alert messages
-            initAlerts("${rg.loggedInUsername()}");
 
         });
 

@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <title>Regions | Atlas of Living Australia</title>
+    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
     <r:require modules="regions"/>
 </head>
 <body>
