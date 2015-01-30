@@ -101,11 +101,13 @@
 
         <ul class="nav nav-tabs" id="controlsMapTab">
             <li class="active">
-                <a href="#">Time Controls and Map <i class="fa fa-info-circle fa-lg "></i></a>
+                <a href="#">Time Controls and Map <i class="fa fa-info-circle fa-lg link" id="timeControlsInfo"
+                                                     data-content="Drag handles to restrict date or play by decade."
+                                                     data-placement="right" data-toggle="popover" data-original-title="How to use time controls"></i></a>
             </li>
         </ul>
 
-        %{--<div id="date-hint" class="span4">Drag handles to restrict date or play by decade.</div>--}%
+        %{--<div id="date-hint" class="span4">.</div>--}%
         <g:set var="currentYear" value="${Calendar.getInstance().get(Calendar.YEAR)}"/>
         <div id="timeControls" class="text-center">
             <span class="range pull-left"><strong>1850</strong></span>
@@ -400,6 +402,8 @@
             };
 
 //            taxonomyChart.load(taxonomyChartOptions);
+
+            $('#timeControlsInfo').popover();
 
             // init time controls
             $('#timeSlider').slider({
