@@ -365,6 +365,7 @@
                 regionPid: '${region.pid}',
                 regionLayerName: ${region.pid},
                 urls: {
+                    proxyUrl: '${createLink(controller: 'proxy', action: 'index')}',
                     speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
                     biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
                     biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",

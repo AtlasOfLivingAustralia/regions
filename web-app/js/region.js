@@ -254,7 +254,7 @@ var RegionMap = function (config) {
         useReflectService = config.useReflectService;
 
         var myOptions = {
-            scrollwheel: true,
+            scrollwheel: false,
             streetViewControl: false,
             mapTypeControl: true,
             mapTypeControlOptions: {
@@ -489,6 +489,43 @@ var RegionMap = function (config) {
         overlays[1] = new WMSTileLayer("Occurrences (by reflect service)", url, prms, wmsTileLoaded, 0.8);
 
         map.overlayMapTypes.setAt(1, $('#toggleOccurrences').is(':checked') ? overlays[1] : null);
+    };
+
+    /**
+     * Show information about the current layer at the specified location.
+     * @param location
+     */
+    info = function(location) {
+        var currentState = regionWidget.getCurrentState();
+        var urls = regionWidget.getUrls();
+
+        $.ajax({
+            url: urls.proxyUrl + "?format=json&url=" + urls.spatialServiceUrl + "/intersect/" + currentState.regionFid + "/" +
+            location.lat() + "/" + location.lng(),
+            dataType: 'json',
+            success: function(data) {
+                if (data.length == 0) { return; }
+                if (infoWindow) { infoWindow.close(); }
+
+                var anyInfo = false;  // keep track of whether we actually add anything
+                var desc = '<ol>';
+                $.each(data, function(i, obj) {
+                    if (obj.value) {
+                        anyInfo = true;
+                        var lyr = obj.layername == obj.value ? "" : " (" + obj.layername + ")";
+                        desc += "<li>" + obj.value + lyr + "</li>";
+                    }
+                });
+                desc += "</ol>";
+                if (anyInfo) {
+                    infoWindow = new google.maps.InfoWindow({
+                        content: "<div style='font-size:90%;padding-right:15px;'>" + desc + "</div>",
+                        position: location
+                    });
+                    infoWindow.open(map);
+                }
+            }
+        });
     };
 
     var _public = {
@@ -775,39 +812,7 @@ var overlayFormat = /*($.browser.msie && $.browser.version.slice(0,1) == '6') ? 
 
 
 
-/**
- * Show information about the current layer at the specified location.
- * @param location
- */
-function info(location) {
-    $.ajax({
-        url: baseUrl + "/proxy?format=json&url=" + regionWidget.getUrls().spatialServiceUrl + "/intersect/" + layerFid + "/" +
-                location.lat() + "/" + location.lng(),
-        dataType: 'json',
-        success: function(data) {
-            if (data.length == 0) { return; }
-            if (infoWindow) { infoWindow.close(); }
 
-            var anyInfo = false;  // keep track of whether we actually add anything
-            var desc = '<ol>';
-            $.each(data, function(i, obj) {
-                if (obj.value) {
-                    anyInfo = true;
-                    var lyr = obj.layername == obj.value ? "" : " (" + obj.layername + ")";
-                    desc += "<li>" + obj.value + lyr + "</li>";
-                }
-            });
-            desc += "</ol>";
-            if (anyInfo) {
-                infoWindow = new google.maps.InfoWindow({
-                    content: "<div style='font-size:90%;padding-right:15px;'>" + desc + "</div>",
-                    position: location
-                });
-                infoWindow.open(map);
-            }
-        }
-    });
-}
 
 /**
  * Returns the value of the opacity slider for the region overlay.
