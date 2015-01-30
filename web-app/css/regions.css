@@ -38,10 +38,6 @@
     margin-right: 3px;
 }
 
-td.valign-middle {
-    vertical-align: middle;
-}
-
 /************************************************************************************\
 | Regions page
 \************************************************************************************/
@@ -218,6 +214,10 @@ li.regionLink {
 #species tbody .spinner {
     height: 100%;
     display: block;
+}
+
+tbody td.spinner {
+    padding-top: 200px !important;
 }
 
 #species tbody tr.link td:first-child {

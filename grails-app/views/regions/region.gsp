@@ -69,7 +69,7 @@
                              jsBefore="regionWidget.selectGroup();"
                              jsAfter="regionWidget.groupsLoaded();">
                         <tr>
-                            <td colspan="2" class="text-center valign-middle">
+                            <td colspan="2" class="spinner text-center">
                                 <i class="fa fa-cog fa-spin fa-2x"></i>
                             </td>
                         </tr>
@@ -85,13 +85,11 @@
                     </thead>
                     <aa:zone id="speciesZone" tag="tbody">
                         <tr class="spinner">
-                            <td colspan="3" class="spinner text-center valign-middle">
+                            <td colspan="3" class="spinner text-center">
                                 <i class="fa fa-cog fa-spin fa-2x"></i>
                             </td>
                         </tr>
                     </aa:zone>
-
-
                 </table>
             </div>
             <div class="tab-pane" id="taxonomy">
@@ -105,9 +103,7 @@
             <li class="active">
                 <a href="#">Time Controls and Map <i class="fa fa-info-circle fa-lg "></i></a>
             </li>
-
         </ul>
-
 
         %{--<div id="date-hint" class="span4">Drag handles to restrict date or play by decade.</div>--}%
         <g:set var="currentYear" value="${Calendar.getInstance().get(Calendar.YEAR)}"/>
@@ -122,7 +118,7 @@
 
             <div id="timeSlider"></div>
             <ul id="timeline">
-                <g:each in="${(1850..currentYear).findAll {it == currentYear ? it : it % 10 == 0}}" var="year" status="y">
+                <g:each in="${(1850..currentYear).findAll {it == currentYear ? it : it % 10 == 0}}" var="year">
                     <li style="left: ${year == 1850 ? 0 : "${g.formatNumber(number: ((year - 1850) * 100) / (currentYear - 1850), maxFractionDigits: 10)}%"}">
                         <time>${year == currentYear ||  year == 1850 ? '' : year}</time>
                     </li>
@@ -339,9 +335,7 @@
                             </g:each>
                         </select>
                     </p>
-                    %{--<p><label for="reason" style="vertical-align: top">Download Reason</label>--}%
-                    %{--<textarea name="reason" rows="5" cols="30" id="reason"  ></textarea>--}%
-                    %{--</p>--}%
+
                     <input type="submit" value="Download All Records" id="downloadSubmitButton"/>&nbsp;
                     <input type="submit" value="Download Species Checklist" id="downloadCheckListSubmitButton"/>&nbsp;
                     <input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;
