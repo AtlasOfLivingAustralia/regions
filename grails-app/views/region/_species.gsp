@@ -3,13 +3,13 @@
 </g:if>
 
 
-<g:each in="${species}" var="singleSpecies" status="i">
+<g:each in="${species.records}" var="singleSpecies" status="i">
     <tr class="link" id="${singleSpecies.guid}">
         <td>
             ${(pageIndex * 50) + i + 1}.
         </td>
         <td>
-            ${singleSpecies.name}${singleSpecies.commonName ? " : ${singleSpecies.commonName}" : ''}
+            ${singleSpecies.name}${singleSpecies.commonName ? " : ${singleSpecies.commonName}" : ""}
         </td>
         <td class="text-right">
             ${g.formatNumber(number: singleSpecies.count, type: 'number')}
@@ -26,7 +26,7 @@
     </tr>
 </g:each>
 
-<g:if test="${species.size() % 50 == 0}">
+<g:if test="${species.records.size() > 0 && species.records.size() % 50 == 0}">
     <aa:zone id="moreSpeciesZone" tag="tr">
         <td colspan="2" class="text-center">
             <a aa-refresh-zones="moreSpeciesZone" id="showMoreSpeciesButton"

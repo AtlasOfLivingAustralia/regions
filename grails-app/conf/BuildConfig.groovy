@@ -3,6 +3,8 @@ import grails.util.Environment
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
+grails.project.target.level = 1.7
+grails.project.source.level = 1.7
 grails.project.war.file = "target/${appName}-${appVersion}.war"
 grails.project.groupId = "au.org.ala"
 
@@ -43,7 +45,6 @@ grails.project.dependency.resolution = {
         build ":modules-manager:0.2.2-SNAPSHOT"
 
         compile ":font-awesome-resources:4.2.0.0"
-        compile ":rest-client-builder:2.0.3"
 
         runtime ':resources:1.2.14'
         if (Environment.current == Environment.PRODUCTION) {

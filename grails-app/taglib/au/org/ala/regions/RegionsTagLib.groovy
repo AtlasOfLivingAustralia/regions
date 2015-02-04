@@ -1,6 +1,5 @@
 package au.org.ala.regions
 
-import groovy.xml.MarkupBuilder
 import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import au.org.ala.cas.util.AuthenticationCookieUtils
 
@@ -86,7 +85,7 @@ class RegionsTagLib {
      * @attr to
      */
     def speciesRecordListUrl = {attrs ->
-        out << metadataService.generateSpeciesRecordListUrl(attrs.name, attrs.rank, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.from, attrs.to)
+        out << metadataService.buildSpeciesRecordListUrl(attrs.name, attrs.rank, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.from, attrs.to)
     }
 
 }

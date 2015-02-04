@@ -63,6 +63,10 @@ var RegionWidget = function (config) {
     var defaultTab = 'speciesTab';
     var regionMap;
 
+    /**
+     * Essential values to maintain the state of the widget when the user interacts with it
+     * @type {{regionName: null, regionType: null, regionFid: null, regionPid: null, regionLayerName: null, playState: null, group: null, subgroup: null, guid: null, from: null, to: null, tab: null}}
+     */
     var state = {
         regionName: null,
         regionType: null,
@@ -71,6 +75,7 @@ var RegionWidget = function (config) {
         regionLayerName: null,
         playState: null,
         group: null,
+        subgroup: null,
         guid: null,
         from: null,
         to: null,
@@ -92,6 +97,7 @@ var RegionWidget = function (config) {
         state.group = $.bbq.getState('group');
         state.group = state.group ? state.group : 'ALL_SPECIES';
         state.guid = $.bbq.getState('guid');
+        state.subgroup = $.bbq.getState('subgroup');
         state.from = $.bbq.getState('from');
         state.from = state.from ? state.from : defaultFromYear;
         state.to = $.bbq.getState('to');
@@ -118,6 +124,20 @@ var RegionWidget = function (config) {
         });
     };
 
+    /**
+     * Updates state with new values and preserve state for when reloading page
+     * @param newPartialState
+     */
+    var updateState = function(newPartialState) {
+        $.extend(state, newPartialState);
+        //TODO persist current state
+
+    };
+
+    /**
+     * Function called when the user selects a species
+     * @param row
+     */
     var selectSpecies = function(row) {
         $("#species tbody tr.link").removeClass('speciesSelected')
         $("#species tbody tr.infoRowLinks").hide();
@@ -126,12 +146,12 @@ var RegionWidget = function (config) {
         $(nextTr).addClass('speciesSelected');
         $(row).next('tr').show();
         // Update state
-        state.guid = $(row).attr('id');
+        updateState({guid: $(row).attr('id')});
         regionMap.reloadRecordsOnMap();
     };
 
     /**
-     *
+     * Hides the tab spinners
      * @param tabId
      */
     var hideTabSpinner = function (tabId) {
@@ -145,7 +165,7 @@ var RegionWidget = function (config) {
     };
 
     /**
-     *
+     * Shows the tab spinners
      * @param tabId
      */
     var showTabSpinner = function (tabId) {
@@ -157,7 +177,7 @@ var RegionWidget = function (config) {
     };
 
     /**
-     *
+     * Highlights the group that is currently selected
      */
     var selectCurrentGroup = function() {
         $('.group-row').removeClass('groupSelected');
@@ -174,19 +194,15 @@ var RegionWidget = function (config) {
             return state;
         },
 
-        updateState: function(newPartialState) {
-            $.extend(state, newPartialState);
-        },
-
         groupsLoaded: function() {
             $('#groups').show('highlight', 2000);
             selectCurrentGroup();
             this.loadSpecies();
         },
 
-        selectGroup: function(group) {
+        selectGroup: function(group, isSubgroup) {
             if (group) {
-                this.updateState({group: group, guid: null});
+                updateState({group: group, guid: null});
                 selectCurrentGroup();
             }
             regionMap.reloadRecordsOnMap();

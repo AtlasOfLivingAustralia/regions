@@ -132,13 +132,7 @@ li.regionLink {
     margin-bottom: .6em;
 }
 
-#groups {
-    border-right: 1px solid #dddddd;
-}
-
-
 #groups, #species {
-    /*border: solid 1px #dddddd;*/
     height: 560px;
     max-height: 560px;
 }
@@ -148,26 +142,21 @@ li.regionLink {
     border-bottom: 1px solid #dddddd;
 }
 
+#species thead tr, #groups thead tr {
+    display: block;
+    position: relative;
+    width: 100%;
+}
+
 #groups tbody, #species tbody {
     height: 530px;
     max-height: 530px;
+    display: block;
+    overflow-y: auto;
 }
 
 #groups tbody td, #species tbody td {
     border: 0;
-}
-
-#groups {
-    float: left;
-    width: 40%;
-}
-
-#groups th, #groups td {
-    width: 60%;
-}
-
-#groups th:first-child, #groups td:first-child {
-    width: 40%;
 }
 
 #groups td, #species td {
@@ -175,49 +164,53 @@ li.regionLink {
     font-size: .9em;
 }
 
-#species td:first-child {
-    padding-right: 0;
+#species tbody .spinner, #groups tbody .spinner {
+    display: block;
 }
 
-#groups td.level0, #groups td.level1 {
+#species tbody td.spinner, #groups tbody td.spinner {
+    padding-top: 200px !important;
+}
+
+#groups {
+    border-right: 1px solid #dddddd;
+    float: left;
+    table-layout: fixed;
+    width: 45%;
+}
+
+#groups thead th {
+    display:inherit;
+}
+
+#groups tbody tr {
+    display: block;
+}
+
+#groups tbody td {
+    display: inherit;
+}
+
+#groups td.level0 {
     font-weight: bold;
 }
 
-#groups td.level2 {
+#groups td.level1 {
     padding-left: 2em;
-}
-
-#groups td.level3 {
-    padding-left: 2.5em;
 }
 
 #species {
     float: right;
     table-layout: fixed;
-    width: 60%;
-}
-
-#species thead tr {
-    display: block;
-    position: relative;
+    width: 55%;
 }
 
 #species thead th:first-child {
     width: 85%;
 }
 
-#species tbody {
-    display: block;
-    overflow-y: scroll;
-}
-
-#species tbody .spinner {
-    height: 100%;
-    display: block;
-}
-
-tbody td.spinner {
-    padding-top: 200px !important;
+#species td:first-child {
+    padding-right: 0;
 }
 
 #species tbody tr.link td:first-child {

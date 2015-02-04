@@ -1,11 +1,10 @@
 package au.org.ala.regions
 
 import grails.converters.JSON
-import grails.plugins.rest.client.RestBuilder
+import groovy.transform.CompileStatic
+import groovyx.net.http.RESTClient
 import groovyx.net.http.URIBuilder
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
+import org.slf4j.LoggerFactory
 
 import javax.annotation.PostConstruct
 
@@ -44,7 +43,6 @@ class MetadataService {
     }
 
     def grailsApplication
-    RestBuilder rest = new RestBuilder()
 
     final static String WS_DATE_FROM_PREFIX = "-01-01T00:00:00Z"
     final static String WS_DATE_TO_PREFIX = "-12-31T23:59:59Z"
@@ -89,7 +87,7 @@ class MetadataService {
 
         emblemGuids.sort({it.key}).each {key, guid ->
             String emblemInfoUrl = "${BIE_URL}/ws/species/moreInfo/${guid}.json"
-            def emblemInfo = rest.get(emblemInfoUrl).json
+            def emblemInfo = new RESTClient(emblemInfoUrl).get([:]).data
             emblemMetadata << [
                 "imgUrl":  emblemInfo?.images && emblemInfo?.images[0]?.thumbnail ? emblemInfo?.images[0]?.thumbnail : DEFAULT_IMG_URL,
                 "scientificName": emblemInfo?.taxonConcept?.nameString,
@@ -111,9 +109,13 @@ class MetadataService {
      * @param to
      * @return
      */
-    def getGroups(String regionFid, String regionType, String regionName, String from = null, String to = null) {
-        rest.get(buildBiocacheUrl(regionFid, regionType, regionName, from, to)).json
-
+    List getGroups() {
+        def response = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([:]).data
+        List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
+        response.each{group ->
+            groups << [name: group.speciesGroup, commonName: group.speciesGroup]
+            group.taxa.each {subgroup -> groups << [name: subgroup.name, commonName: subgroup.common, parent:group.speciesGroup]}}
+        return groups
     }
 
     /**
@@ -121,13 +123,26 @@ class MetadataService {
      * @param regionFid
      * @param regionType
      * @param regionName
+     * @param groupName
+     * @param isSubgroup
      * @param from
      * @param to
      * @return
      */
-    def getSpecies(String regionFid, String regionType, String regionName, String group, String pageIndex = "0", String from = null, String to = null) {
-        rest.get(buildBiocacheUrl(regionFid, regionType, regionName, from, to, group, pageIndex)).json
-
+    def getSpecies(String regionFid, String regionType, String regionName, String groupName, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
+        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, groupName, isSubgroup, from, to, pageIndex)).get([:]).data
+        return [
+                totalRecords: response.totalRecords,
+                records: response.facetResults[0]?.fieldResult.collect {result ->
+                    List info = Arrays.asList(result.label.split('\\|'))
+                    return [
+                            name: info.get(0),
+                            guid: info.get(1),
+                            commonName: info.size() == 5 ? info.get(2) : '',
+                            count: result.count
+                    ]
+                }
+        ]
     }
 
     /**
@@ -141,7 +156,7 @@ class MetadataService {
      * @param to
      * @return
      */
-    String generateSpeciesRecordListUrl(String name, String rank, String regionFid, String regionType, String regionName, String from, String to) {
+    String buildSpeciesRecordListUrl(String name, String rank, String regionFid, String regionType, String regionName, String from, String to) {
         return "${BIOCACHE_URL}/occurrences/search?q=${rank == 'subspecies' ? 'subspecies_name' : rank}:\"${name}\"" +
                 "&fq=${buildRegionFacet(regionFid, regionType, regionName)}" +
                 "&fq=${buildTimeFacet(from, to)}"
@@ -152,22 +167,20 @@ class MetadataService {
      * @param regionFid
      * @param regionType
      * @param regionName
+     * @param groupName
+     * @param isSubgroup
      * @param from
      * @param to
+     * @param pageIndex
      * @return
      */
-    String buildBiocacheUrl(String regionFid, String regionType, String regionName, String from = null, String to = null, String group = null, String pageIndex = '0') {
-        if (group) {
-            URLDecoder.decode(new URIBuilder("${BIOCACHE_URL}/ws/explore/group/${group}.json").with {
-                query = buildBiocacheParams(regionFid, regionType, regionName, from, to, pageIndex)
-                return it
-            }.toString(), "UTF-8").toString()
-        } else {
-            URLDecoder.decode(new URIBuilder("${BIOCACHE_URL}/ws/explore/groups.json").with {
-                query = buildBiocacheParams(regionFid, regionType, regionName, from, to, pageIndex)
-                return it
-            }.toString(), "UTF-8").toString()
-        }
+    String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
+        String url = new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
+            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, groupName, isSubgroup, from, to, pageIndex)
+            return it
+        }.toString()
+        log.debug "REST URL generated = ${url}"
+        return url
     }
 
     /**
@@ -175,20 +188,32 @@ class MetadataService {
      * @param regionFid
      * @param regionType
      * @param regionName
+     * @param groupName
+     * @param isSubgroup
      * @param from
      * @param to
+     * @param pageIndex
      * @return
      */
-    private Map buildBiocacheParams(String regionFid, String regionType, String regionName, String from, String to, String pageIndex = "0") {
+    private Map buildSearchOccurrencesWsParams(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = "0") {
         Map params =  [
                 q : buildRegionFacet(regionFid, regionType, regionName),
-                pageSize : PAGE_SIZE,
-                start: Integer.parseInt(pageIndex) * Integer.parseInt(PAGE_SIZE)
+                facets: 'names_and_lsid',
+                fsort: 'taxon_name',
+                pageSize : 0,
+                flimit: PAGE_SIZE,
+                foffset: Integer.parseInt(pageIndex) * Integer.parseInt(PAGE_SIZE),
+                fq: 'rank:(species OR subspecies)'
         ]
 
-        if (from && to) {
+        if (groupName && isSubgroup) {
+            params << [fq: params.fq + ' AND ' + "species_subgroup:\"${groupName}\""]
+        } else if (groupName) {
+            params << [fq: params.fq + ' AND ' + "species_group:\"${groupName}\""]
+        }
 
-            params << [fq: buildTimeFacet(from, to)]
+        if (from && to) {
+            params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
         }
 
         return params

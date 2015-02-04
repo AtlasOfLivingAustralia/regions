@@ -17,16 +17,16 @@ import org.apache.log4j.Level
  \******************************************************************************/
 def ENV_NAME = "REGIONS_CONFIG"
 def default_config = "/data/regions/config/${appName}-config.properties"
-if(!grails.config.locations || !(grails.config.locations instanceof List)) {
+if (!grails.config.locations || !(grails.config.locations instanceof List)) {
     grails.config.locations = []
 }
-if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
+if (System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
     println "[REGIONS] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
     grails.config.locations = ["file:" + System.getenv(ENV_NAME)]
-} else if(System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
+} else if (System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
     println "[REGIONS] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
     grails.config.locations = ["file:" + System.getProperty(ENV_NAME)]
-} else if(new File(default_config).exists()) {
+} else if (new File(default_config).exists()) {
     println "[REGIONS] Including default configuration file: " + default_config;
     def loc = ["file:" + default_config]
     println "[REGIONS] >> loc = " + loc
@@ -46,7 +46,7 @@ reloadable.cfgs = ["file:/data/regions/config/regions-config.properties"]
 
 /******************************************************************************\
  *  SKINNING
-\******************************************************************************/
+ \******************************************************************************/
 if (!ala.skin) {
     ala.skin = 'ala2';
 }
@@ -58,18 +58,18 @@ if (!ala.skin.loginoutLinkTag.clazz) {
 }*/
 /******************************************************************************\
  *  EXTERNAL SERVERS
-\******************************************************************************/
+ \******************************************************************************/
 if (!bie.baseURL) {
-     bie.baseURL = "http://bie.ala.org.au"
+    bie.baseURL = "http://bie.ala.org.au"
 }
 if (!bie.searchPath) {
-     bie.searchPath = "/search"
+    bie.searchPath = "/search"
 }
 if (!biocache.baseURL) {
-     biocache.baseURL = "http://biocache.ala.org.au"
+    biocache.baseURL = "http://biocache.ala.org.au"
 }
 if (!spatial.baseURL) {
-     spatial.baseURL = "http://spatial.ala.org.au/"
+    spatial.baseURL = "http://spatial.ala.org.au/"
 }
 if (!ala.baseURL) {
     ala.baseURL = "http://www.ala.org.au"
@@ -106,19 +106,19 @@ grails.project.groupId = 'au.org.ala' // change this to alter the default packag
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
 grails.mime.disable.accept.header.userAgents = ['Gecko', 'WebKit', 'Presto', 'Trident']
 grails.mime.types = [ // the first one is the default format
-                      all:           '*/*', // 'all' maps to '*' or the first available format in withFormat
-                      atom:          'application/atom+xml',
-                      css:           'text/css',
-                      csv:           'text/csv',
-                      form:          'application/x-www-form-urlencoded',
-                      html:          ['text/html','application/xhtml+xml'],
-                      js:            'text/javascript',
-                      json:          ['application/json', 'text/json'],
+                      all          : '*/*', // 'all' maps to '*' or the first available format in withFormat
+                      atom         : 'application/atom+xml',
+                      css          : 'text/css',
+                      csv          : 'text/csv',
+                      form         : 'application/x-www-form-urlencoded',
+                      html         : ['text/html', 'application/xhtml+xml'],
+                      js           : 'text/javascript',
+                      json         : ['application/json', 'text/json'],
                       multipartForm: 'multipart/form-data',
-                      rss:           'application/rss+xml',
-                      text:          'text/plain',
-                      hal:           ['application/hal+json','application/hal+xml'],
-                      xml:           ['text/xml', 'application/xml']
+                      rss          : 'application/rss+xml',
+                      text         : 'text/plain',
+                      hal          : ['application/hal+json', 'application/hal+xml'],
+                      xml          : ['text/xml', 'application/xml']
 ]
 
 // URL Mapping Cache Max Size, defaults to 5000
@@ -165,7 +165,7 @@ grails.enable.native2ascii = true
 // packages to include in Spring bean scanning
 grails.spring.bean.packages = []
 // whether to disable processing of multi part requests
-grails.web.disable.multipart=false
+grails.web.disable.multipart = false
 
 // request parameters to mask when logging exceptions
 grails.exceptionresolver.params.exclude = ['password']
@@ -214,7 +214,7 @@ log4j = {
                 console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n"), threshold: Level.DEBUG
             }
             test {
-                rollingFile name: "tomcatLog", maxFileSize: '1MB', file: "/tmp/${appName}", threshold: Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+                rollingFile name: "stdout,tomcatLog", maxFileSize: '1MB', file: "/tmp/${appName}", threshold: Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
             }
         }
     }
@@ -225,36 +225,14 @@ log4j = {
         additivity = true
     }
 
-    debug 'grails.app',
-            'grails.app.domain',
-            'grails.app.controller',
-            'grails.app.service',
-            'grails.app.tagLib',
-            'au.org.ala.specieslist',
-            'grails.app.jobs'
+    warn 'au.org.ala.cas.client',
+            'grails.spring.BeanBuilder',
+            'grails.plugin.webxml',
+            'grails.plugin.cache.web.filter',
+            'grails.app.services.org.grails.plugin.resource',
+            'grails.app.taglib.org.grails.plugin.resource',
+            'grails.app.resourceMappers.org.grails.plugin.resource'
+
+    debug 'grails.app'
 }
 
-
-// Uncomment and edit the following lines to start using Grails encoding & escaping improvements
-
-/* remove this line 
-// GSP settings
-grails {
-    views {
-        gsp {
-            encoding = 'UTF-8'
-            htmlcodec = 'xml' // use xml escaping instead of HTML4 escaping
-            codecs {
-                expression = 'html' // escapes values inside null
-                scriptlet = 'none' // escapes output from scriptlets in GSPs
-                taglib = 'none' // escapes output from taglibs
-                staticparts = 'none' // escapes output from static template parts
-            }
-        }
-        // escapes all not-encoded output at final stage of outputting
-        filteringCodecForContentType {
-            //'text/html' = 'html'
-        }
-    }
-}
-remove this line */

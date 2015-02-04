@@ -3,7 +3,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <title>${region.name} | Atlas of Living Australia</title>
-    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
     <r:require modules="region"/>
 </head>
 <body>
@@ -62,14 +61,13 @@
                     <thead>
                         <tr>
                             <th class="text-center">Group</th>
-                            <th class="text-right">Species Count</th>
                         </tr>
                     </thead>
                     <aa:zone id="groupsZone" tag="tbody" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups')}"
                              jsBefore="regionWidget.selectGroup();"
                              jsAfter="regionWidget.groupsLoaded();">
-                        <tr>
-                            <td colspan="2" class="spinner text-center">
+                        <tr class="spinner">
+                            <td class="spinner text-center">
                                 <i class="fa fa-cog fa-spin fa-2x"></i>
                             </td>
                         </tr>

@@ -23,7 +23,7 @@ class RegionController {
      * @return
      */
     def showGroups() {
-        def groups = metadataService.getGroups(params.regionFid, params.regionType, params.regionName, params.from, params.to)
+        def groups = metadataService.getGroups()
 
         render template: 'groups', model: [groups: groups]
     }
@@ -33,7 +33,7 @@ class RegionController {
      * @return
      */
     def showSpecies() {
-        def species = metadataService.getSpecies(params.regionFid, params.regionType, params.regionName, params.group, params.pageIndex?:"0", params.from, params.to)
+        def species = metadataService.getSpecies(params.regionFid, params.regionType, params.regionName, params.groupName, params.isSubgroup ?: false, params.from, params.to, params.pageIndex ?: "0")
 
         render template: 'species', model: [species        : species,
                                             speciesPageUrl : "${metadataService.BIE_URL}/species",

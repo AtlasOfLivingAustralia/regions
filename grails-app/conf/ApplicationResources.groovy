@@ -27,11 +27,17 @@ modules = {
     }
 
     'map' {
+        dependsOn 'google-maps-api'
+
         resource url: '/js/keydragzoom.js'
         resource url: '/js/wms.js'
         resource url: '/js/jquery.cookie.js'
         resource url: '/js/jquery.ba-bbq.min.js', disposition: 'head'
 
+    }
+
+    'google-maps-api' {
+        resource  url: 'http://maps.google.com/maps/api/js?sensor=false', attrs: [type: "js"], disposition: 'head'
     }
 
     fancybox {
