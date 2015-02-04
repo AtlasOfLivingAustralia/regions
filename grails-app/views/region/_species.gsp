@@ -2,6 +2,11 @@
 <tbody id="speciesZone">
 </g:if>
 
+<g:if test="${species.totalRecords == 0}">
+    <tr>
+        <td colspan="3">No records found.</td>
+    </tr>
+</g:if>
 
 <g:each in="${species.records}" var="singleSpecies" status="i">
     <tr class="link" id="${singleSpecies.guid}">

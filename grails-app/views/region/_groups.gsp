@@ -1,10 +1,11 @@
 
 <tbody>
 <g:each in="${groups}" var="group">
-    <tr id="${group.name}-row" class="group-row link" href="${g.createLink(controller: 'region', action: 'showSpecies')}"
-        ${group.parent ? "parent=\"${group.parent}-row\"" : ""}
+    <tr id="${group.commonName.replaceAll(/[^A-Za-z\\d_]/, "")}-row"
+        class="group-row link" href="${g.createLink(controller: 'region', action: 'showSpecies')}"
+        ${group.parent ? "parent=${group.parent.replaceAll(/[^A-Za-z\\d_]/, "")}-row style=display:none;" : ""}
         aa-refresh-zones="speciesZone"
-        js-before="regionWidget.selectGroup('${group.commonName}', ${group.parent ? true : false});"
+        js-before="regionWidget.selectGroupHandler('${group.commonName}', ${group.parent ? true : false});"
         js-after="regionWidget.speciesLoaded();">
         <td class="level${group.parent ? '1' : '0'}">
             <g:if test="${!group.parent}">

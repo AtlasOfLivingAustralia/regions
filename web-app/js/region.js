@@ -68,24 +68,24 @@ var RegionWidget = function (config) {
      * @type {{regionName: null, regionType: null, regionFid: null, regionPid: null, regionLayerName: null, playState: null, group: null, subgroup: null, guid: null, from: null, to: null, tab: null}}
      */
     var state = {
-        regionName: null,
-        regionType: null,
-        regionFid: null,
-        regionPid: null,
-        regionLayerName: null,
-        playState: null,
-        group: null,
-        subgroup: null,
-        guid: null,
-        from: null,
-        to: null,
-        tab: null
+        regionName: '',
+        regionType: '',
+        regionFid: '',
+        regionPid: '',
+        regionLayerName: '',
+        playState: '',
+        group: '',
+        subgroup: '',
+        guid: '',
+        from: '',
+        to: '',
+        tab: ''
     };
 
     var urls = {};
 
     /**
-     *
+     * Constructor
      * @param config
      */
     var init =  function(config) {
@@ -94,6 +94,7 @@ var RegionWidget = function (config) {
         state.regionFid = config.regionFid;
         state.regionPid = config.regionPid;
         state.regionLayerName = config.regionLayerName;
+        // We check if there if previous state has been preserved to be loaded
         state.group = $.bbq.getState('group');
         state.group = state.group ? state.group : 'ALL_SPECIES';
         state.guid = $.bbq.getState('guid');
@@ -177,12 +178,50 @@ var RegionWidget = function (config) {
     };
 
     /**
-     * Highlights the group that is currently selected
+     *
      */
-    var selectCurrentGroup = function() {
+    var selectGroup = function(group) {
+
         $('.group-row').removeClass('groupSelected');
-        $('#' + state.group + '-row').addClass('groupSelected');
+        var groupId = group.replace(/[^A-Za-z0-9\\d_]/g, "") + '-row';
+
+        var isAlreadyExpanded = $('#' + groupId + ' i').hasClass('fa-chevron-down');
+        if (isAlreadyExpanded) {
+            $("tr[parent='" + groupId + "']").hide();
+            $('#' + groupId + ' i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+        } else {
+            $("tr[parent='" + groupId + "']").show();
+            $('#' + groupId + ' i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+        }
+
+        // Update widget state
+        updateState({group: group, subgroup:'', guid: ''});
+        // Mark as selected
+        $('#' + groupId).addClass('groupSelected');
+
+        // Last
+        regionMap.reloadRecordsOnMap();
+        AjaxAnywhere.dynamicParams=state;
     };
+
+    var selectSubgroup = function(subgroup) {
+        $('.group-row').removeClass('groupSelected');
+        var subgroupId = subgroup.replace(/[^A-Za-z\\d_]/g, "") + '-row';
+
+        //    var parent = $('#' + $('#' + subgroupId).attr('parent'));
+        //    if (!$(parent).is(":visible")) {
+        //        //TODO
+        //    }
+
+        // Update widget state
+        updateState({subgroup: subgroup, guid: ''});
+        // Mark as selected
+        $('#' + subgroupId).addClass('groupSelected');
+
+        // Last
+        regionMap.reloadRecordsOnMap();
+        AjaxAnywhere.dynamicParams=state;
+    }
 
     var _public = {
 
@@ -196,17 +235,16 @@ var RegionWidget = function (config) {
 
         groupsLoaded: function() {
             $('#groups').show('highlight', 2000);
-            selectCurrentGroup();
+            selectGroup(state.group);
             this.loadSpecies();
         },
 
-        selectGroup: function(group, isSubgroup) {
-            if (group) {
-                updateState({group: group, guid: null});
-                selectCurrentGroup();
+        selectGroupHandler: function(group, isSubgroup) {
+            if (isSubgroup) {
+                selectSubgroup(group);
+            } else {
+                selectGroup(group);
             }
-            regionMap.reloadRecordsOnMap();
-            AjaxAnywhere.dynamicParams=this.getCurrentState();
         },
 
         loadSpecies: function() {

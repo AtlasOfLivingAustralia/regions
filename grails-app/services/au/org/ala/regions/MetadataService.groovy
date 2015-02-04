@@ -130,7 +130,7 @@ class MetadataService {
      * @return
      */
     def getSpecies(String regionFid, String regionType, String regionName, String groupName, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
-        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, groupName, isSubgroup, from, to, pageIndex)).get([:]).data
+        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex)).get([:]).data
         return [
                 totalRecords: response.totalRecords,
                 records: response.facetResults[0]?.fieldResult.collect {result ->

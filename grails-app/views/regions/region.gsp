@@ -64,7 +64,6 @@
                         </tr>
                     </thead>
                     <aa:zone id="groupsZone" tag="tbody" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups')}"
-                             jsBefore="regionWidget.selectGroup();"
                              jsAfter="regionWidget.groupsLoaded();">
                         <tr class="spinner">
                             <td class="spinner text-center">
