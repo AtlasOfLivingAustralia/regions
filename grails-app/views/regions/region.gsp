@@ -109,9 +109,9 @@
         <div id="timeControls" class="text-center">
             <span class="range pull-left"><strong>1850</strong></span>
             <span>
-                <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
-                <img onclick="timeSlider.pause()" alt="Pause play" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
-                <img onclick="timeSlider.stop()" alt="Stop" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
+                <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" src="${resource(dir:'assets/img',file:'EZ-Play-icon.png')}"/>
+                <img onclick="timeSlider.pause()" alt="Pause play" src="${resource(dir:'assets/img',file:'EZ-Pause.png')}"/>
+                <img onclick="timeSlider.stop()" alt="Stop" src="${resource(dir:'assets/img',file:'EZ-Stop-icon.png')}"/>
             </span>
             <span class="range pull-right"><strong>${currentYear}</strong></span>
 
@@ -194,26 +194,6 @@
             </div>
         </div>
 
-        <div class="span6">
-            %{--<div id="map" class="section">--}%
-                %{--<div id="timeContainer">--}%
-                    %{--<span id="date-heading">Explore by date</span><span id="date-hint">Drag handles to restrict date or play by decade.</span>--}%
-                    %{--<div id="playControls"><span id="play">--}%
-                        %{--<img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>--}%
-                        %{--<img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>--}%
-                        %{--<img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>--}%
-                    %{--</span></div>--}%
-                    %{--<p>Drag handles to restrict records by date of observation/collection.</p>--}%
-                    %{--<div id="timeValues"><span id="from">1850</span> <span id="to">2014</span></div>--}%
-                    %{--<div id="timeSlider"></div>--}%
-                    %{--<div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>--}%
-                    %{--<div id="debugTime"></div>--}%
-                %{--</div>--}%
-                %{--<div id="region-map-container">--}%
-
-                %{--</div>--}%
-            %{--</div>--}%
-        </div>
     </div>
 
     <div class="row">
@@ -350,7 +330,7 @@
 
     </div>
 
-    <script type="text/javascript">
+    <r:script>
 
         var regionWidget;
 
@@ -389,7 +369,7 @@
 
             var taxonomyChartOptions = {
                 query: query,
-                subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),
+//                subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),
                 rank: "kingdom",
                 width: 450,
                 clickThru: false,
@@ -403,18 +383,18 @@
 
             $('#timeControlsInfo').popover();
 
-            // init time controls
-            $('#timeSlider').slider({
-                range: true,
-                min: 1850,
-                max: new Date().getFullYear(),
-                values: [1850, new Date().getFullYear()],
-                slide: slideHandler,
-                change: dateRangeChanged
-            });
+//            // init time controls
+//            $('#timeSlider').slider({
+//                range: true,
+//                min: 1850,
+//                max: new Date().getFullYear(),
+//                values: [1850, new Date().getFullYear()],
+//                slide: slideHandler,
+//                change: dateRangeChanged
+//            });
 
         });
 
-    </script>
+    </r:script>
   </body>
 </html>

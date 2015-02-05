@@ -1,64 +1,52 @@
 // resource bundles
 modules = {
+
     regions {
         dependsOn  'jquery', 'jquery-ui', 'map', 'font-awesome'
-        resource url: '/js/regions.js'
-        resource url: '/css/regions.css', attrs:[media:'all']
+        resource url: '/assets/js/regions.js'
+        resource url: '/assets/css/regions.css', attrs:[media:'all']
     }
 
     region {
-        dependsOn 'jquery','jquery-ui', 'ajaxanywhere', 'map', 'fancybox', 'charts', 'jsonp', 'number-functions', 'font-awesome'
+        dependsOn 'jquery', 'jquery-ui', 'ajaxanywhere', 'map', 'charts', 'jsonp', 'number-functions', 'font-awesome'
 
-        resource url: '/js/region.js', disposition: 'head'
-        resource url: '/css/regions.css', attrs:[media:'all']
+        resource url: '/assets/js/region.js'
+        resource url: '/assets/css/regions.css', attrs:[media:'all']
+    }
+
+    jquery {
+        resource url: '/vendor/jquery/jquery-1.11.2.js'
     }
 
     'jquery-ui' {
         dependsOn 'jquery'
 
-        resource url: '/js/jquery-ui-1.8.14.custom-notabs.min.js', disposition: 'head'
-        resource url: '/css/smoothness/jquery-ui-1.8.14.custom.css', attrs:[media:'all']
-    }
-
-    'jquery-migration' {
-        dependsOn 'jquery'
-
-        resource url: '/js/jquery-migrate-1.2.1.min.js', disposition: 'head'
+        resource url: '/vendor/jquery-ui/jquery-ui-1.11.2-no-autocomplete.js'
+        resource url: '/vendor/jquery-ui/themes/smoothness/jquery-ui.css', attrs:[media:'all']
     }
 
     'map' {
         dependsOn 'google-maps-api'
 
-        resource url: '/js/keydragzoom.js'
-        resource url: '/js/wms.js'
-        resource url: '/js/jquery.cookie.js'
-        resource url: '/js/jquery.ba-bbq.min.js', disposition: 'head'
-
+        resource url: '/assets/js/keydragzoom.js'
+        resource url: '/assets/js/wms.js'
     }
 
     'google-maps-api' {
         resource  url: 'http://maps.google.com/maps/api/js?sensor=false', attrs: [type: "js"], disposition: 'head'
     }
 
-    fancybox {
-        dependsOn 'jquery'
-
-        resource url: '/js/fancybox/jquery.fancybox-1.3.4.pack.js', disposition: 'head'
-        resource url: '/js/fancybox/jquery.fancybox-1.3.4.css'
-    }
-
     charts {
-        resource url: 'https://www.google.com/jsapi', attrs: [type: 'js'], disposition: 'head'
-        resource url: '/js/charts2.js', disposition: 'head'
+        resource url: 'https://www.google.com/jsapi', attrs: [type: 'js']
+        resource url: '/assets/js/charts2.js'
     }
 
     jsonp {
-        resource url: '/js/jquery.jsonp-2.1.4.min.js', disposition: 'head'
+        resource url: '/vendor/jquery-jsonp/jquery.jsonp-2.1.4.min.js'
     }
 
     'number-functions' {
-        resource url: '/js/number-functions.js', disposition: 'head'
+        resource url: '/vendor/number-functions/number-functions.js'
     }
-
 }
 

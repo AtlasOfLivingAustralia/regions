@@ -1,10 +1,8 @@
 package au.org.ala.regions
 
 import grails.converters.JSON
-import groovy.transform.CompileStatic
 import groovyx.net.http.RESTClient
 import groovyx.net.http.URIBuilder
-import org.slf4j.LoggerFactory
 
 import javax.annotation.PostConstruct
 
