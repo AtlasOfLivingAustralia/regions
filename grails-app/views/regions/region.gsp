@@ -109,9 +109,9 @@
         <div id="timeControls" class="text-center">
             <span class="range pull-left"><strong>1850</strong></span>
             <span>
-                <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" src="${resource(dir:'assets/img',file:'EZ-Play-icon.png')}"/>
-                <img onclick="timeSlider.pause()" alt="Pause play" src="${resource(dir:'assets/img',file:'EZ-Pause.png')}"/>
-                <img onclick="timeSlider.stop()" alt="Stop" src="${resource(dir:'assets/img',file:'EZ-Stop-icon.png')}"/>
+                <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" src="${resource(dir:'images',file:'EZ-Play-icon.png')}"/>
+                <img onclick="timeSlider.pause()" alt="Pause play" src="${resource(dir:'images',file:'EZ-Pause.png')}"/>
+                <img onclick="timeSlider.stop()" alt="Stop" src="${resource(dir:'images',file:'EZ-Stop-icon.png')}"/>
             </span>
             <span class="range pull-right"><strong>${currentYear}</strong></span>
 

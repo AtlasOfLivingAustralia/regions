@@ -32,14 +32,21 @@ grails.project.dependency.resolution = {
 
     plugins {
         build ":tomcat:7.0.54"
-        build (":release:3.0.1") {
-            exclude "rest-client-builder"
-        }
+        build ":release:3.0.1"
+        build ":rest-client-builder:2.0.3"
 
         compile ":font-awesome-resources:4.2.0.0"
 
-        runtime (":ala-bootstrap2:1.0-SNAPSHOT") {
+        runtime (":ala-bootstrap2:1.0") {
             exclude "jquery"
         }
+        if (Environment.current == Environment.PRODUCTION) {
+            runtime ":zipped-resources:1.0.1"
+            runtime ":cached-resources:1.1"
+            compile ":cache-headers:1.1.7"
+            runtime ":yui-minify-resources:0.1.5"
+        }
+        runtime ':ala-auth:1.0-SNAPSHOT'
+
     }
 }

@@ -30,8 +30,6 @@
  */
 (function (windows) {
     "use strict";
-/*jslint browser: true, vars: false, white: false, maxerr: 50, indent: 4 */
-/*global google, $, WMSTileLayer */
 
 var
     // represents the map and its associated properties and events

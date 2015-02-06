@@ -15,27 +15,24 @@ import org.apache.log4j.Level
 /******************************************************************************\
  *  CONFIG MANAGEMENT
  \******************************************************************************/
-def ENV_NAME = "REGIONS_CONFIG"
-def default_config = "/data/regions/config/${appName}-config.properties"
-if (!grails.config.locations || !(grails.config.locations instanceof List)) {
+def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
+default_config = "/data/${appName}/config/${appName}-config.properties"
+if(!grails.config.locations || !(grails.config.locations instanceof List)) {
     grails.config.locations = []
 }
-if (System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
-    println "[REGIONS] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
-    grails.config.locations = ["file:" + System.getenv(ENV_NAME)]
-} else if (System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
-    println "[REGIONS] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
-    grails.config.locations = ["file:" + System.getProperty(ENV_NAME)]
-} else if (new File(default_config).exists()) {
-    println "[REGIONS] Including default configuration file: " + default_config;
-    def loc = ["file:" + default_config]
-    println "[REGIONS] >> loc = " + loc
-    grails.config.locations = loc
-    println "[REGIONS]  grails.config.locations = " + grails.config.locations
+if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
+    println "[${appName}] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
+    grails.config.locations.add "file:" + System.getenv(ENV_NAME)
+} else if(System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
+    println "[${appName}] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
+    grails.config.locations.add "file:" + System.getProperty(ENV_NAME)
+} else if(new File(default_config).exists()) {
+    println "[${appName}] Including default configuration file: " + default_config;
+    grails.config.locations.add "file:" + default_config
 } else {
-    println "[REGIONS] No external configuration file defined."
+    println "[${appName}] No external configuration file defined."
 }
-println "[REGIONS]  (*) grails.config.locations = ${grails.config.locations}"
+println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
 /******************************************************************************\
  *  RELOADABLE CONFIG

@@ -3,15 +3,15 @@ modules = {
 
     regions {
         dependsOn  'jquery', 'jquery-ui', 'map', 'font-awesome'
-        resource url: '/assets/js/regions.js'
-        resource url: '/assets/css/regions.css', attrs:[media:'all']
+        resource url: '/js/regions.js'
+        resource url: '/css/regions.css', attrs:[media:'all']
     }
 
     region {
         dependsOn 'jquery', 'jquery-ui', 'ajaxanywhere', 'map', 'charts', 'jsonp', 'number-functions', 'font-awesome'
 
-        resource url: '/assets/js/region.js'
-        resource url: '/assets/css/regions.css', attrs:[media:'all']
+        resource url: '/js/region.js'
+        resource url: '/css/regions.css', attrs:[media:'all']
     }
 
     jquery {
@@ -28,8 +28,8 @@ modules = {
     'map' {
         dependsOn 'google-maps-api'
 
-        resource url: '/assets/js/keydragzoom.js'
-        resource url: '/assets/js/wms.js'
+        resource url: '/js/keydragzoom.js'
+        resource url: '/js/wms.js'
     }
 
     'google-maps-api' {
@@ -38,7 +38,7 @@ modules = {
 
     charts {
         resource url: 'https://www.google.com/jsapi', attrs: [type: 'js']
-        resource url: '/assets/js/charts2.js'
+        resource url: '/js/charts2.js'
     }
 
     jsonp {
