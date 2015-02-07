@@ -181,6 +181,7 @@ var RegionWidget = function (config) {
     var selectGroup = function(group) {
 
         $('.group-row').removeClass('groupSelected');
+        $("tr[parent]").hide();
         var groupId = group.replace(/[^A-Za-z0-9\\d_]/g, "") + '-row';
 
         var isAlreadyExpanded = $('#' + groupId + ' i').hasClass('fa-chevron-down');
@@ -227,6 +228,14 @@ var RegionWidget = function (config) {
 
     var _public = {
 
+        getDefaultFromYear: function() {
+            return defaultFromYear;
+        },
+
+        getDefaultToYear: function() {
+            return defaultToYear;
+        },
+
         getUrls: function() {
             return urls;
         },
@@ -270,6 +279,8 @@ var RegionWidget = function (config) {
     init(config);
     return _public;
 };
+
+//RegionWidget.prototype.
 
 /**
  *
@@ -506,7 +517,11 @@ var RegionMap = function (config) {
                 fqParam = "&fq=taxon_concept_lsid:" + currentState.guid;
             }
             else if (currentState.group != "ALL_SPECIES") {
-                fqParam = "&fq=species_group:" + currentState.group;
+                if (currentState.subgroup) {
+                    fqParam = "&fq=species_subgroup:" + currentState.subgroup;
+                } else {
+                    fqParam = "&fq=species_group:" + currentState.group;
+                }
             }
         }
 
@@ -559,7 +574,11 @@ var RegionMap = function (config) {
                 fqParam = "fq=taxon_concept_lsid:" + currentState.guid;
             }
             else if (currentState.group != "ALL_SPECIES") {
-                fqParam = "fq=species_group:" + currentState.group;
+                if (currentState.subgroup) {
+                    fqParam = "&fq=species_subgroup:" + currentState.subgroup;
+                } else {
+                    fqParam = "&fq=species_group:" + currentState.group;
+                }
             }
         }
 

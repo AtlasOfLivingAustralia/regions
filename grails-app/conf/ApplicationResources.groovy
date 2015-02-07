@@ -8,7 +8,7 @@ modules = {
     }
 
     region {
-        dependsOn 'jquery', 'jquery-ui', 'ajaxanywhere', 'map', 'charts', 'jsonp', 'number-functions', 'font-awesome'
+        dependsOn 'jquery', 'jquery-ui', 'jquery-ui-slider-pips', 'ajaxanywhere', 'map', 'charts', 'jsonp', 'number-functions', 'font-awesome'
 
         resource url: '/js/region.js'
         resource url: '/css/regions.css', attrs:[media:'all']
@@ -23,6 +23,13 @@ modules = {
 
         resource url: '/vendor/jquery-ui/jquery-ui-1.11.2-no-autocomplete.js'
         resource url: '/vendor/jquery-ui/themes/smoothness/jquery-ui.css', attrs:[media:'all']
+    }
+
+    'jquery-ui-slider-pips' {
+        dependsOn 'jquery-ui'
+
+        resource url: '/vendor/jquery-ui-slider-pips/jquery-ui-slider-pips.js'
+        resource url: '/vendor/jquery-ui-slider-pips/jquery-ui-slider-pips.css', attrs:[media:'all']
     }
 
     'map' {

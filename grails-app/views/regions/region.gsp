@@ -104,25 +104,14 @@
             </li>
         </ul>
 
-        %{--<div id="date-hint" class="span4">.</div>--}%
-        <g:set var="currentYear" value="${Calendar.getInstance().get(Calendar.YEAR)}"/>
         <div id="timeControls" class="text-center">
-            <span class="range pull-left"><strong>1850</strong></span>
             <span>
                 <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" src="${resource(dir:'images',file:'EZ-Play-icon.png')}"/>
                 <img onclick="timeSlider.pause()" alt="Pause play" src="${resource(dir:'images',file:'EZ-Pause.png')}"/>
                 <img onclick="timeSlider.stop()" alt="Stop" src="${resource(dir:'images',file:'EZ-Stop-icon.png')}"/>
             </span>
-            <span class="range pull-right"><strong>${currentYear}</strong></span>
 
             <div id="timeSlider"></div>
-            <ul id="timeline">
-                <g:each in="${(1850..currentYear).findAll {it == currentYear ? it : it % 10 == 0}}" var="year">
-                    <li style="left: ${year == 1850 ? 0 : "${g.formatNumber(number: ((year - 1850) * 100) / (currentYear - 1850), maxFractionDigits: 10)}%"}">
-                        <time>${year == currentYear ||  year == 1850 ? '' : year}</time>
-                    </li>
-                </g:each>
-            </ul>
             <div id="debugTime"></div>
         </div>
 
@@ -382,6 +371,22 @@
 //            taxonomyChart.load(taxonomyChartOptions);
 
             $('#timeControlsInfo').popover();
+
+            $('#timeSlider')
+            .slider({
+                min: regionWidget.getDefaultFromYear(),
+                max: regionWidget.getDefaultToYear(),
+                range: true,
+                values: [regionWidget.getCurrentState().from, regionWidget.getCurrentState().to]
+            })
+
+            .slider("pips", {
+                rest: "label",
+                step: 10
+            })
+            .slider("float");
+
+
 
 //            // init time controls
 //            $('#timeSlider').slider({
