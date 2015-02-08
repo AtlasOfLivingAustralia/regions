@@ -349,70 +349,23 @@
                 useReflectService: ${useReflect}
             }));
 
-            $('#explorer a').click(function (e) {
-                e.preventDefault();
-                $(this).tab('show');
-            });
+            regionWidget.timeControls = new RegionTimeControls();
 
-            var query = region.buildRegionFacet("${region.type}","${region.name}", "${region.fid}");
+            %{--var query = region.buildRegionFacet("${region.type}","${region.name}", "${region.fid}");--}%
 
-            var taxonomyChartOptions = {
-                query: query,
-//                subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),
-                rank: "kingdom",
-                width: 450,
-                clickThru: false,
-                notifyChange: "taxonChartChange",
-                collectionsUrl: "${grailsApplication.config.grails.serverURL}",
-                biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}/ws",
-                displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}/"
-            };
+            %{--var taxonomyChartOptions = {--}%
+                %{--query: query,--}%
+%{--//                subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),--}%
+                %{--rank: "kingdom",--}%
+                %{--width: 450,--}%
+                %{--clickThru: false,--}%
+                %{--notifyChange: "taxonChartChange",--}%
+                %{--collectionsUrl: "${grailsApplication.config.grails.serverURL}",--}%
+                %{--biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}/ws",--}%
+                %{--displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}/"--}%
+            %{--};--}%
 
 //            taxonomyChart.load(taxonomyChartOptions);
-
-            $('#timeControlsInfo').popover();
-
-            var updateTimeRange = function(values) {
-                $('#timeFrom').text(values[0]);
-                $('#timeTo').text(values[1]);
-            };
-
-            $('#timeSlider')
-            .slider({
-                min: regionWidget.getDefaultFromYear(),
-                max: regionWidget.getDefaultToYear(),
-                range: true,
-                values: [regionWidget.getCurrentState().from, regionWidget.getCurrentState().to],
-                create: function() {
-                    updateTimeRange($('#timeSlider').slider('values'));
-                },
-                slide: function( event, ui ) {
-                    updateTimeRange(ui.values);
-                }
-            })
-
-            .slider("pips", {
-                rest: "pip",
-                step: 10
-            })
-            .slider("float", {
-
-            });
-
-
-
-
-
-//            // init time controls
-//            $('#timeSlider').slider({
-//                range: true,
-//                min: 1850,
-//                max: new Date().getFullYear(),
-//                values: [1850, new Date().getFullYear()],
-//                slide: slideHandler,
-//                change: dateRangeChanged
-//            });
-
         });
 
     </r:script>

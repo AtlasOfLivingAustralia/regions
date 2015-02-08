@@ -23,7 +23,7 @@ var region = {
      * @param useTime
      * @returns {{q: *, pageSize: number}}
      */
-    buildBiocacheQuery: function(regionType, regionName, regionFid, start, useTime) {
+    buildBiocacheQuery: function(regionType, regionName, regionFid, start) {
         var params = {q:region.buildRegionFacet(regionType, regionName, regionFid), pageSize: 50},
             timeFacet = region.buildTimeFacet();
         if (start) {
@@ -40,8 +40,9 @@ var region = {
      * Builds the query phrase for a range of dates - returns nothing for the default date range.
      */
     buildTimeFacet: function () {
-        return "";
-        // TODO
+        var fromPhrase = regionWidget.isDefaultFromYear() ? '*' : regionWidget.getCurrentState().from + "-01-01T00:00:00Z";
+        var toPhrase = regionWidget.isDefaultToYear() ? "*" : regionWidget.getCurrentState().to + "-12-31T23:59:59Z";
+        return "occurrence_year:[" + fromPhrase + " TO " + toPhrase + "]";
     },
 
     queryString: function () {
@@ -70,6 +71,7 @@ var RegionWidget = function (config) {
     var defaultToYear = new Date().getFullYear();
     var defaultTab = 'speciesTab';
     var regionMap;
+    var timeControls;
 
     /**
      * Essential values to maintain the state of the widget when the user interacts with it
@@ -102,7 +104,7 @@ var RegionWidget = function (config) {
         state.regionFid = config.regionFid;
         state.regionPid = config.regionPid;
         state.regionLayerName = config.regionLayerName;
-        // We check if there if previous state has been preserved to be loaded
+
         state.group = state.group ? state.group : 'ALL_SPECIES';
         state.from = state.from ? state.from : defaultFromYear;
         state.to = state.to ? state.to : defaultToYear;
@@ -110,6 +112,13 @@ var RegionWidget = function (config) {
 
         urls = config.urls;
 
+        // Initialize tabs
+        $('#explorer a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        // Initialize Ajax activity indicators
         $(document).ajaxStart(
             function (e) {
                 showTabSpinner();
@@ -117,10 +126,13 @@ var RegionWidget = function (config) {
                 hideTabSpinner();
             });
 
+        // Initialize click events on individual species
         $(document).on('click', "#species tbody tr.link", function() {
             selectSpecies(this);
-
         });
+
+        // Initialize info message
+        $('#timeControlsInfo').popover();
     };
 
     /**
@@ -231,6 +243,14 @@ var RegionWidget = function (config) {
 
     var _public = {
 
+        isDefaultFromYear: function() {
+            return state.from == defaultFromYear;
+        },
+
+        isDefaultToYear: function() {
+            return state.to == defaultToYear;
+        },
+
         getDefaultFromYear: function() {
             return defaultFromYear;
         },
@@ -283,7 +303,47 @@ var RegionWidget = function (config) {
     return _public;
 };
 
-//RegionWidget.prototype.
+RegionTimeControls = function(config) {
+
+    var timeSlider;
+
+    var init = function(config) {
+        timeSlider = $('#timeSlider')
+            .slider({
+                min: regionWidget.getDefaultFromYear(),
+                max: regionWidget.getDefaultToYear(),
+                range: true,
+                values: [regionWidget.getCurrentState().from, regionWidget.getCurrentState().to],
+                create: function() {
+                    updateTimeRange($('#timeSlider').slider('values'));
+                },
+                slide: function( event, ui ) {
+                    updateTimeRange(ui.values);
+                }
+            })
+
+            .slider("pips", {
+                rest: "pip",
+                step: 10
+            })
+            .slider("float", {
+
+            });
+    };
+
+    var updateTimeRange = function(values) {
+        $('#timeFrom').text(values[0]);
+        $('#timeTo').text(values[1]);
+    };
+
+    var _public = {
+
+    };
+
+    init(config);
+    return _public;
+
+}
 
 /**
  *
@@ -293,20 +353,7 @@ var RegionWidget = function (config) {
  */
 var RegionMap = function (config) {
 
-    var layers = {
-        states: {layer: 'states', name: 'aus1', displayName: 'name_1', bieContext: 'aus_states'},
-        lgas: {layer: 'lgas', name: 'lga_aust', displayName: 'name_2', bieContext: 'gadm_admin'},
-        ibras: {layer: 'ibras', name: 'ibra_merged', displayName: 'reg_name', bieContext: 'ibra_no_states'},
-        imcras: {layer: 'imcras', name: 'imcra4_pb', displayName: 'pb_name', bieContext: 'imcra'},
-        nrms: {layer: 'nrms', name: 'nrm_regions_2010', displayName: 'nrm_region', bieContext: 'nrm'}
-        /*hunter: {layer: 'hunter', name: 'ger_hunter', displayName: 'ala_id', fid: 'gid', bieContext: 'ger'},
-         k2c: {layer: 'k2c', name: 'ger_kosciuszko_to_coast', displayName: 'ala_id', fid: 'gid', bieContext: 'ger'},
-         border: {layer: 'border_ranges', name: 'ger_border_ranges', displayName: 'ala_id', fid: 'gid', bieContext: 'ger'},
-         slopes: {layer: 'slopes_to_summit', name: 'ger_slopes_to_summit', displayName: 'ala_id', fid: 'gid', bieContext: 'ger'},
-         ger: {layer: 'ger', name: 'ger_geri_boundary_v102_australia', displayName: 'ala_id', bieContext: 'ger'}*/
-    };
-    var map, marker;
-    var points = [];
+    var map
     var overlays = [null,null];  // first is the region, second is the occurrence data
     var defaultOccurrenceOpacity = 0.7;
     var defaultRegionOpacity = 0.5;
@@ -397,35 +444,30 @@ var RegionMap = function (config) {
             info(event.latLng);
         });
 
-
-
         /*******************************************************\
          | Hack the viewport if we don't have good bbox data
          \*******************************************************/
         // fall-back attempt at bounding box if all of Oz
-//        if (initialBounds.equals(new google.maps.LatLngBounds(
-//                new google.maps.LatLng(-42, 113),
-//                new google.maps.LatLng(-14, 153)))) {
-//            // try the bounds of the occurrence records (TEMP: until we get proper bbox's)
-//            //var url = urlConcat(config.biocacheServiceUrl, "webportal/bounds?q=") + buildRegionFacet(regionType, regionName);
-//            //var url = urlConcat(config.biocacheServiceUrl, 'webportal/bounds?q="Alinytjara%20Wilurara"');
-//            $.ajax({
-//                url: baseUrl + "/proxy/bbox?q=" + buildRegionFacet(regionType, regionName),
-//                //url: url,
-//                dataType: 'json',
-//                success: function(data) {
-//                    if (data[0] != 0.0) {
-//                        initialBounds = new google.maps.LatLngBounds(
-//                            new google.maps.LatLng(data[1], data[0]),
-//                            new google.maps.LatLng(data[3], data[2]));
-//                        map.fitBounds(initialBounds);
-//                        $('#using-bbox-hack').html("Using occurrence bounds")
-////                    $('#bbox').html("Using bbox " + newBbox.toString());
-//                    }
-//                }
-//            });
-//        }
-    }
+        if (initialBounds.equals(new google.maps.LatLngBounds(
+                new google.maps.LatLng(-42, 113),
+                new google.maps.LatLng(-14, 153)))) {
+            $.ajax({
+                url: regionWidget.getUrls().proxyUrl + "?q=" + buildRegionFacet(regionType, regionName),
+                //url: url,
+                dataType: 'json',
+                success: function (data) {
+                    if (data[0] != 0.0) {
+                        initialBounds = new google.maps.LatLngBounds(
+                            new google.maps.LatLng(data[1], data[0]),
+                            new google.maps.LatLng(data[3], data[2]));
+                        map.fitBounds(initialBounds);
+                        $('#using-bbox-hack').html("Using occurrence bounds")
+                        $('#bbox').html("Using bbox " + newBbox.toString());
+                    }
+                }
+            });
+        }
+    };
 
    /**
     * Called when the overlays are loaded. Not currently used
