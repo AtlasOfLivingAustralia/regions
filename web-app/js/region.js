@@ -248,7 +248,7 @@ var RegionWidget = function (config) {
         },
 
         groupsLoaded: function() {
-            $('#groups').show('highlight', 2000);
+            $('#groups').effect('highlight', 2000);
             selectGroup(state.group);
             this.loadSpecies();
         },
@@ -266,7 +266,7 @@ var RegionWidget = function (config) {
         },
 
         speciesLoaded: function() {
-            $('#species').show('highlight', 2000);
+            $('#species').effect('highlight', 2000);
         },
 
         showMoreSpecies: function() {

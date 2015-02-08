@@ -80,7 +80,7 @@
                             <th class="text-right">Records</th>
                         </tr>
                     </thead>
-                    <aa:zone id="speciesZone" tag="tbody">
+                    <aa:zone id="speciesZone" tag="tbody" jsAfter="regionWidget.speciesLoaded();">
                         <tr class="spinner">
                             <td colspan="3" class="spinner text-center">
                                 <i class="fa fa-cog fa-spin fa-2x"></i>

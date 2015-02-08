@@ -37,7 +37,7 @@
             <a aa-refresh-zones="moreSpeciesZone" id="showMoreSpeciesButton"
                href="${g.createLink(controller: 'region', action: 'showSpecies', params: [pageIndex: pageIndex ? pageIndex + 1 : '1'])}"
                js-before="regionWidget.showMoreSpecies();"
-               js-after=""
+               js-after="regionWidget.speciesLoaded();"
                class="btn btn-small"><i class="fa fa-plus"></i> Show more species</a>
         </td>
         <td></td>
