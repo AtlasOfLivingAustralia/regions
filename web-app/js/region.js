@@ -182,6 +182,9 @@ var RegionWidget = function (config) {
 
         $('.group-row').removeClass('groupSelected');
         $("tr[parent]").hide();
+        if (group != state.group) {
+            $('#' + state.group + '-row i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+        }
         var groupId = group.replace(/[^A-Za-z0-9\\d_]/g, "") + '-row';
 
         var isAlreadyExpanded = $('#' + groupId + ' i').hasClass('fa-chevron-down');

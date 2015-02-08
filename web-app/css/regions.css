@@ -256,6 +256,10 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     cursor: pointer;
 }
 
+#timeSlider .ui-slider-label {
+    color: #999 !important;
+}
+
 #timeRange {
     text-align: center;
     margin-top: 1.6em;
