@@ -105,19 +105,19 @@
         </ul>
 
         <div id="timeControls" class="text-center">
-            <span>
-                <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" src="${resource(dir:'images',file:'EZ-Play-icon.png')}"/>
-                <img onclick="timeSlider.pause()" alt="Pause play" src="${resource(dir:'images',file:'EZ-Pause.png')}"/>
-                <img onclick="timeSlider.stop()" alt="Stop" src="${resource(dir:'images',file:'EZ-Stop-icon.png')}"/>
-            </span>
+            <div id="timeButtons">
+                <r:img uri="/images/play.svg" class="timeControl link" title="Play timeline by decade" alt="Play timeline by decade"/>
+                <r:img uri="/images/pause.svg" class="timeControl link" title="Pause play" alt="Pause play"/>
+                <r:img uri="/images/stop.svg" class="timeControl link" title="Stop" alt="Stop"/>
+                <r:img uri="/images/replay.svg" class="timeControl link" title="Reset" alt="Reset"/>
+            </div>
 
-            <div id="timeSlider"></div>
-            <div id="debugTime"></div>
+            <div id="timeSlider">
+                <div id="timeRange"><span id="timeFrom"></span> - <span id="timeTo"></span></div>
+            </div>
         </div>
 
-
-            <div id="region-map"></div>
-
+        <div id="region-map"></div>
 
         <span id="controls-toggle" class="link under">Advanced map controls</span>
         <div id="controls" class="ui-helper-hidden">
@@ -372,19 +372,38 @@
 
             $('#timeControlsInfo').popover();
 
+            var updateTimeRange = function(values) {
+                $('#timeFrom').text(values[0]);
+                $('#timeTo').text(values[1]);
+            };
+
             $('#timeSlider')
             .slider({
                 min: regionWidget.getDefaultFromYear(),
                 max: regionWidget.getDefaultToYear(),
                 range: true,
-                values: [regionWidget.getCurrentState().from, regionWidget.getCurrentState().to]
+                values: [regionWidget.getCurrentState().from, regionWidget.getCurrentState().to],
+                create: function() {
+                    updateTimeRange($('#timeSlider').slider('values'));
+                },
+                change: function() {
+                    updateTimeRange($('#timeSlider').slider('values'));
+                },
+                slide: function() {
+                    var values = $('#timeSlider').slider('values');
+                    updateTimeRange([values[0] + 1, values[1] - 1]);
+                }
             })
 
             .slider("pips", {
-                rest: "label",
+                rest: "pip",
                 step: 10
             })
-            .slider("float");
+            .slider("float", {
+
+            });
+
+
 
 
 

@@ -120,7 +120,7 @@ li.regionLink {
 
 #region-map {
     width: 100%;
-    height: 475px;
+    height: 480px;
     border: 1px solid #dddddd;
 }
 
@@ -244,33 +244,30 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     margin-bottom: 7px;
 }
 
-#timeControls .range {
-    padding-top: 6px;
+#timeControls {
+    margin-bottom: 2.5em;
 }
 
-#timeline {
-    list-style: none;
-    margin: .8em 0 2em;
-    border-bottom: 2px solid darkgrey;
-    position: relative;
-    left: -3px;
+#timeSlider .ui-slider-label {
+    font-size: .8em;
 }
-#timeline li {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    border: 2px solid darkgrey;
-    border-radius: 4px;
-    background: #fff;
-    margin-top: -3px;
+
+#timeSlider .ui-slider-handle {
+    cursor: pointer;
 }
-#timeline time {
-    left: -33px;
-    top: -45px;
-    position: absolute;
-    width: 70px;
+
+#timeRange {
     text-align: center;
-    margin-top: 50px;
-    font-size: .7em;
+    margin-top: 1.6em;
+}
+
+#timeButtons {
+    height: 2.5em;
+}
+
+img.timeControl {
+    width: 2em;
+    padding-right: .8em;
+    padding-top: .1em;
 }
 
