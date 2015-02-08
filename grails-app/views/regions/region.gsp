@@ -386,12 +386,8 @@
                 create: function() {
                     updateTimeRange($('#timeSlider').slider('values'));
                 },
-                change: function() {
-                    updateTimeRange($('#timeSlider').slider('values'));
-                },
-                slide: function() {
-                    var values = $('#timeSlider').slider('values');
-                    updateTimeRange([values[0] + 1, values[1] - 1]);
+                slide: function( event, ui ) {
+                    updateTimeRange(ui.values);
                 }
             })
 
