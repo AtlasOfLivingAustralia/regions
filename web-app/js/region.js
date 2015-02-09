@@ -13,6 +13,40 @@
  *  rights and limitations under the License.
  */
 
+/*
+ * Replace all SVG images with inline SVG
+ * From http://stackoverflow.com/questions/11978995/how-to-change-color-of-svg-image-using-css-jquery-svg-image-replacement/
+ */
+jQuery('img.svg').each(function(){
+    var $img = jQuery(this);
+    var imgID = $img.attr('id');
+    var imgClass = $img.attr('class');
+    var imgURL = $img.attr('src');
+
+    jQuery.get(imgURL, function(data) {
+        // Get the SVG tag, ignore the rest
+        var $svg = jQuery(data).find('svg');
+
+        // Add replaced image's ID to the new SVG
+        if(typeof imgID !== 'undefined') {
+            $svg = $svg.attr('id', imgID);
+        }
+        // Add replaced image's classes to the new SVG
+        if(typeof imgClass !== 'undefined') {
+            $svg = $svg.attr('class', imgClass+' replaced-svg');
+        }
+
+        // Remove any invalid XML tags as per http://validator.w3.org
+        $svg = $svg.removeAttr('xmlns:a');
+
+        // Replace image with new SVG
+        $img.replaceWith($svg);
+
+    }, 'xml');
+
+});
+
+
 var region = {
     /**
      * Builds the query as a map that can be passed directly as data in an ajax call
@@ -258,6 +292,20 @@ var RegionWidget = function (config) {
             return defaultToYear;
         },
 
+        getTimeControls: function() {
+            return timeControls;
+        },
+
+        updateDateRange: function(from, to) {
+            state.from = from;
+            state.to = to;
+            if (state.subgroup) {
+                $('#' + state.subgroup + '-row').click();
+            } else {
+                $('#' + state.group + '-row').click();
+            }
+        },
+
         getUrls: function() {
             return urls;
         },
@@ -315,6 +363,14 @@ var RegionWidget = function (config) {
 RegionTimeControls = function(config) {
 
     var timeSlider;
+    var CONTROL_STATES = {
+        PLAYING: 0,
+        PAUSED: 1,
+        STOPPED: 2
+    };
+    var state = CONTROL_STATES.STOPPED;
+    var refreshInterval;
+    var playTimeRange;
 
     var init = function(config) {
         timeSlider = $('#timeSlider')
@@ -328,6 +384,14 @@ RegionTimeControls = function(config) {
                 },
                 slide: function( event, ui ) {
                     updateTimeRange(ui.values);
+                },
+                change: function( event, ui ) {
+                    if ((!(state === CONTROL_STATES.PLAYING)
+                            || ui.values[0] != ui.values[1]
+                            || (ui.values[0] != regionWidget.getDefaultFromYear() && ui.values[1] != regionWidget.getDefaultToYear()))) {
+                        regionWidget.updateDateRange(ui.values[0], ui.values[1]);
+                    }
+                    updateTimeRange(ui.values);
                 }
             })
 
@@ -335,9 +399,73 @@ RegionTimeControls = function(config) {
                 rest: "pip",
                 step: 10
             })
-            .slider("float", {
+            .slider("float", {});
 
-            });
+        // Initialize play button
+        $('#playButton').on('click', function(){
+            play();
+        });
+
+        // Initialize stop button
+        $('#stopButton').on('click', function(){
+            stop();
+        });
+
+        // Initialize pause button
+        $('#pauseButton').on('click', function(){
+            pause();
+        });
+    };
+
+    var increaseTimeRangeByADecade = function() {
+        var incrementTo = (regionWidget.getDefaultToYear() - playTimeRange[1]) < 10 ? regionWidget.getDefaultToYear() - playTimeRange[1] : 10;
+        if (incrementTo != 0) {
+            $('#timeSlider').slider('values', [playTimeRange[0] + 10, playTimeRange[1] + incrementTo]);
+            playTimeRange = $('#timeSlider').slider('values');
+        } else {
+            stop();
+        }
+    };
+
+    var play = function() {
+
+        switch (state) {
+            case CONTROL_STATES.STOPPED:
+                // Start playing from the beginning
+                $('#timeSlider').slider('values', [regionWidget.getDefaultFromYear(), regionWidget.getDefaultFromYear() + 10]);
+                break;
+            case CONTROL_STATES.PAUSED:
+                // Resume playing
+                $('#timeSlider').slider('values', [playTimeRange[0], playTimeRange[1]]);
+                break;
+        }
+
+        // For SVG element the addClass and removeClass jQuery method do not work
+        $('#pauseButton')[0].classList.remove('selected');
+        $('#playButton')[0].classList.add('selected');
+        playTimeRange = $('#timeSlider').slider('values');
+        refreshInterval = setInterval(function () {
+            increaseTimeRangeByADecade();
+        }, 4000);
+        // Update state
+        state = CONTROL_STATES.PLAYING;
+
+    };
+
+    var stop = function() {
+        clearInterval(refreshInterval);
+        $('#playButton')[0].classList.remove('selected');
+        $('#pauseButton')[0].classList.remove('selected');
+        state = CONTROL_STATES.STOPPED;
+    };
+
+    var pause = function() {
+        if (state === CONTROL_STATES.PLAYING) {
+            $('#playButton')[0].classList.remove('selected');
+            $('#pauseButton')[0].classList.add('selected');
+            clearInterval(refreshInterval);
+            state = CONTROL_STATES.PAUSED;
+        }
     };
 
     var updateTimeRange = function(values) {
