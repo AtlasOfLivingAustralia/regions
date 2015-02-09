@@ -1,6 +1,7 @@
 package au.org.ala.regions
 
 import grails.converters.JSON
+import grails.util.Holders
 import groovyx.net.http.RESTClient
 import groovyx.net.http.URIBuilder
 
@@ -242,7 +243,7 @@ class MetadataService {
 
     static def loadLoggerReasons(){
         println("Refreshing the download reasons")
-        String url = "http://logger.ala.org.au/service/logger/reasons"
+        String url = "${Holders.grailsApplication.config.logger.baseURL}/service/logger/reasons"
         def conn = new URL(url).openConnection()
         def map = [:]
         try{
