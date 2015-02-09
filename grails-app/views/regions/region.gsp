@@ -119,25 +119,25 @@
 
         <div id="region-map"></div>
 
-        <span id="controls-toggle" class="link under">Advanced map controls</span>
-        <div id="controls" class="ui-helper-hidden">
-            <div>
-                <div class="tish">
-                    <label for="toggleOccurrences">
-                        <input type="checkbox" name="occurrences" id="toggleOccurrences" value="1" checked/>
-                        Occurrences</label></div>
-
-                <div id="occurrencesOpacity"></div>
-                <span id="hide-controls" class="link under">Hide</span>
-            </div>
-
-            <div>
-                <div class="tish">
-                    <label for="toggleRegion">
-                        <input type="checkbox" name="region" id="toggleRegion" value="1" checked/>
-                        Region</label></div>
-
-                <div id="regionOpacity"></div>
+        <div class="accordion" id="opacityControls">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#opacityControlsContent">
+                        <i class="fa fa-chevron-right"></i> Map opacity controls
+                    </a>
+                </div>
+                <div id="opacityControlsContent" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <label class="checkbox">
+                            <input type="checkbox"name="occurrences" id="toggleOccurrences" checked> Occurrences
+                        </label>
+                        <div id="occurrencesOpacity"></div>
+                        <label class="checkbox">
+                            <input type="checkbox" name="region" id="toggleRegion" checked> Region
+                        </label>
+                        <div id="regionOpacity"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

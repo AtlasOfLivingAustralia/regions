@@ -532,25 +532,7 @@ var RegionMap = function (config) {
         map.fitBounds(initialBounds);
         map.enableKeyDragZoom();
 
-        /*****************************************\
-         | Set up opacity sliders
-         \*****************************************/
-        $('#occurrencesOpacity').slider({
-            min: 0,
-            max: 100,
-            value: defaultOccurrenceOpacity * 100,
-            change: function (event, ui) {
-                drawRecordsOverlay();
-            }
-        });
-        $('#regionOpacity').slider({
-            min: 0,
-            max: 100,
-            value: defaultRegionOpacity * 100,
-            change: function (event, ui) {
-                drawRegionOverlay();
-            }
-        });
+        initializeOpcaityControls();
 
         /*****************************************\
          | Overlay the region shape
@@ -561,26 +543,6 @@ var RegionMap = function (config) {
          | Overlay the occurrence data
          \*****************************************/
         drawRecordsOverlay();
-
-        // layer toggling
-        $("#toggleOccurrences").click(function () {
-            toggleOverlay(1, this.checked);
-        });
-        $("#toggleRegion").click(function () {
-            toggleOverlay(0, this.checked);
-        });
-
-        // map controls toggling
-        var $controlsToggle = $('#controls-toggle');
-        $controlsToggle.click(function () {
-            $controlsToggle.toggle();
-            $('#controls').toggle('slideDown');
-        });
-        $('#hide-controls').click(function () {
-            $('#controls').toggle('slideDown', function () {
-                $controlsToggle.toggle();
-            });
-        });
 
         google.maps.event.addListener(map, 'click', function (event) {
             info(event.latLng);
@@ -611,12 +573,63 @@ var RegionMap = function (config) {
         }
     };
 
+    /**
+     * Set up opacity sliders
+     */
+    var initializeOpcaityControls = function() {
+
+        $('#occurrencesOpacity').slider({
+            min: 0,
+            max: 100,
+            value: defaultOccurrenceOpacity * 100,
+            change: function (event, ui) {
+                drawRecordsOverlay();
+            }
+        });
+        $('#regionOpacity').slider({
+            min: 0,
+            max: 100,
+            value: defaultRegionOpacity * 100,
+            change: function (event, ui) {
+                drawRegionOverlay();
+            }
+        });
+
+        // Dixes accordion width
+        $('#opacityControls').width( $('#opacityControls').width() + 2);
+
+        $('#opacityControls a').on('click', function() {
+            if ($('#opacityControlsContent').hasClass('in')) {
+                $('#opacityControls i').switchClass('fa-chevron-down', 'fa-chevron-right');
+            } else {
+                $('#opacityControls i').switchClass('fa-chevron-right', 'fa-chevron-down');
+            }
+        });
+
+        // layer toggling
+        $("#toggleOccurrences").click(function () {
+            toggleOverlay(1, this.checked);
+        });
+        $("#toggleRegion").click(function () {
+            toggleOverlay(0, this.checked);
+        });
+    };
+
    /**
     * Called when the overlays are loaded. Not currently used
     * @param numtiles
     */
     var wmsTileLoaded = function(numtiles) {
         $('#maploading').fadeOut("slow");
+    };
+
+    /**
+     * Turns the overlay layers on or off
+     * @param n index of the overlay in the overlays list
+     * @param show true to show; false to hide
+     */
+    var toggleOverlay = function(n, show) {
+        map.overlayMapTypes.setAt(n, show ? overlays[n] : null);
     };
 
     /**
