@@ -385,6 +385,11 @@ RegionTimeControls = function(config) {
             pause();
         });
 
+        // Initialize reset button
+        $('#resetButton').on('click', function(){
+            reset();
+        });
+
         $('.timeControl').on('mouseover', function(){
             if (!$(this).hasClass('selected')) {
                 var src = $(this).attr("src").match(/[-on]?[^\.]+/) + "-on.png";
@@ -461,6 +466,12 @@ RegionTimeControls = function(config) {
             clearInterval(refreshInterval);
             state = CONTROL_STATES.PAUSED;
         }
+    };
+
+    var reset = function() {
+        $('#timeSlider').slider('values', [regionWidget.getDefaultFromYear(), regionWidget.getDefaultToYear()]);
+        stop();
+        regionWidget.updateDateRange(regionWidget.getDefaultFromYear(), regionWidget.getDefaultToYear());
     };
 
     var updateTimeRange = function(values) {

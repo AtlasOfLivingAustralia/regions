@@ -178,7 +178,6 @@
 
                     %{--<div id="taxonomy"><div id="charts"></div></div>--}%
                 </div>
-                <button id="resetButton" type="button" onclick="resetAll()">Reset all</button>
 
             </div>
         </div>
