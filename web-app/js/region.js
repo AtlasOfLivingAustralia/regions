@@ -386,9 +386,8 @@ RegionTimeControls = function(config) {
                     updateTimeRange(ui.values);
                 },
                 change: function( event, ui ) {
-                    if ((!(state === CONTROL_STATES.PLAYING)
-                            || ui.values[0] != ui.values[1]
-                            || (ui.values[0] != regionWidget.getDefaultFromYear() && ui.values[1] != regionWidget.getDefaultToYear()))) {
+                    if (!(state === CONTROL_STATES.PLAYING)
+                            || (ui.values[0] != ui.values[1] && ui.values[1] - ui.values[0] <= 10 )) {
                         regionWidget.updateDateRange(ui.values[0], ui.values[1]);
                     }
                     updateTimeRange(ui.values);
@@ -432,24 +431,25 @@ RegionTimeControls = function(config) {
         switch (state) {
             case CONTROL_STATES.STOPPED:
                 // Start playing from the beginning
+                // Update state
+                state = CONTROL_STATES.PLAYING;
                 $('#timeSlider').slider('values', [regionWidget.getDefaultFromYear(), regionWidget.getDefaultFromYear() + 10]);
                 break;
             case CONTROL_STATES.PAUSED:
                 // Resume playing
+                // Update state
+                state = CONTROL_STATES.PLAYING;
                 $('#timeSlider').slider('values', [playTimeRange[0], playTimeRange[1]]);
                 break;
         }
 
-        // For SVG element the addClass and removeClass jQuery method do not work
+        // For SVG elements the addClass and removeClass jQuery method do not work
         $('#pauseButton')[0].classList.remove('selected');
         $('#playButton')[0].classList.add('selected');
         playTimeRange = $('#timeSlider').slider('values');
         refreshInterval = setInterval(function () {
             increaseTimeRangeByADecade();
         }, 4000);
-        // Update state
-        state = CONTROL_STATES.PLAYING;
-
     };
 
     var stop = function() {
