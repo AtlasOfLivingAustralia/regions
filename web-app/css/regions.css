@@ -275,8 +275,3 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     padding-right: .8em;
     padding-top: .1em;
 }
-
-svg.timeControl:hover, svg.selected {
-    fill: #DF4A21;
-}
-

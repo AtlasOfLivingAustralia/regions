@@ -13,40 +13,6 @@
  *  rights and limitations under the License.
  */
 
-/*
- * Replace all SVG images with inline SVG
- * From http://stackoverflow.com/questions/11978995/how-to-change-color-of-svg-image-using-css-jquery-svg-image-replacement/
- */
-jQuery('img.svg').each(function(){
-    var $img = jQuery(this);
-    var imgID = $img.attr('id');
-    var imgClass = $img.attr('class');
-    var imgURL = $img.attr('src');
-
-    jQuery.get(imgURL, function(data) {
-        // Get the SVG tag, ignore the rest
-        var $svg = jQuery(data).find('svg');
-
-        // Add replaced image's ID to the new SVG
-        if(typeof imgID !== 'undefined') {
-            $svg = $svg.attr('id', imgID);
-        }
-        // Add replaced image's classes to the new SVG
-        if(typeof imgClass !== 'undefined') {
-            $svg = $svg.attr('class', imgClass+' replaced-svg');
-        }
-
-        // Remove any invalid XML tags as per http://validator.w3.org
-        $svg = $svg.removeAttr('xmlns:a');
-
-        // Replace image with new SVG
-        $img.replaceWith($svg);
-
-    }, 'xml');
-
-});
-
-
 var region = {
     /**
      * Builds the query as a map that can be passed directly as data in an ajax call
@@ -400,6 +366,10 @@ RegionTimeControls = function(config) {
             })
             .slider("float", {});
 
+        initializeTimeControlsEvents();
+    };
+
+    var initializeTimeControlsEvents = function() {
         // Initialize play button
         $('#playButton').on('click', function(){
             play();
@@ -414,7 +384,32 @@ RegionTimeControls = function(config) {
         $('#pauseButton').on('click', function(){
             pause();
         });
-    };
+
+        $('.timeControl').on('mouseover', function(){
+            if (!$(this).hasClass('selected')) {
+                var src = $(this).attr("src").match(/[-on]?[^\.]+/) + "-on.png";
+                $(this).attr("src", src);
+            }
+        });
+
+        $('.timeControl').on('mouseout', function(){
+            if (!$(this).hasClass('selected')) {
+                var src = $(this).attr("src").replace("-on.png", ".png");
+                $(this).attr("src", src);
+            }
+        });
+
+        $('.timeControl').on('selected', function(){
+            if ($(this).hasClass('selected')) {
+                var src = $(this).attr("src").replace(/(-on)?.png/, '-on.png');
+                $(this).attr("src", src);
+
+            } else {
+                var src = $(this).attr("src").replace("-on.png", ".png");
+                $(this).attr("src", src);
+            }
+        });
+    }
 
     var increaseTimeRangeByADecade = function() {
         var incrementTo = (regionWidget.getDefaultToYear() - playTimeRange[1]) < 10 ? regionWidget.getDefaultToYear() - playTimeRange[1] : 10;
@@ -431,21 +426,21 @@ RegionTimeControls = function(config) {
         switch (state) {
             case CONTROL_STATES.STOPPED:
                 // Start playing from the beginning
-                // Update state
+                // Update state before updating slider values
                 state = CONTROL_STATES.PLAYING;
                 $('#timeSlider').slider('values', [regionWidget.getDefaultFromYear(), regionWidget.getDefaultFromYear() + 10]);
                 break;
             case CONTROL_STATES.PAUSED:
                 // Resume playing
-                // Update state
+                // Update state before updating slider values
                 state = CONTROL_STATES.PLAYING;
                 $('#timeSlider').slider('values', [playTimeRange[0], playTimeRange[1]]);
                 break;
         }
 
         // For SVG elements the addClass and removeClass jQuery method do not work
-        $('#pauseButton')[0].classList.remove('selected');
-        $('#playButton')[0].classList.add('selected');
+        $('#pauseButton').removeClass('selected').trigger('selected');
+        $('#playButton').addClass('selected').trigger('selected');
         playTimeRange = $('#timeSlider').slider('values');
         refreshInterval = setInterval(function () {
             increaseTimeRangeByADecade();
@@ -454,15 +449,15 @@ RegionTimeControls = function(config) {
 
     var stop = function() {
         clearInterval(refreshInterval);
-        $('#playButton')[0].classList.remove('selected');
-        $('#pauseButton')[0].classList.remove('selected');
+        $('#pauseButton').removeClass('selected').trigger('selected');
+        $('#playButton').removeClass('selected').trigger('selected');
         state = CONTROL_STATES.STOPPED;
     };
 
     var pause = function() {
         if (state === CONTROL_STATES.PLAYING) {
-            $('#playButton')[0].classList.remove('selected');
-            $('#pauseButton')[0].classList.add('selected');
+            $('#pauseButton').addClass('selected').trigger('selected');
+            $('#playButton').removeClass('selected').trigger('selected');
             clearInterval(refreshInterval);
             state = CONTROL_STATES.PAUSED;
         }

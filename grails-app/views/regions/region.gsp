@@ -106,10 +106,10 @@
 
         <div id="timeControls" class="text-center">
             <div id="timeButtons">
-                <r:img uri="/images/play.svg" class="svg timeControl link" id="playButton" title="Play timeline by decade" alt="Play timeline by decade"/>
-                <r:img uri="/images/pause.svg" class="svg timeControl link" id="pauseButton" title="Pause play" alt="Pause play"/>
-                <r:img uri="/images/stop.svg" class="svg timeControl link" id="stopButton" title="Stop" alt="Stop"/>
-                <r:img uri="/images/replay.svg" class="svg timeControl link" id="resetButton" title="Reset" alt="Reset"/>
+                <r:img uri="/images/play.png" class="timeControl link" id="playButton" title="Play timeline by decade" alt="Play timeline by decade"/>
+                <r:img uri="/images/pause.png" class="timeControl link" id="pauseButton" title="Pause play" alt="Pause play"/>
+                <r:img uri="/images/stop.png" class="timeControl link" id="stopButton" title="Stop" alt="Stop"/>
+                <r:img uri="/images/reset.png" class="timeControl link" id="resetButton" title="Reset" alt="Reset"/>
             </div>
 
             <div id="timeSlider">
