@@ -20,7 +20,6 @@ var region = {
      * @param regionName
      * @param regionFid
      * @param start [optional] start parameter for paging results
-     * @param useTime
      * @returns {{q: *, pageSize: number}}
      */
     buildBiocacheQuery: function(regionType, regionName, regionFid, start) {
@@ -296,6 +295,10 @@ var RegionWidget = function (config) {
 
         setMap: function(map) {
             regionMap = map;
+        },
+
+        setTimeControls: function(tc) {
+            timeControls = tc
         }
     };
 
@@ -303,6 +306,12 @@ var RegionWidget = function (config) {
     return _public;
 };
 
+/**
+ *
+ * @param config
+ * @returns {{}}
+ * @constructor
+ */
 RegionTimeControls = function(config) {
 
     var timeSlider;
@@ -353,7 +362,7 @@ RegionTimeControls = function(config) {
  */
 var RegionMap = function (config) {
 
-    var map
+    var map;
     var overlays = [null,null];  // first is the region, second is the occurrence data
     var defaultOccurrenceOpacity = 0.7;
     var defaultRegionOpacity = 0.5;
@@ -361,7 +370,6 @@ var RegionMap = function (config) {
     var infoWindow;
     var useReflectService = true;
     var overlayFormat = "image/png";
-
 
     var init = function (config) {
         initialBounds = new google.maps.LatLngBounds(

@@ -349,7 +349,7 @@
                 useReflectService: ${useReflect}
             }));
 
-            regionWidget.timeControls = new RegionTimeControls();
+            regionWidget.setTimeControls(RegionTimeControls());
 
             %{--var query = region.buildRegionFacet("${region.type}","${region.name}", "${region.fid}");--}%
 
