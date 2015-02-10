@@ -147,6 +147,8 @@ var RegionWidget = function (config) {
             }
             document.location.href = url;
         });
+
+        $('#downloadRecordsModal').modal({show: false});
     };
 
     /**

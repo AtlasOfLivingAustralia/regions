@@ -1,6 +1,6 @@
 package au.org.ala.regions
 
-import org.codehaus.groovy.grails.web.json.JSONArray
+import au.org.ala.regions.binding.DownloadParams
 
 class RegionController {
 
@@ -43,5 +43,30 @@ class RegionController {
                                             pageIndex      : params.pageIndex ? Integer.parseInt(params.pageIndex) : 0,
                                             from           : params.from,
                                             to             : params.to]
+    }
+
+    /**
+     *
+     * @return
+     */
+    def showDownloadDialog() {
+        DownloadParams downloadParams = flash.get('downloadParams')
+        downloadParams = downloadParams?:new DownloadParams(email: params.email)
+
+        render template: 'downloadRecordsDialog', model: [
+                downloadParams: downloadParams, downloadReasons:MetadataService.logReasonCache,
+                downloadOptions: [
+                        0: 'Download All Records',
+                        1: 'Download Species Checklist',
+                        2: 'Download Species FieldGuide'
+                ]
+        ]
+    }
+
+    def download(DownloadParams downloadParams) {
+        if (downloadParams.hasErrors()) {
+            flash.put('downloadParams', downloadParams)
+            showDownloadDialog()
+        }
     }
 }

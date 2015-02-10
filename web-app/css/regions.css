@@ -245,6 +245,14 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     margin-right: 8em;
 }
 
+#dialogZone div.modal-body {
+    min-height: 250px;
+}
+
+#dialogZone div.modal-body i {
+    margin-top: 120px;
+}
+
 #controlsMapTab {
     margin-bottom: 7px;
 }

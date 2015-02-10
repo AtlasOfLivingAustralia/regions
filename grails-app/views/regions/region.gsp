@@ -91,7 +91,10 @@
                 <div class="text-center" id="exploreButtons">
                     <a href="" id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View Records</a>
 
-                    <a href="" class="btn"><i class="fa fa-download"></i> Download Records</a>
+                    <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog', params: [email: rg.loggedInUsername()])}"
+                       aa-refresh-zones="dialogZone" js-before="$('#downloadRecordsModal').modal('show');" class="btn">
+                        <i class="fa fa-download"></i> Download Records
+                    </a>
                 </div>
             </div>
             <div class="tab-pane" id="taxonomy">
@@ -148,44 +151,20 @@
     </div>
 </div>
 
+<div id="downloadRecordsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <aa:zone id="dialogZone">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Download Records</h3>
+        </div>
+        <div class="modal-body text-center">
+            <i class="fa fa-cog fa-spin fa-2x"></i>
+        </div>
+    </aa:zone>
+</div>
+
 <hr/>
 
-    <div class="row">
-        <div class="span6">
-            <div id="explore">
-                %{--<ul class='explore-tabs'>--}%
-                    %{--<li><a href="#" class="current">Explore by species</a></li>--}%
-                    %{--<li><a href="#">Explore by taxonomy</a></li>--}%
-                %{--</ul>--}%
-                <div id="slider-pane">
-                    <div>
-                        <div id="taxaBox">
-
-
-                            <div id="taxa-links" style="clear:both;">
-                                <ul>
-
-                                    %{--
-                                                                        <li>
-                                                                            <img src="${resource(dir:'images',file: 'species-images-icon.png')}"/><br/>
-                                                                            <span id="viewImages" class="link">View images for species</span>
-                                                                        </li>
-                                    --}%
-                                    <li>
-                                        <a href="#download" id="downloadLink" title="Download records OR species checklist">Download all</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    %{--<div id="taxonomy"><div id="charts"></div></div>--}%
-                </div>
-
-            </div>
-        </div>
-
-    </div>
 
     <div class="row">
         <div class="span12">
@@ -273,53 +252,6 @@
         </div>
     </div>
     </g:if>
-
-    <div style="display:none">
-
-        <div id="download">
-            <p id="termsOfUseDownload">
-                By downloading this content you are agreeing to use it in accordance with the Atlas
-                <a href="http://www.ala.org.au/about/terms-of-use/#TOUusingcontent">Terms of Use</a>
-                and individual <a href=" http://www.ala.org.au/support/faq/#q29">Data Provider Terms</a>.
-                <br/><br/>
-                Please provide the following <b>optional</b> details before downloading:
-            </p>
-            <form id="downloadForm">
-                <input type="hidden" name="url" id="downloadUrl" value="http://biocache.ala.org.au/ws/occurrences/download?q=state:&#034;South Australia&#034;&amp;qc="/>
-                <input type="hidden" name="url" id="downloadChecklistUrl" value="http://biocache.ala.org.au/ws/occurrences/facets/download?q=state:&#034;South Australia&#034;&amp;qc="/>
-                <input type="hidden" name="url" id="downloadFieldGuideUrl" value="http://biocache.ala.org.au/occurrences/fieldguide/download?q=state:&#034;South Australia&#034;&amp;qc="/>
-                <input type="hidden" name="url" id="fastDownloadUrl" value="http://biocache.ala.org.au/ws/occurrences/index/download?q=state:&#034;South Australia&#034;&amp;qc="/>
-
-                <fieldset>
-                    <p><label for="email">Email</label>
-                        <input type="text" name="email" id="email" value="${rg.loggedInUsername()}" size="30"  />
-                    </p>
-                    <p><label for="filename">File Name</label>
-                        <input type="text" name="filename" id="filename" value="data" size="30"  />
-                    </p>
-                    <p><label for="reasonTypeId" style="">Download Reason *</label>
-                        <select name="reasonTypeId" id="reasonTypeId">
-                            <option value="">-- select a reason --</option>
-                            <g:each in="${downloadReasons}" var="reason">
-                                <option value="${reason.key}">${reason.value}</option>
-                            </g:each>
-                        </select>
-                    </p>
-
-                    <input type="submit" value="Download All Records" id="downloadSubmitButton"/>&nbsp;
-                    <input type="submit" value="Download Species Checklist" id="downloadCheckListSubmitButton"/>&nbsp;
-                    <input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;
-                <!--
-                        <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
-                        -->
-                    <p style="margin-top:10px;">
-                        <strong>Note</strong>: The field guide may take several minutes to prepare and download.
-                    </p>
-                </fieldset>
-            </form>
-        </div>
-
-    </div>
 
     <r:script>
 
