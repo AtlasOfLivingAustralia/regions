@@ -88,6 +88,11 @@
                         </tr>
                     </aa:zone>
                 </table>
+                <div class="text-center" id="exploreButtons">
+                    <a href="" id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View Records</a>
+
+                    <a href="" class="btn"><i class="fa fa-download"></i> Download Records</a>
+                </div>
             </div>
             <div class="tab-pane" id="taxonomy">
                 <div id="charts"></div>
@@ -123,7 +128,7 @@
             <div class="accordion-group">
                 <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse" href="#opacityControlsContent">
-                        <i class="fa fa-chevron-right"></i> Map opacity controls
+                        <i class="fa fa-chevron-right"></i>Map opacity controls
                     </a>
                 </div>
                 <div id="opacityControlsContent" class="accordion-body collapse">
@@ -159,9 +164,7 @@
 
                             <div id="taxa-links" style="clear:both;">
                                 <ul>
-                                    <li>
-                                        <span id="viewRecords" class="link under">View all records</span>
-                                    </li>
+
                                     %{--
                                                                         <li>
                                                                             <img src="${resource(dir:'images',file: 'species-images-icon.png')}"/><br/>

@@ -132,6 +132,21 @@ var RegionWidget = function (config) {
 
         // Initialize info message
         $('#timeControlsInfo').popover();
+
+        $('#viewRecords').click(function(event) {
+            event.preventDefault();
+            // check what group is active
+            var url = urls.biocacheWebappUrl + '/occurrences/search?q=' +
+                region.buildRegionFacet(state.regionType, state.regionName, state.regionFid) + "&fq=" + region.buildTimeFacet();
+            if (state.group != 'ALL_SPECIES') {
+                if (state.subgroup) {
+                    url += '&fq=species_subgroup:' + state.subgroup;
+                } else {
+                    url += '&fq=species_group:' + state.group;
+                }
+            }
+            document.location.href = url;
+        });
     };
 
     /**
@@ -187,7 +202,7 @@ var RegionWidget = function (config) {
     };
 
     /**
-     *
+     * Code to execute when a group is selected
      */
     var selectGroup = function(group) {
 
@@ -219,6 +234,10 @@ var RegionWidget = function (config) {
         AjaxAnywhere.dynamicParams=state;
     };
 
+    /**
+     * Code to execute when a subgroup is selected
+     * @param subgroup
+     */
     var selectSubgroup = function(subgroup) {
         $('.group-row').removeClass('groupSelected');
         var subgroupId = subgroup.replace(/[^A-Za-z\\d_]/g, "") + '-row';

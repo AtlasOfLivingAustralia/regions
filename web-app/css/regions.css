@@ -135,6 +135,7 @@ li.regionLink {
 #groups, #species {
     height: 560px;
     max-height: 560px;
+    margin-bottom: .8em;
 }
 
 #groups thead, #species thead{
@@ -240,6 +241,10 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     min-width: 60%;
 }
 
+#exploreButtons a:first-child {
+    margin-right: 8em;
+}
+
 #controlsMapTab {
     margin-bottom: 7px;
 }
@@ -278,4 +283,8 @@ tr.speciesSelected, tr.speciesSelected:hover td {
 
 #opacityControls {
     margin-top: .5em;
+}
+
+#opacityControls i {
+    padding-right: .5em;
 }
