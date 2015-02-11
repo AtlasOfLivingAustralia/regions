@@ -14,44 +14,59 @@
             </p>
 
             <h4>Please provide the following details before downloading:</h4>
-            <div class="control-group ">
-                <label class="control-label" for="downloadParams.email">Email</label>
+            <div class="control-group ${g.hasErrors(bean: downloadParams, field: 'email', 'error')}">
+                <label class="control-label" for="email">Email</label>
                 <div class="controls">
-                    <g:textField name="downloadParams.email" value="${downloadParams.email}"/>
+                    <g:textField name="email" value="${downloadParams.email}"/>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="downloadParams.fileName">File name</label>
+            <div class="control-group ${g.hasErrors(bean: downloadParams, field: 'fileName', 'error')}">
+                <label class="control-label" for="fileName">File name</label>
                 <div class="controls">
-                    <g:textField name="downloadParams.fileName" value="${downloadParams.fileName?:'data'}"/>
+                    <g:textField name="fileName" value="${downloadParams.fileName?:'data'}"/>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="downloadParams.downloadReason">Download reason</label>
+            <div class="control-group ${g.hasErrors(bean: downloadParams, field: 'downloadReason', 'error')}">
+                <label class="control-label" for="downloadReason">Download reason</label>
                 <div class="controls">
-                    <g:select id="type" name="downloadParams.downloadReason" value="${downloadParams.downloadReason}"
-                              noSelection="${['null':'Select One...']}"
+                    <g:select id="type" name="downloadReason" value="${downloadParams.downloadReason}"
+                              noSelection="${['':'Select One...']}"
                               from="${downloadReasons}"
                               optionKey="key" optionValue="value">
                     </g:select>
                 </div>
             </div>
-            <div class="control-group">
-                <label class="control-label" for="downloadParams.downloadOption">Download option</label>
+            <div class="control-group ${g.hasErrors(bean: downloadParams, field: 'downloadOption', 'error')}">
+                <label class="control-label" for="downloadOption">Download option</label>
                 <div class="controls">
-                    <g:select id="type" name="downloadParams.downloadOption" value="${downloadParams.downloadOption}"
-                              noSelection="${['null':'Select One...']}"
+                    <g:select id="type" name="downloadOption" value="${downloadParams.downloadOption}"
+                              noSelection="${['':'Select One...']}"
                               from="${downloadOptions}"
                               optionKey="key" optionValue="value">
                     </g:select>
                 </div>
             </div>
-
         </div>
         <div class="modal-footer">
             <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-            <button type="submit" aa-refresh-zones="dialogZone" class="btn btn-primary"><i class="fa fa-download"></i> Download</button>
+            <button type="submit" class="btn btn-primary"
+                    aa-refresh-zones="dialogZone" js-before="AjaxAnywhere.dynamicParams=regionWidget.getCurrentState();">
+                <i class="fa fa-download"></i> Download
+            </button>
         </div>
     </g:form>
+    <g:if test="${downloadUrl}">
+        <script>
+        <g:applyCodec encodeAs="none">
+            <g:if test="${downloadParams.downloadOption != '2'}">
+                window.location.href = '${downloadUrl}';
+            </g:if>
+            <g:else>
+                window.open('${downloadUrl}');
+            </g:else>
+        </g:applyCodec>
+            $('#downloadRecordsModal').modal('hide');
+        </script>
+    </g:if>
 </aa:zone>
 </div>

@@ -1,5 +1,6 @@
 package au.org.ala.regions
 
+import au.org.ala.regions.binding.DownloadParams
 import grails.converters.JSON
 import grails.util.Holders
 import groovyx.net.http.RESTClient
@@ -43,10 +44,17 @@ class MetadataService {
 
     def grailsApplication
 
+    static final Map DOWNLOAD_OPTIONS = [
+            0: 'Download All Records',
+            1: 'Download Species Checklist',
+            2: 'Download Species FieldGuide'
+    ]
+
+
     final static String WS_DATE_FROM_PREFIX = "-01-01T00:00:00Z"
     final static String WS_DATE_TO_PREFIX = "-12-31T23:59:59Z"
     final static String WS_DATE_FROM_DEFAULT = "1850"
-    final static String PAGE_SIZE = "50";
+    final static String PAGE_SIZE = "50"
 
     String BIE_URL, BIOCACHE_URL, DEFAULT_IMG_URL
 
@@ -163,6 +171,70 @@ class MetadataService {
 
     /**
      *
+     * @param downloadParams
+     * @return
+     */
+    String buildDownloadRecordsUrl(DownloadParams downloadParams,String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+        String url
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, groupName, isSubgroup, from, to)
+        String wsUrl
+        switch (downloadParams.downloadOption) {
+            case '0':
+                // Download All Records
+                wsUrl = "${BIOCACHE_URL}/ws/occurrences/index/download"
+                params << [
+                        email: downloadParams.email,
+                        reasonTypeId: downloadParams.downloadReason,
+                        file: downloadParams.fileName
+                ]
+                break
+            case '1':
+                // Download Species Checklist
+                wsUrl = "${BIOCACHE_URL}/ws/occurrences/facets/download"
+                params << [
+                        facets: "species_guid",
+                        lookup: true,
+                        file: downloadParams.fileName
+                ]
+                break
+
+            case '2':
+                // Download Species FieldGuide
+                wsUrl = "${BIOCACHE_URL}/occurrences/fieldguide/download"
+                params << [
+                        facets: "species_guid"
+                ]
+                break
+        }
+
+        url = new URIBuilder(wsUrl).with {
+            query = params
+            return it
+        }.toString()
+        log.debug "Download Records (${downloadParams.downloadOption}) - REST URL generated = ${url}"
+        return url
+    }
+
+    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+        Map params = [
+                q : buildRegionFacet(regionFid, regionType, regionName),
+        ]
+
+        if (groupName && isSubgroup) {
+            params << [fq: "species_subgroup:\"${groupName}\""]
+        } else if (groupName && groupName != 'ALL_SPECIES') {
+            params << [fq: "species_group:\"${groupName}\""]
+        }
+
+        if (from && to) {
+            params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
+        }
+
+        return params
+    }
+
+    /**
+     *
      * @param regionFid
      * @param regionType
      * @param regionName
@@ -181,6 +253,7 @@ class MetadataService {
         log.debug "REST URL generated = ${url}"
         return url
     }
+
 
     /**
      *

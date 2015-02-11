@@ -50,23 +50,28 @@ class RegionController {
      * @return
      */
     def showDownloadDialog() {
-        DownloadParams downloadParams = flash.get('downloadParams')
+        DownloadParams downloadParams = params.downloadParams
+        String downloadUrl = params.downloadUrl
         downloadParams = downloadParams?:new DownloadParams(email: params.email)
 
         render template: 'downloadRecordsDialog', model: [
                 downloadParams: downloadParams, downloadReasons:MetadataService.logReasonCache,
-                downloadOptions: [
-                        0: 'Download All Records',
-                        1: 'Download Species Checklist',
-                        2: 'Download Species FieldGuide'
-                ]
+                downloadOptions: MetadataService.DOWNLOAD_OPTIONS,
+                downloadUrl: downloadUrl
         ]
     }
 
+    /**
+     *
+     * @param downloadParams
+     * @return
+     */
     def download(DownloadParams downloadParams) {
-        if (downloadParams.hasErrors()) {
-            flash.put('downloadParams', downloadParams)
-            showDownloadDialog()
+        if (!downloadParams.hasErrors()) {
+            params << [downloadUrl : metadataService.buildDownloadRecordsUrl(downloadParams, params.regionFid, params.regionType, params.regionName, params.subgroup?:params.group, params.subgroup ? true : false, params.from, params.to)]
         }
+
+        params << [downloadParams: downloadParams]
+        forward action: 'showDownloadDialog'
     }
 }

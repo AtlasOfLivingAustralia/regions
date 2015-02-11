@@ -1,5 +1,6 @@
 package au.org.ala.regions
 
+import au.org.ala.regions.binding.DownloadParams
 import spock.lang.Specification
 
 /**
@@ -140,5 +141,54 @@ class MetadataServiceSpec extends Specification {
 
         then:
         url == "http://biocache.ala.org.au/occurrences/search?q=subfamily:\"ACENTROPINAE\"&fq=cl22:\"New South Wales\"&fq=occurrence_year:[1912-01-01T00:00:00Z TO *]"
+    }
+
+    void "test buildDownloadRecordsUrl"() {
+        given:
+        String regionName = "New South Wales"
+        String regionType = "states"
+        String regionFid = "cl22"
+        String from = "1900"
+        String to = "2009"
+        String groupName = "Mammals"
+        String subgroup = "Diprotodont Marsupials"
+        DownloadParams downloadParams = new DownloadParams(
+                email: 'angel.ruiz@csiro.au',
+                fileName: 'data',
+                downloadReason: 0,
+                downloadOption: 0
+        )
+
+        when:
+        String url = metadataService.buildDownloadRecordsUrl(downloadParams, regionFid, regionType, regionName, groupName, false)
+
+        then:
+        URLDecoder.decode(url, 'UTF-8') == "http://biocache.ala.org.au/ws/occurrences/index/download?q=cl22:\"New South Wales\"&fq=species_group:\"Mammals\"&email=angel.ruiz@csiro.au&reasonTypeId=0&file=data"
+
+        when:
+        url = metadataService.buildDownloadRecordsUrl(downloadParams, regionFid, regionType, regionName, groupName, false, from, to)
+
+        then:
+        URLDecoder.decode(url, 'UTF-8') == "http://biocache.ala.org.au/ws/occurrences/index/download?q=cl22:\"New South Wales\"&fq=species_group:\"Mammals\" AND occurrence_year:[1900-01-01T00:00:00Z TO 2009-12-31T23:59:59Z]&email=angel.ruiz@csiro.au&reasonTypeId=0&file=data"
+
+        when:
+        url = metadataService.buildDownloadRecordsUrl(downloadParams, regionFid, regionType, regionName, subgroup, true)
+
+        then:
+        URLDecoder.decode(url, 'UTF-8') == "http://biocache.ala.org.au/ws/occurrences/index/download?q=cl22:\"New South Wales\"&fq=species_subgroup:\"Diprotodont Marsupials\"&email=angel.ruiz@csiro.au&reasonTypeId=0&file=data"
+
+        when:
+        downloadParams.downloadOption = 1
+        url = metadataService.buildDownloadRecordsUrl(downloadParams, regionFid, regionType, regionName, groupName, false)
+
+        then:
+        URLDecoder.decode(url, 'UTF-8') == "http://biocache.ala.org.au/ws/occurrences/facets/download?q=cl22:\"New South Wales\"&fq=species_group:\"Mammals\"&facets=species_guid&lookup=true&file=data"
+
+        when:
+        downloadParams.downloadOption = 2
+        url = metadataService.buildDownloadRecordsUrl(downloadParams, regionFid, regionType, regionName, groupName, false)
+
+        then:
+        URLDecoder.decode(url, 'UTF-8') == "http://biocache.ala.org.au/occurrences/fieldguide/download?q=cl22:\"New South Wales\"&fq=species_group:\"Mammals\"&facets=species_guid"
     }
 }
