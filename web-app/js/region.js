@@ -133,6 +133,17 @@ var RegionWidget = function (config) {
         // Initialize info message
         $('#timeControlsInfo').popover();
 
+        initializeViewRecordsButton();
+
+        // Initialize Download records dialog
+        $('#downloadRecordsModal').modal({show: false});
+    };
+
+
+    /**
+     *
+     */
+    var initializeViewRecordsButton = function() {
         $('#viewRecords').click(function(event) {
             event.preventDefault();
             // check what group is active
@@ -147,8 +158,6 @@ var RegionWidget = function (config) {
             }
             document.location.href = url;
         });
-
-        $('#downloadRecordsModal').modal({show: false});
     };
 
 
