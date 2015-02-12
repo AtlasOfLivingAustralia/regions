@@ -151,6 +151,7 @@ var RegionWidget = function (config) {
         $('#downloadRecordsModal').modal({show: false});
     };
 
+
     /**
      * Updates state with new values and preserve state for when reloading page
      * @param newPartialState

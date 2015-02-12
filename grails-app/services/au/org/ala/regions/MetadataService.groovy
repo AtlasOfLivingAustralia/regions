@@ -1,6 +1,7 @@
 package au.org.ala.regions
 
 import au.org.ala.regions.binding.DownloadParams
+import au.org.ala.web.AuthService
 import grails.converters.JSON
 import grails.util.Holders
 import groovyx.net.http.RESTClient
@@ -44,6 +45,8 @@ class MetadataService {
 
     def grailsApplication
 
+    AuthService authService
+
     static final Map DOWNLOAD_OPTIONS = [
             0: 'Download All Records',
             1: 'Download Species Checklist',
@@ -56,13 +59,14 @@ class MetadataService {
     final static String WS_DATE_FROM_DEFAULT = "1850"
     final static String PAGE_SIZE = "50"
 
-    String BIE_URL, BIOCACHE_URL, DEFAULT_IMG_URL
+    String BIE_URL, BIOCACHE_URL, ALERTS_URL, DEFAULT_IMG_URL
 
     @PostConstruct
     def init() {
         BIE_URL = grailsApplication.config.bie.baseURL
         BIOCACHE_URL = grailsApplication.config.biocache.baseURL
         DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
+        ALERTS_URL = grailsApplication.config.alerts.baseURL
     }
 
     /**
@@ -154,6 +158,24 @@ class MetadataService {
 
     /**
      *
+     * @param region
+     * @return
+     */
+    String buildAlertsUrl(Map region) {
+        URLDecoder.decode(new URIBuilder("${ALERTS_URL}/webservice/createBiocacheNewRecordsAlert").with {
+            query = [
+                    webserviceQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name)}",
+                    uiQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name)}",
+                    queryDisplayName: region.name,
+                    baseUrlForWS: "${BIOCACHE_URL}/ws",
+                    baseUrlForUI: "${BIOCACHE_URL}&resourceName=Atlas"
+            ]
+            return it
+        }.toString(), 'UTF-8')
+    }
+
+    /**
+     *
      * @param name
      * @param rank
      * @param regionFid
@@ -215,6 +237,17 @@ class MetadataService {
         return url
     }
 
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param groupName
+     * @param isSubgroup
+     * @param from
+     * @param to
+     * @return
+     */
     private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
         Map params = [
                 q : buildRegionFacet(regionFid, regionType, regionName),

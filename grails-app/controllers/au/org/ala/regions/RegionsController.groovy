@@ -1,15 +1,13 @@
 package au.org.ala.regions
 
 import grails.converters.JSON
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import grails.util.GrailsUtil
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
 class RegionsController {
 
     def metadataService
-    
+
     static defaultAction = 'regions'
 
     /**
@@ -20,14 +18,14 @@ class RegionsController {
      */
     def logout = {
         session.invalidate()
-        redirect(url:"${params.casUrl}?url=${params.appUrl}")
+        redirect(url: "${params.casUrl}?url=${params.appUrl}")
     }
 
     def clearCache = {
         metadataService.clearCaches()
         render "<div>All caches cleared.</div>"
     }
-    
+
     def clearTemplateCache = {
         hf.clearCache()
         render "<div>Template cache cleared.</div>"
@@ -50,21 +48,20 @@ class RegionsController {
      *
      * @param type the type of region - states, lgas, ibras, imcrs, nrms, other
      * @return
-     *  names is an alphabetically sorted list of the names of the regions
+     * names is an alphabetically sorted list of the names of the regions
      *  objects is a map of objects holding the properties of the region, keyed by name
      */
     def regionList = {
 
         // get the list
         def map = metadataService.regionMetadata(params.type, null)
-        
+
         def result
-        
+
         if (map.error) {
             // render error
             result = map
-        }
-        else {
+        } else {
             // render as a list and a map
             result = [names: map.keySet().sort(), objects: map]
         }
@@ -103,24 +100,24 @@ class RegionsController {
         /* hack to inject some sub-region content */
         switch (region.name) {
             case "Australian Capital Territory":
-                subRegions.ibras = ['Australian Alps','South Eastern Highlands','Sydney Basin']
+                subRegions.ibras = ['Australian Alps', 'South Eastern Highlands', 'Sydney Basin']
                 subRegions.imcras = ['Southeast Shelf Transition']
                 subRegions.nrms = ['ACT']
                 break
             case "Great Eastern Ranges Initiative":
-                subRegions.subs = ['Hunter Valley Partnership','Border Ranges Alliance', 'Kosciuszko to Coast','Slopes to Summit',
-                                   'Southern Highlands Link','Kanangra-Boyd to Wyangala Link','Jaliigirr Biodiversity Alliance','Illawarra to Shoalhaven',
+                subRegions.subs = ['Hunter Valley Partnership', 'Border Ranges Alliance', 'Kosciuszko to Coast', 'Slopes to Summit',
+                                   'Southern Highlands Link', 'Kanangra-Boyd to Wyangala Link', 'Jaliigirr Biodiversity Alliance', 'Illawarra to Shoalhaven',
                                    'Hinterland Bush Links', 'Central Victorian Biolinks']
                 break
-            //case "Hunter":
-            //    subRegions.subs = ['Hunter Areas of Interest','Upper Hunter Focus Area']
-            //    break
-            //case "Slopes to summit":
-            //    subRegions.subs = ['S2S Priority Areas','S2S Priority Area Billabong Creek']
-            //    break
-            //case "Kosciuszko to coast":
-            //    subRegions.subs = ['K2C Management Regions']
-            //    break
+        //case "Hunter":
+        //    subRegions.subs = ['Hunter Areas of Interest','Upper Hunter Focus Area']
+        //    break
+        //case "Slopes to summit":
+        //    subRegions.subs = ['S2S Priority Areas','S2S Priority Area Billabong Creek']
+        //    break
+        //case "Kosciuszko to coast":
+        //    subRegions.subs = ['K2C Management Regions']
+        //    break
         }
         /* end hack */
 
@@ -137,8 +134,7 @@ class RegionsController {
             region.notes = metadataService.getLayerMetadata(region.name, 'notes')
             region.parent = metadataService.lookupParentChain(region.name)
 
-        }
-        else {
+        } else {
             region.layerName = metadataService.layerNameForType(region.type)
             region.fid = metadataService.fidFor(region.type)
         }
@@ -147,7 +143,7 @@ class RegionsController {
             // lookup state emblems
             def emblems = metadataService.getStateEmblems()[region.name]
             if (emblems) {
-                ['animal','plant','marine','bird'].each {
+                ['animal', 'plant', 'marine', 'bird'].each {
                     if (emblems[it]) {
                         emblemGuids[it + 'Emblem'] = emblems."${it}".guid
                     }
@@ -158,8 +154,11 @@ class RegionsController {
         // Documents will render under the map on the layer page. They were previously used by the GER region page, currently unused.
         def docs = [:]
         // render
-        [region: region, emblems: emblemGuids, subRegions: subRegions,
-                documents: docs, useReflect: params.reflect == 'false' ? false : true]
+        [
+                region: region, emblems: emblemGuids, subRegions: subRegions,
+                documents: docs, useReflect: params.reflect == 'false' ? false : true,
+                alertsUrl: metadataService.buildAlertsUrl(region)
+        ]
     }
 
     def reloadConfig = {
@@ -174,11 +173,10 @@ class RegionsController {
         try {
             stream = resource.getInputStream()
             ConfigSlurper configSlurper = new ConfigSlurper(GrailsUtil.getEnvironment())
-            if(resource.filename.endsWith('.groovy')) {
+            if (resource.filename.endsWith('.groovy')) {
                 def newConfig = configSlurper.parse(stream.text)
                 grailsApplication.getConfig().merge(newConfig)
-            }
-            else if(resource.filename.endsWith('.properties')) {
+            } else if (resource.filename.endsWith('.properties')) {
                 def props = new Properties()
                 props.load(stream)
                 def newConfig = configSlurper.parse(props)
@@ -193,8 +191,7 @@ class RegionsController {
                         res += "<li>" + k1 + " = " + v1 + "</li>"
                     }
                     res += "</ul>"
-                }
-                else {
+                } else {
                     res += "<li>${key} = ${value}</li>"
                 }
             }
@@ -209,5 +206,5 @@ class RegionsController {
         }
 
     }
-    
+
 }

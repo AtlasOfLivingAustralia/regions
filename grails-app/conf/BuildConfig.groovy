@@ -37,7 +37,7 @@ grails.project.dependency.resolution = {
 
         compile ":font-awesome-resources:4.2.0.0"
 
-        runtime (":ala-bootstrap2:1.0") {
+        runtime (":ala-bootstrap2:1.2") {
             exclude "jquery"
         }
         if (Environment.current == Environment.PRODUCTION) {

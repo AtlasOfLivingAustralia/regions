@@ -9,7 +9,7 @@
 
 <div class="row">
     <div class="span12">
-        <ul class="breadcrumb">
+        <ul class="breadcrumb pull-left">
             <rg:breadcrumbTrail/>
             <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
             <g:if test="${region.parent}">
@@ -20,6 +20,10 @@
             </g:if>
             <li class="active">${region.name}</li>
         </ul>
+        <a id="alertsButton" class="btn btn-ala pull-right" href="${alertsUrl}">
+            Alerts
+            <i class="icon-bell icon-white"></i>
+        </a>
     </div>
 </div>
 
@@ -163,17 +167,7 @@
     </aa:zone>
 </div>
 
-<hr/>
-
-
-    <div class="row">
-        <div class="span12">
-            <h2>Alerts</h2>
-            <div id="alerts"></div>
-        </div>
-    </div>
-
-    <g:if test="${subRegions.ibras||subRegions.nrms||subRegions.imcras||subRegions.subs}">
+<g:if test="${subRegions.ibras||subRegions.nrms||subRegions.imcras||subRegions.subs}">
     <div class="row">
         <div class="span12" id="subRegions">
             <h2>Regions within ${region.name}</h2>
@@ -211,9 +205,9 @@
             </g:if>
         </div>
     </div>
-    </g:if>
+</g:if>
 
-    <g:if test="${documents.factSheets||documents.publications||documents.links}">
+<g:if test="${documents.factSheets||documents.publications||documents.links}">
     <div class="row">
         <div class="span12" id="docs">
             <h2>Documents and Links</h2>
@@ -251,57 +245,58 @@
             <g:link elementId="manage-doc-link" action="documents">Add or manage documents and links</g:link>
         </div>
     </div>
-    </g:if>
+</g:if>
 
-    <r:script>
+<r:script>
 
-        var regionWidget;
+    var regionWidget;
 
-        $(function() {
-            regionWidget = new RegionWidget({
-                regionName: '${region.name}',
-                regionType: '${region.type}',
-                regionFid: '${region.fid}',
-                regionPid: '${region.pid}',
-                regionLayerName: ${region.pid},
-                urls: {
-                    proxyUrl: '${createLink(controller: 'proxy', action: 'index')}',
-                    speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
-                    biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
-                    biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
-                    spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
-                    spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
-                    spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service"
-                }
-            });
-
-            regionWidget.setMap(new RegionMap({
-                bbox: {
-                    sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
-                    ne: {lat: ${region.bbox?.maxLat}, lng: ${region.bbox?.maxLng}}
-                },
-                useReflectService: ${useReflect}
-            }));
-
-            regionWidget.setTimeControls(RegionTimeControls());
-
-            %{--var query = region.buildRegionFacet("${region.type}","${region.name}", "${region.fid}");--}%
-
-            %{--var taxonomyChartOptions = {--}%
-                %{--query: query,--}%
-%{--//                subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),--}%
-                %{--rank: "kingdom",--}%
-                %{--width: 450,--}%
-                %{--clickThru: false,--}%
-                %{--notifyChange: "taxonChartChange",--}%
-                %{--collectionsUrl: "${grailsApplication.config.grails.serverURL}",--}%
-                %{--biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}/ws",--}%
-                %{--displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}/"--}%
-            %{--};--}%
-
-//            taxonomyChart.load(taxonomyChartOptions);
+    $(function() {
+        regionWidget = new RegionWidget({
+            regionName: '${region.name}',
+            regionType: '${region.type}',
+            regionFid: '${region.fid}',
+            regionPid: '${region.pid}',
+            regionLayerName: ${region.pid},
+            urls: {
+                proxyUrl: '${createLink(controller: 'proxy', action: 'index')}',
+                speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
+                biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
+                biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
+                spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
+                spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
+                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service"
+            },
+            username: '${rg.loggedInUsername()}'
         });
 
-    </r:script>
-  </body>
+        regionWidget.setMap(new RegionMap({
+            bbox: {
+                sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
+                ne: {lat: ${region.bbox?.maxLat}, lng: ${region.bbox?.maxLng}}
+            },
+            useReflectService: ${useReflect}
+        }));
+
+        regionWidget.setTimeControls(RegionTimeControls());
+
+        %{--var query = region.buildRegionFacet("${region.type}","${region.name}", "${region.fid}");--}%
+
+        %{--var taxonomyChartOptions = {--}%
+            %{--query: query,--}%
+%{--//                subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),--}%
+            %{--rank: "kingdom",--}%
+            %{--width: 450,--}%
+            %{--clickThru: false,--}%
+            %{--notifyChange: "taxonChartChange",--}%
+            %{--collectionsUrl: "${grailsApplication.config.grails.serverURL}",--}%
+            %{--biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}/ws",--}%
+            %{--displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}/"--}%
+        %{--};--}%
+
+//            taxonomyChart.load(taxonomyChartOptions);
+    });
+
+</r:script>
+</body>
 </html>
