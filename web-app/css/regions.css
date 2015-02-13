@@ -307,7 +307,7 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     overflow: hidden;
 }
 
-#charts i {
+#charts i.spinner {
     margin-top: 150px;
 }
 
@@ -315,6 +315,8 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     margin-bottom: 0 !important;
     margin-left: 20px;
     margin-top: 2em;
+    text-align: left;
+
 }
 
 #taxa #backLink.link {
@@ -348,7 +350,6 @@ tr.speciesSelected, tr.speciesSelected:hover td {
 
 #taxa #recordsLink.link {
     margin-top: 1em;
-
     /*From Bootstrap*/
     border-color: #cccccc #cccccc #b3b3b3;
     border-image: none;
