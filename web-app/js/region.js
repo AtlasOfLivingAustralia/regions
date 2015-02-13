@@ -64,6 +64,11 @@ var region = {
     }
 };
 
+function taxonChartChange (rank, name) {
+    regionWidget.getMap().reloadRecordsOnMap();
+}
+
+
 var RegionWidget = function (config) {
 
     var defaultFromYear = 1850;
@@ -71,6 +76,7 @@ var RegionWidget = function (config) {
     var defaultTab = 'speciesTab';
     var regionMap;
     var timeControls;
+    var taxonomyWidget;
 
     /**
      * Essential values to maintain the state of the widget when the user interacts with it
@@ -342,8 +348,16 @@ var RegionWidget = function (config) {
             regionMap = map;
         },
 
+        getMap: function() {
+            return regionMap;
+        },
+
         setTimeControls: function(tc) {
-            timeControls = tc
+            timeControls = tc;
+        },
+
+        setTaxonomyWidget: function(tw) {
+            taxonomyWidget = tw;
         }
     };
 
@@ -357,7 +371,7 @@ var RegionWidget = function (config) {
  * @returns {{}}
  * @constructor
  */
-RegionTimeControls = function(config) {
+var RegionTimeControls = function(config) {
 
     var timeSlider;
     var CONTROL_STATES = {
@@ -516,8 +530,37 @@ RegionTimeControls = function(config) {
 
     init(config);
     return _public;
+};
 
-}
+var TaxonomyWidget = function(config){
+
+    var TaxonomyWidget = function(config){
+        var currentState = regionWidget.getCurrentState();
+        var query = region.buildRegionFacet(currentState.regionType,currentState.regionName, currentState.regionFid);
+
+        var taxonomyChartOptions = {
+            query: query,
+            subquery: region.buildTimeFacet(),
+            rank: "kingdom",
+            width: 550,
+            height: 420,
+            clickThru: false,
+            notifyChange: "taxonChartChange",
+            collectionsUrl: regionWidget.getUrls().regionsApp,
+            biocacheServicesUrl: regionWidget.getUrls().biocacheServiceUrl,
+            displayRecordsUrl: regionWidget.getUrls().biocacheWebappUrl,
+        };
+
+        taxonomyChart.load(taxonomyChartOptions);
+    };
+
+    var _public = {
+
+    };
+
+    TaxonomyWidget(config);
+    return _public;
+};
 
 /**
  *

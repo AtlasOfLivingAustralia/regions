@@ -132,6 +132,10 @@ li.regionLink {
     margin-bottom: .6em;
 }
 
+#explorerTabs.nav-tabs li a, #controlsMapTab.nav-tabs li a {
+    font-size: 1.1em;
+}
+
 #groups, #species {
     height: 560px;
     max-height: 560px;
@@ -295,4 +299,67 @@ tr.speciesSelected, tr.speciesSelected:hover td {
 
 #opacityControls i {
     padding-right: .5em;
+}
+
+/* Taxonomy Chart */
+#taxa {
+    margin-bottom: 0 !important;
+    margin-left: 20px;
+    margin-top: 2em;
+}
+
+#taxa #backLink.link {
+    margin-top: 1em;
+    margin-right: 1em;
+    /*From Bootstrap*/
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #f3f3ef;
+    background-image: linear-gradient(to bottom, #fcfcfa, #e6e6dd);
+    background-repeat: repeat-x;
+    border-color: #cccccc #cccccc #b3b3b3;
+    border-image: none;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: #333333;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 13px;
+    line-height: 20px;
+    margin-bottom: 0;
+    padding: 4px 12px;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    vertical-align: middle;
+}
+
+#taxa #recordsLink.link {
+    margin-top: 1em;
+
+    /*From Bootstrap*/
+    border-color: #cccccc #cccccc #b3b3b3;
+    border-image: none;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    display: inline-block;
+    font-size: 13px;
+    line-height: 20px;
+    margin-bottom: 0;
+    padding: 4px 12px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #df4a21;
+    background-image: linear-gradient(to bottom, #df4a21, #df4a21);
+    background-repeat: repeat-x;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+
 }

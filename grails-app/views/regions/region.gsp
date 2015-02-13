@@ -56,11 +56,11 @@
 <div class="row">
     <div class="span6">
         <ul class="nav nav-tabs" id="explorerTabs">
-            <li id="speciesTab" class="active"><a href="#species" data-toggle="tab">Explore by species <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
-            <li id="taxonomyTab"><a href="#taxonomy" data-toggle="tab">Explore by taxonomy <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
+            <li id="speciesTab" class="active"><a href="#speciesTabContent" data-toggle="tab">Explore by species <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
+            <li id="taxonomyTab"><a href="#taxonomyTabContent" data-toggle="tab">Explore by taxonomy <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane active">
+            <div class="tab-pane active" id="speciesTabContent">
                 <table class="table table-condensed table-hover" id="groups">
                     <thead>
                         <tr>
@@ -101,7 +101,7 @@
                     </a>
                 </div>
             </div>
-            <div class="tab-pane" id="taxonomy">
+            <div class="tab-pane" id="taxonomyTabContent">
                 <div id="charts"></div>
             </div>
         </div>
@@ -249,9 +249,12 @@
 
 <r:script>
 
+    google.load("visualization", "1", {packages:["corechart"]});
     var regionWidget;
 
     $(function() {
+
+
         regionWidget = new RegionWidget({
             regionName: '${region.name}',
             regionType: '${region.type}',
@@ -259,13 +262,14 @@
             regionPid: '${region.pid}',
             regionLayerName: ${region.pid},
             urls: {
-                proxyUrl: '${createLink(controller: 'proxy', action: 'index')}',
+                regionsApp: '${g.createLink(uri: '/', absolute: true)}',
+                proxyUrl: '${g.createLink(controller: 'proxy', action: 'index')}',
                 speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
                 biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
                 biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
                 spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
                 spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
-                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service"
+                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service",
             },
             username: '${rg.loggedInUsername()}'
         });
@@ -277,24 +281,12 @@
             },
             useReflectService: ${useReflect}
         }));
+        regionWidget.setTimeControls(new RegionTimeControls());
 
-        regionWidget.setTimeControls(RegionTimeControls());
+         google.setOnLoadCallback(function() {
+            regionWidget.setTaxonomyWidget(new TaxonomyWidget());
+        });
 
-        %{--var query = region.buildRegionFacet("${region.type}","${region.name}", "${region.fid}");--}%
-
-        %{--var taxonomyChartOptions = {--}%
-            %{--query: query,--}%
-%{--//                subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),--}%
-            %{--rank: "kingdom",--}%
-            %{--width: 450,--}%
-            %{--clickThru: false,--}%
-            %{--notifyChange: "taxonChartChange",--}%
-            %{--collectionsUrl: "${grailsApplication.config.grails.serverURL}",--}%
-            %{--biocacheServicesUrl: "${grailsApplication.config.biocache.baseURL}/ws",--}%
-            %{--displayRecordsUrl: "${grailsApplication.config.biocache.baseURL}/"--}%
-        %{--};--}%
-
-//            taxonomyChart.load(taxonomyChartOptions);
     });
 
 </r:script>

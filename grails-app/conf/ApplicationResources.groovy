@@ -8,7 +8,7 @@ modules = {
     }
 
     region {
-        dependsOn 'jquery', 'jquery-ui', 'jquery-ui-slider-pips', 'ajaxanywhere', 'map', 'charts', 'jsonp', 'number-functions', 'font-awesome'
+        dependsOn 'jquery', 'jquery-ui', 'jquery-ui-slider-pips', 'ajaxanywhere', 'map', 'charts', 'number-functions', 'font-awesome'
 
         resource url: '/js/region.js'
         resource url: '/css/regions.css', attrs:[media:'all']
@@ -40,16 +40,12 @@ modules = {
     }
 
     'google-maps-api' {
-        resource  url: 'http://maps.google.com/maps/api/js?sensor=false', attrs: [type: "js"], disposition: 'head'
+        resource  url: 'https://maps.google.com/maps/api/js?sensor=false', attrs: [type: "js"], disposition: 'head'
     }
 
     charts {
         resource url: 'https://www.google.com/jsapi', attrs: [type: 'js']
         resource url: '/js/charts2.js'
-    }
-
-    jsonp {
-        resource url: '/vendor/jquery-jsonp/jquery.jsonp-2.1.4.min.js'
     }
 
     'number-functions' {
