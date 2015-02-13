@@ -64,6 +64,7 @@ var region = {
     }
 };
 
+// This function has to be in the global scope for the chart to work
 function taxonChartChange (rank, name) {
     regionWidget.getMap().reloadRecordsOnMap();
 }
@@ -307,6 +308,8 @@ var RegionWidget = function (config) {
             } else {
                 $('#' + state.group + '-row').click();
             }
+            // Update taxonomy chart
+            taxonomyChart.updateQuery(taxonomyWidget.getQuery() + "&fq=" + region.buildTimeFacet());
         },
 
         getUrls: function() {
@@ -358,6 +361,10 @@ var RegionWidget = function (config) {
 
         setTaxonomyWidget: function(tw) {
             taxonomyWidget = tw;
+        },
+
+        getTaxonomyWidget: function() {
+            return taxonomyWidget;
         }
     };
 
@@ -534,11 +541,13 @@ var RegionTimeControls = function(config) {
 
 var TaxonomyWidget = function(config){
 
+    var taxonomyChartOptions, query;
+
     var TaxonomyWidget = function(config){
         var currentState = regionWidget.getCurrentState();
-        var query = region.buildRegionFacet(currentState.regionType,currentState.regionName, currentState.regionFid);
+        query = region.buildRegionFacet(currentState.regionType,currentState.regionName, currentState.regionFid);
 
-        var taxonomyChartOptions = {
+        taxonomyChartOptions = {
             query: query,
             subquery: region.buildTimeFacet(),
             rank: "kingdom",
@@ -555,6 +564,9 @@ var TaxonomyWidget = function(config){
     };
 
     var _public = {
+        getQuery: function() {
+            return query;
+        }
 
     };
 
