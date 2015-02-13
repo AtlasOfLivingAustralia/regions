@@ -5,7 +5,7 @@
     <title>${region.name} | Atlas of Living Australia</title>
     <r:require modules="region"/>
 </head>
-<body>
+<body class="nav-locations">
 
 <div class="row">
     <div class="span12">

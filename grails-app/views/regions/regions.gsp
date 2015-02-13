@@ -8,7 +8,7 @@
     <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
     <r:require modules="regions"/>
 </head>
-<body>
+<body class="nav-locations">
 <div class="row">
     <div class="span12">
         <ul class="breadcrumb">
