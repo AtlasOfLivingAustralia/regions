@@ -302,6 +302,15 @@ tr.speciesSelected, tr.speciesSelected:hover td {
 }
 
 /* Taxonomy Chart */
+#charts {
+    text-align: center;
+    overflow: hidden;
+}
+
+#charts i {
+    margin-top: 150px;
+}
+
 #taxa {
     margin-bottom: 0 !important;
     margin-left: 20px;

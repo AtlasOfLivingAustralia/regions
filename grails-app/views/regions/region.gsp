@@ -102,7 +102,9 @@
                 </div>
             </div>
             <div class="tab-pane" id="taxonomyTabContent">
-                <div id="charts"></div>
+                <div id="charts">
+                    <i class="fa fa-cog fa-spin fa-3x"></i>
+                </div>
             </div>
         </div>
     </div>

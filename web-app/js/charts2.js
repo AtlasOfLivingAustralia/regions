@@ -490,6 +490,8 @@ var taxonomyChart = {
                 }
             });
         }
+
+        $("#charts i").hide();
     },
     showRecords: function () {
         // show occurrence records
