@@ -5,8 +5,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="main" />
     <title>Regions | Atlas of Living Australia</title>
-    <script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script src="${g.createLink(controller: 'data',action: 'regionsMetadataJavascript')}"></script>
     <r:require modules="regions"/>
+
 </head>
 <body class="nav-locations">
 <div class="row">
@@ -107,19 +108,14 @@
     </div>
 </div>
 
-<script src="${createLink(controller: 'data',action: 'regionsMetadataJavascript')}"></script>
-<script>
-
-
+<r:script>
+    var altMap = true;
     $(function() {
-        var altMap = true;
-        $(document).ready(function() {
-            $('#dev-notes').dialog({autoOpen: false, show: 'blind', hide: 'blind'});
-            $('#dev-notes-link').click(function() {
-                $('#dev-notes').dialog('open');
-                return false;
-            });
-            //greyInitialValues();
+
+        $('#dev-notes').dialog({autoOpen: false, show: 'blind', hide: 'blind'});
+        $('#dev-notes-link').click(function() {
+            $('#dev-notes').dialog('open');
+            return false;
         });
 
         init_regions({
@@ -130,6 +126,6 @@
             mapContainer: 'map_canvas'
         });
     })
-</script>
+</r:script>
 </body>
 </html>

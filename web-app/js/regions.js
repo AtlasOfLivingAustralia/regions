@@ -596,6 +596,27 @@ function init (options) {
     });
 
     /*****************************************\
+     | Set up opacity sliders
+     \*****************************************/
+    $('#layerOpacity').slider({
+        min: 0,
+        max: 100,
+        value: map.defaultLayerOpacity * 100,
+        change: function () {
+            selectedRegionType.drawLayer();
+        }
+    });
+    $('#regionOpacity').slider({
+        min: 0,
+        max: 100,
+        disabled: true,
+        value: map.defaultRegionOpacity * 100,
+        change: function () {
+            selectedRegion.displayRegion();
+        }
+    });
+
+    /*****************************************\
     | Handle region clicks
     \*****************************************/
     $('li.regionLink').live('click', function () {
@@ -653,26 +674,7 @@ function init (options) {
     // also sets the region from the hash params once the region type data has been retrieved
     selectedRegionType.set(setDefaultRegion);
 
-    /*****************************************\
-    | Set up opacity sliders
-    \*****************************************/
-    $('#layerOpacity').slider({
-        min: 0,
-        max: 100,
-        value: map.defaultLayerOpacity * 100,
-        change: function () {
-            selectedRegionType.drawLayer();
-        }
-    });
-    $('#regionOpacity').slider({
-        min: 0,
-        max: 100,
-        disabled: true,
-        value: map.defaultRegionOpacity * 100,
-        change: function () {
-            selectedRegion.displayRegion();
-        }
-    });
+
 
     /*****************************************\
     | Activate the help link

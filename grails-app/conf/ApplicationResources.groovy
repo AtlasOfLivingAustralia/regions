@@ -2,7 +2,8 @@
 modules = {
 
     regions {
-        dependsOn  'jquery', 'jquery-ui', 'map', 'font-awesome'
+        dependsOn  'jquery', 'jquery-ui', 'jquery-bbq', 'map', 'font-awesome'
+
         resource url: '/js/regions.js'
         resource url: '/css/regions.css', attrs:[media:'all']
     }
@@ -30,6 +31,12 @@ modules = {
 
         resource url: '/vendor/jquery-ui-slider-pips/jquery-ui-slider-pips.js'
         resource url: '/vendor/jquery-ui-slider-pips/jquery-ui-slider-pips.css', attrs:[media:'all']
+    }
+
+    'jquery-bbq' {
+        dependsOn 'jquery'
+
+        resource url: '/vendor/jquery-bbq/jquery.ba-bbq-1.2.1.js'
     }
 
     'map' {
