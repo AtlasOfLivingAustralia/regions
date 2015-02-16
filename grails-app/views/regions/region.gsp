@@ -49,7 +49,7 @@
             </section>
         </g:if>
 
-        <h2 id="occurrenceRecords">Occurrence records</h2>
+        <h2 id="occurrenceRecords">Occurrence records <span id="totalRecords"></span></h2>
     </div>
 </div>
 

@@ -61,6 +61,33 @@ var region = {
         else {
             return regionFid + ':"' + regionName + '"';
         }
+    },
+
+    /**
+     * Formats numbers as human readable. Handles numbers in the millions.
+     * @param count the number
+     */
+    format: function(count) {
+        if (count >= 1000000) {
+            return count.numberFormat("#,#0,,.00 million");
+        }
+        return region.addCommas(count);
+    },
+
+    /**
+     * Inserts commas into a number for display.
+     * @param nStr
+     */
+    addCommas: function(nStr) {
+        nStr += '';
+        x = nStr.split('.');
+        x1 = x[0];
+        x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
     }
 };
 
@@ -366,6 +393,8 @@ var RegionWidget = function (config) {
 
         speciesLoaded: function() {
             $('#species').effect('highlight', 2000);
+            $('#totalRecords').text('(' + region.format(parseInt($('#moreSpeciesZone').attr('totalRecords'))) + ')');
+            $('#occurrenceRecords').effect('highlight', 2000);
         },
 
         showMoreSpecies: function() {
