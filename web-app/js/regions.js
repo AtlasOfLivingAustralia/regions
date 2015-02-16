@@ -384,13 +384,13 @@ Region.prototype = {
         } else {
             if (this.other) {
                 if (subregion) {
-                    extra = "<span id='extra'>(" + subregion + ")</span>";
+                    extra = "<span class='btn' id='extra'>(" + subregion + ")</span>";
                 }
-                showInfo("<a href='" + this.urlToViewRegion() + "'>" +
-                        this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>" + extra);
+                showInfo("<a class='btn' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                        this.name + "</a>" + "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra);
             } else {
-                showInfo("<a href='" + this.urlToViewRegion() + "'>" +
-                        this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>");
+                showInfo("<a class='btn' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                        this.name + "</a>" + "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>");
             }
         }
         $('#click-info').animate({backgroundColor: '#fee6d2'}, 700, function () {
@@ -588,9 +588,8 @@ function init (options) {
     | Set up accordion and handle changes
     \*****************************************/
     $('#accordion').accordion({
-        fillSpace: true,
-        change: function (event, ui) {
-            layers[$(ui.newContent).attr('id')].set();
+        activate: function (event, ui) {
+            layers[$(ui.newPanel).attr('id')].set();
         },
         active: selectedRegionType.order
     });

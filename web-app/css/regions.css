@@ -49,13 +49,18 @@
 
 #map_canvas {
     height: 470px;
-    border: 1px solid black;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
     margin: 9px 0 0 0;
 }
 
 #accordion {
-    margin: 9px 0 0 5px;
+    margin: 19px 0 0 5px;
     height: 446px;
+}
+
+#accordion h2 {
+    line-height: normal;
 }
 
 #accordion h2 a {
@@ -63,10 +68,19 @@
     color: #333;
 }
 
+#accordion .ui-accordion-content {
+    height: auto !important;
+    max-height: 215px;
+}
+
 #accordion ul {
     list-style: none;
     margin: 0;
     font-size: 1em;
+}
+
+#accordion ul li:before {
+    content: "- ";
 }
 
 .ui-widget {
@@ -78,7 +92,7 @@
 }
 
 #zoomTo, #reset-map {
-    padding-left: 20px;
+    margin-left: 1.5em;
     font-size: 12px;
     color: #666;
     cursor: pointer;
@@ -93,8 +107,10 @@ li.regionLink {
 }
 
 #extra {
-    padding-left: 20px;
+    margin-left: 1.5em;
     font-size: 14px;
+    color: #666;
+    cursor: pointer;
 }
 
 /************************************************************************************\
