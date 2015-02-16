@@ -81,7 +81,7 @@ var RegionWidget = function (config) {
 
     /**
      * Essential values to maintain the state of the widget when the user interacts with it
-     * @type {{regionName: null, regionType: null, regionFid: null, regionPid: null, regionLayerName: null, playState: null, group: null, subgroup: null, guid: null, from: null, to: null, tab: null}}
+     * @type {{regionName: string, regionType: string, regionFid: string, regionPid: string, regionLayerName: string, group: string, subgroup: string, guid: string, from: string, to: string, tab: string}}
      */
     var state = {
         regionName: '',
@@ -89,7 +89,6 @@ var RegionWidget = function (config) {
         regionFid: '',
         regionPid: '',
         regionLayerName: '',
-        playState: '',
         group: '',
         subgroup: '',
         guid: '',
@@ -116,13 +115,12 @@ var RegionWidget = function (config) {
         state.to = state.to ? state.to : defaultToYear;
         state.tab = state.tab ? state.tab : defaultTab;
 
+        // Check previous existing state
+        updateState($.bbq.getState());
+
         urls = config.urls;
 
-        // Initialize tabs
-        $('#explorer a').click(function (e) {
-            e.preventDefault();
-            $(this).tab('show');
-        });
+        initializeTabs();
 
         // Initialize Ajax activity indicators
         $(document).ajaxStart(
@@ -146,6 +144,18 @@ var RegionWidget = function (config) {
         $('#downloadRecordsModal').modal({show: false});
     };
 
+    /**
+     *
+     */
+    var initializeTabs = function () {
+        // Initialize tabs
+        $('#explorerTabs a').on('show', function(e) {
+            var tabId = $(e.target).attr('id');
+            updateState({tab: tabId});
+        });
+        $('#' + state.tab).click();
+
+    };
 
     /**
      *
@@ -174,7 +184,14 @@ var RegionWidget = function (config) {
      */
     var updateState = function(newPartialState) {
         $.extend(state, newPartialState);
-        //TODO persist current state
+        //persist current state
+        $.bbq.pushState({
+            group: state.group,
+            subgroup: state.subgroup,
+            from: state.from,
+            to: state.to,
+            tab: state.tab
+        });
 
     };
 
@@ -261,11 +278,6 @@ var RegionWidget = function (config) {
         $('.group-row').removeClass('groupSelected');
         var subgroupId = subgroup.replace(/[^A-Za-z\\d_]/g, "") + '-row';
 
-        //    var parent = $('#' + $('#' + subgroupId).attr('parent'));
-        //    if (!$(parent).is(":visible")) {
-        //        //TODO
-        //    }
-
         // Update widget state
         updateState({subgroup: subgroup, guid: ''});
         // Mark as selected
@@ -276,6 +288,14 @@ var RegionWidget = function (config) {
             regionMap.reloadRecordsOnMap();
         }
         AjaxAnywhere.dynamicParams=state;
+    };
+
+    var getGroupId = function() {
+        return state.group.replace(/[^A-Za-z0-9\\d_]/g, "") + '-row';
+    };
+
+    var getSubgroupId = function() {
+        return state.subgroup.replace(/[^A-Za-z0-9\\d_]/g, "") + '-row';
     }
 
     var _public = {
@@ -301,15 +321,19 @@ var RegionWidget = function (config) {
         },
 
         updateDateRange: function(from, to) {
-            state.from = from;
-            state.to = to;
+            updateState({
+                from: from,
+                to: to
+            });
             if (state.subgroup) {
-                $('#' + state.subgroup + '-row').click();
+                $('#' + getSubgroupId()).click();
             } else {
-                $('#' + state.group + '-row').click();
+                $('#' + getGroupId()).click();
             }
             // Update taxonomy chart
-            taxonomyChart.updateQuery(taxonomyWidget.getQuery() + "&fq=" + region.buildTimeFacet());
+            if (taxonomyChart) {
+                taxonomyChart.updateQuery(taxonomyWidget.getQuery() + "&fq=" + region.buildTimeFacet());
+            }
         },
 
         getUrls: function() {
@@ -322,8 +346,14 @@ var RegionWidget = function (config) {
 
         groupsLoaded: function() {
             $('#groups').effect('highlight', 2000);
-            selectGroup(state.group);
-            this.loadSpecies();
+            if (state.subgroup) {
+                // Display group hidden rows
+                $("tr[parent='" + getGroupId() + "']").show();
+                $('#' + getGroupId() + ' i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+                $('#' + getSubgroupId()).click();
+            } else {
+                $('#' + getGroupId()).click();
+            }
         },
 
         selectGroupHandler: function(group, isSubgroup) {
@@ -332,10 +362,6 @@ var RegionWidget = function (config) {
             } else {
                 selectGroup(group);
             }
-        },
-
-        loadSpecies: function() {
-            $('#' + state.group + '-row').click();
         },
 
         speciesLoaded: function() {
@@ -524,6 +550,7 @@ var RegionTimeControls = function(config) {
         $('#timeSlider').slider('values', [regionWidget.getDefaultFromYear(), regionWidget.getDefaultToYear()]);
         stop();
         regionWidget.updateDateRange(regionWidget.getDefaultFromYear(), regionWidget.getDefaultToYear());
+        taxonomyChart.reset();
     };
 
     var updateTimeRange = function(values) {

@@ -56,8 +56,8 @@
 <div class="row">
     <div class="span6">
         <ul class="nav nav-tabs" id="explorerTabs">
-            <li id="speciesTab" class="active"><a href="#speciesTabContent" data-toggle="tab">Explore by species <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
-            <li id="taxonomyTab"><a href="#taxonomyTabContent" data-toggle="tab">Explore by taxonomy <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
+            <li class="active"><a id="speciesTab" href="#speciesTabContent" data-toggle="tab">Explore by species <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
+            <li><a id="taxonomyTab" href="#taxonomyTabContent" data-toggle="tab">Explore by taxonomy <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="speciesTabContent">
@@ -74,7 +74,6 @@
                                 <i class="fa fa-cog fa-spin fa-2x"></i>
                             </td>
                         </tr>
-
                     </aa:zone>
                 </table>
                 <table class="table table-condensed table-hover" id="species">
