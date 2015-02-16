@@ -138,6 +138,7 @@ li.regionLink {
     width: 100%;
     height: 480px;
     border: 1px solid #dddddd;
+    border-radius: 5px;
 }
 
 #species .scrollContent {
