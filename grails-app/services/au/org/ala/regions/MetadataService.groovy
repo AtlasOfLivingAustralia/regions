@@ -176,8 +176,7 @@ class MetadataService {
 
     /**
      *
-     * @param name
-     * @param rank
+     * @param guid
      * @param regionFid
      * @param regionType
      * @param regionName
@@ -185,10 +184,14 @@ class MetadataService {
      * @param to
      * @return
      */
-    String buildSpeciesRecordListUrl(String name, String rank, String regionFid, String regionType, String regionName, String from, String to) {
-        return "${BIOCACHE_URL}/occurrences/search?q=${rank == 'subspecies' ? 'subspecies_name' : rank}:\"${name}\"" +
-                "&fq=${buildRegionFacet(regionFid, regionType, regionName)}" +
-                "&fq=${buildTimeFacet(from, to)}"
+    String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String from, String to) {
+        StringBuilder sb = new StringBuilder("${BIOCACHE_URL}/occurrences/search?q=lsid:\"${guid}\"" +
+                "&fq=${buildRegionFacet(regionFid, regionType, regionName)}")
+        if (isValidTimeRange(from, to)) {
+            " AND ${buildTimeFacet(from, to)}"
+        }
+
+        return sb.toString()
     }
 
     /**
@@ -259,7 +262,7 @@ class MetadataService {
             params << [fq: "species_group:\"${groupName}\""]
         }
 
-        if (from && to) {
+        if (isValidTimeRange(from, to)) {
             params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
         }
 
@@ -317,11 +320,15 @@ class MetadataService {
             params << [fq: params.fq + ' AND ' + "species_group:\"${groupName}\""]
         }
 
-        if (from && to) {
+        if (isValidTimeRange(from, to)) {
             params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
         }
 
         return params
+    }
+
+    private boolean isValidTimeRange(String from, String to) {
+        return from && to && (from != WS_DATE_FROM_DEFAULT|| to != Calendar.getInstance().get(Calendar.YEAR).toString())
     }
 
     /**

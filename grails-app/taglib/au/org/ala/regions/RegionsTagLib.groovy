@@ -76,16 +76,15 @@ class RegionsTagLib {
 
     /**
      *
-     * @attr name
-     * @attr rank
-     * @attr regionFid
-     * @attr regionType
-     * @attr regionName
-     * @attr from
-     * @attr to
+     * @attr guid REQUIRED
+     * @attr regionFid REQUIRED
+     * @attr regionType REQUIRED
+     * @attr regionName REQUIRED
+     * @attr from REQUIRED
+     * @attr to REQUIRED
      */
     def speciesRecordListUrl = {attrs ->
-        out << metadataService.buildSpeciesRecordListUrl(attrs.name, attrs.rank, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.from, attrs.to)
+        out << metadataService.buildSpeciesRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.from, attrs.to)
     }
 
 }

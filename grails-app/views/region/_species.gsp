@@ -25,7 +25,7 @@
         <td colspan="2">
             <a href="${speciesPageUrl}/${singleSpecies.guid}" class="btn btn-mini" title="View Species page"><i class="fa fa-share-square-o"></i> Species Profile</a>
             &nbsp;|&nbsp;
-            <a href="${rg.speciesRecordListUrl([name: singleSpecies.name, rank: singleSpecies.rank, regionFid: regionFid, regionName: regionName, regionType: regionType, from: from, to: to])}"
+            <a href="${rg.speciesRecordListUrl([guid: singleSpecies.guid, regionFid: regionFid, regionName: regionName, regionType: regionType, from: from, to: to])}"
                class="btn btn-mini" title="View list of Records"><i class="fa fa-database"></i> List of Records</a>
         </td>
     </tr>
