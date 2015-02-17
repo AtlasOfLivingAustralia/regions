@@ -32,7 +32,7 @@
 </g:each>
 
 <g:if test="${species.records.size() > 0 && species.records.size() % 50 == 0}">
-    <aa:zone id="moreSpeciesZone" tag="tr">
+    <tr id="moreSpeciesZone" totalRecords="${species.totalRecords}">
         <td colspan="2" class="text-center">
             <a aa-refresh-zones="moreSpeciesZone" id="showMoreSpeciesButton"
                href="${g.createLink(controller: 'region', action: 'showSpecies', params: [pageIndex: pageIndex ? pageIndex + 1 : '1'])}"
@@ -41,7 +41,7 @@
                class="btn btn-small"><i class="fa fa-plus"></i> Show more species</a>
         </td>
         <td></td>
-    </aa:zone>
+    </tr>
 </g:if>
 
 <g:if test="${!pageIndex || pageIndex == 0}">
