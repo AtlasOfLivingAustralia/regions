@@ -110,9 +110,9 @@
 
         init_regions({
             server: '${grailsApplication.config.grails.serverURL}',
-            spatialService: '${grailsApplication.config.spatial.layers.service.url}',
-            spatialWms: '${grailsApplication.config.spatial.wms.url}',
-            spatialCache: '${grailsApplication.config.spatial.wms.cache.url}',
+            spatialService: "${grailsApplication.config.spatial.baseURL}/layers-service",
+            spatialWms: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
+            spatialCache: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
             mapContainer: 'map_canvas'
         });
     })

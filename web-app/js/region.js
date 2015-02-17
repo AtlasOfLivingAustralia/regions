@@ -393,7 +393,13 @@ var RegionWidget = function (config) {
 
         speciesLoaded: function() {
             $('#species').effect('highlight', 2000);
-            $('#totalRecords').text('(' + region.format(parseInt($('#moreSpeciesZone').attr('totalRecords'))) + ')');
+            var totalRecords = $('#moreSpeciesZone').attr('totalRecords');
+            if (isNaN(totalRecords)) {
+                $('#totalRecords').text('');
+            } else {
+                $('#totalRecords').text('(' + region.format(parseInt($('#moreSpeciesZone').attr('totalRecords'))) + ')');
+            }
+
             $('#occurrenceRecords').effect('highlight', 2000);
         },
 
