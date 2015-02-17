@@ -349,7 +349,7 @@ class MetadataService {
 
     static def loadLoggerReasons(){
         println("Refreshing the download reasons")
-        String url = "${Holders.grailsApplication.config.logger.baseURL}/service/logger/reasons"
+        String url = "${Holders.config.logger.baseURL}/service/logger/reasons"
         def conn = new URL(url).openConnection()
         def map = [:]
         try{

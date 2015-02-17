@@ -1,17 +1,5 @@
 import org.apache.log4j.Level
 
-// locations to search for config files that get merged into the main config
-// config files can either be Java properties files or ConfigSlurper scripts
-
-// grails.config.locations = [ "classpath:${appName}-config.properties",
-//                             "classpath:${appName}-config.groovy",
-//                             "file:${userHome}/.grails/${appName}-config.properties",
-//                             "file:${userHome}/.grails/${appName}-config.groovy"]
-
-// if(System.properties["${appName}.config.location"]) {
-//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
-// }
-
 /******************************************************************************\
  *  CONFIG MANAGEMENT
  \******************************************************************************/
@@ -46,56 +34,6 @@ reloadable.cfgs = ["file:/data/regions/config/regions-config.properties"]
  \******************************************************************************/
 if (!ala.skin) {
     ala.skin = 'ala2';
-}
-/*if (!ala.skin.loginoutLinkTag.method) {
-    ala.skin.loginoutLinkTag.method = "buildLoginoutLink"
-}
-if (!ala.skin.loginoutLinkTag.clazz) {
-    ala.skin.loginoutLinkTag.clazz = "RegionsTagLib"
-}*/
-/******************************************************************************\
- *  EXTERNAL SERVERS
- \******************************************************************************/
-if (!bie.baseURL) {
-    bie.baseURL = "http://bie.ala.org.au"
-}
-if (!bie.searchPath) {
-    bie.searchPath = "/search"
-}
-if (!biocache.baseURL) {
-    biocache.baseURL = "http://biocache.ala.org.au"
-}
-if (!spatial.baseURL) {
-    spatial.baseURL = "http://spatial.ala.org.au/"
-}
-if (!ala.baseURL) {
-    ala.baseURL = "http://www.ala.org.au"
-}
-if (!headerAndFooter.baseURL) {
-    headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-}
-// spatial services
-if (!spatial.wms.url) {
-    spatial.wms.url = spatial.baseURL + "geoserver/ALA/wms?"
-}
-if (!spatial.wms.cache.url) {
-    spatial.wms.cache.url = spatial.baseURL + "geoserver/gwc/service/wms?"
-}
-if (!spatial.layers.service.url) {
-    spatial.layers.service.url = spatial.baseURL + "layers-service"
-}
-
-/******************************************************************************\
- *  SECURITY
- \******************************************************************************/
-if (!security.cas.urlPattern) {
-    security.cas.urlPattern = ""
-}
-if (!security.cas.loginUrl) {
-    security.cas.loginUrl = "https://auth.ala.org.au/cas/login"
-}
-if (!security.cas.logoutUrl) {
-    security.cas.logoutUrl = "https://auth.ala.org.au/cas/logout"
 }
 
 grails.project.groupId = 'au.org.ala' // change this to alter the default package name and Maven publishing destination
@@ -177,25 +115,6 @@ grails.hibernate.pass.readonly = false
 // configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
 grails.hibernate.osiv.readonly = false
 
-// set per-environment serverURL stem for creating absolute links
-environments {
-    production {
-        if (!grails.serverURL) {
-            grails.serverURL = "http://regions.ala.org.au"
-        }
-        security.cas.serverName = grails.serverURL
-    }
-    development {
-        grails.hostName = "localhost:8080"
-        //grails.hostName = "woodfired.ala.org.au:8080"
-        grails.serverURL = "http://${grails.hostName}/${appName}"
-        security.cas.serverName = "http://${grails.hostName}"
-    }
-    test {
-        grails.serverURL = "http://localhost:8080/${appName}"
-    }
-
-}
 
 def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
 def appName = grails.util.Metadata.current.'app.name'
