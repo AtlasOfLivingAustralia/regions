@@ -31,18 +31,17 @@
     </tr>
 </g:each>
 
-<g:if test="${species.records.size() > 0 && species.records.size() % 50 == 0}">
-    <tr id="moreSpeciesZone" totalRecords="${species.totalRecords}">
-        <td colspan="2" class="text-center">
-            <a aa-refresh-zones="moreSpeciesZone" id="showMoreSpeciesButton"
-               href="${g.createLink(controller: 'region', action: 'showSpecies', params: [pageIndex: pageIndex ? pageIndex + 1 : '1'])}"
-               js-before="regionWidget.showMoreSpecies();"
-               js-after="regionWidget.speciesLoaded();"
-               class="btn btn-small"><i class="fa fa-plus"></i> Show more species</a>
-        </td>
-        <td></td>
-    </tr>
-</g:if>
+<tr id="moreSpeciesZone" totalRecords="${species.totalRecords}" style="${species.records.size() > 0 && species.records.size() % 50 == 0 ? "" : "display:none;"}">
+    <td colspan="2" class="text-center">
+        <a aa-refresh-zones="moreSpeciesZone" id="showMoreSpeciesButton"
+           href="${g.createLink(controller: 'region', action: 'showSpecies', params: [pageIndex: pageIndex ? pageIndex + 1 : '1'])}"
+           aa-js-before="regionWidget.showMoreSpecies();"
+           aa-js-after="regionWidget.speciesLoaded();"
+           aa-queue="abort"
+           class="btn btn-small"><i class="fa fa-plus"></i> Show more species</a>
+    </td>
+    <td></td>
+</tr>
 
 <g:if test="${!pageIndex || pageIndex == 0}">
 </tbody>

@@ -39,9 +39,13 @@ var region = {
      * Builds the query phrase for a range of dates - returns nothing for the default date range.
      */
     buildTimeFacet: function () {
-        var fromPhrase = regionWidget.isDefaultFromYear() ? '*' : regionWidget.getCurrentState().from + "-01-01T00:00:00Z";
-        var toPhrase = regionWidget.isDefaultToYear() ? "*" : regionWidget.getCurrentState().to + "-12-31T23:59:59Z";
-        return "occurrence_year:[" + fromPhrase + " TO " + toPhrase + "]";
+        if (!regionWidget.isDefaultFromYear() || !regionWidget.isDefaultToYear()) {
+            var fromPhrase = regionWidget.isDefaultFromYear() ? '*' : regionWidget.getCurrentState().from + "-01-01T00:00:00Z";
+            var toPhrase = regionWidget.isDefaultToYear() ? "*" : regionWidget.getCurrentState().to + "-12-31T23:59:59Z";
+            return "occurrence_year:[" + fromPhrase + " TO " + toPhrase + "]";
+        } else {
+            return '';
+        }
     },
 
     queryString: function () {
@@ -192,12 +196,16 @@ var RegionWidget = function (config) {
             event.preventDefault();
             // check what group is active
             var url = urls.biocacheWebappUrl + '/occurrences/search?q=' +
-                region.buildRegionFacet(state.regionType, state.regionName, state.regionFid) + "&fq=" + region.buildTimeFacet();
+                region.buildRegionFacet(state.regionType, state.regionName, state.regionFid) +
+                '&fq=rank:(species OR subspecies)';
+            if (!regionWidget.isDefaultFromYear() || !regionWidget.isDefaultToYear()) {
+                url += '&fq=' + region.buildTimeFacet();
+            }
             if (state.group != 'ALL_SPECIES') {
                 if (state.subgroup) {
-                    url += '&fq=species_subgroup:' + state.subgroup;
+                    url += '&fq=species_subgroup:"' + state.subgroup + '"';
                 } else {
-                    url += '&fq=species_group:' + state.group;
+                    url += '&fq=species_group:"' + state.group + '"';
                 }
             }
             document.location.href = url;

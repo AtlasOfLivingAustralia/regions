@@ -95,7 +95,7 @@
                     <a href="" id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View Records</a>
 
                     <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog', params: [email: rg.loggedInUsername()])}"
-                       aa-refresh-zones="dialogZone" js-before="$('#downloadRecordsModal').modal('show');" class="btn">
+                       aa-refresh-zones="dialogZone" aa-js-before="$('#downloadRecordsModal').modal('show');" class="btn">
                         <i class="fa fa-download"></i> Download Records
                     </a>
                 </div>
