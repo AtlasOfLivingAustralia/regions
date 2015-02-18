@@ -28,9 +28,13 @@ class MetadataServiceSpec extends Specification {
     }
 
     void "test species groups retrieval" () {
+        given:
+        String regionName = "New South Wales"
+        String regionType = "states"
+        String regionFid = "cl22"
 
         when:
-        def results = metadataService.getGroups()
+        def results = metadataService.getGroups(regionFid, regionType, regionName)
 
         then:
         results instanceof List
@@ -133,14 +137,13 @@ class MetadataServiceSpec extends Specification {
         String regionFid = "cl22"
         String from = "1912"
         String to = "2015"
-        String name = "ACENTROPINAE"
-        String rank = "subfamily"
+        String guid = "urn:lsid:biodiversity.org.au:afd.taxon:4163e0ea-afaf-456c-8926-7ec37e79d380"
 
         when:
-        String url = metadataService.buildSpeciesRecordListUrl(name, rank, regionFid, regionType, regionName, from, to)
+        String url = metadataService.buildSpeciesRecordListUrl(guid, regionFid, regionType, regionName, from, to)
 
         then:
-        url == "http://biocache.ala.org.au/occurrences/search?q=subfamily:\"ACENTROPINAE\"&fq=cl22:\"New South Wales\"&fq=occurrence_year:[1912-01-01T00:00:00Z TO *]"
+        url == "http://biocache.ala.org.au/occurrences/search?q=lsid:\"urn:lsid:biodiversity.org.au:afd.taxon:4163e0ea-afaf-456c-8926-7ec37e79d380\"&fq=cl22:\"New South Wales\""
     }
 
     void "test buildDownloadRecordsUrl"() {
@@ -190,5 +193,22 @@ class MetadataServiceSpec extends Specification {
 
         then:
         URLDecoder.decode(url, 'UTF-8') == "http://biocache.ala.org.au/occurrences/fieldguide/download?q=cl22:\"New South Wales\"&fq=species_group:\"Mammals\"&facets=species_guid"
+    }
+
+    void "test getSubgroupsWithRecords"() {
+        given:
+        String regionName = "New South Wales"
+        String regionType = "states"
+        String regionFid = "cl22"
+
+        when:
+            Map subgroups = metadataService.getSubgroupsWithRecords(regionFid, regionType, regionName)
+        then:
+            subgroups.size() > 0
+            def oneSubgroup = subgroups.iterator().next()
+            oneSubgroup.key instanceof String
+            oneSubgroup.value instanceof Integer
+
+
     }
 }

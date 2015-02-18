@@ -22,8 +22,8 @@ class RegionController {
      *
      * @return
      */
-    def showGroups() {
-        def groups = metadataService.getGroups()
+    def showGroups(final String regionFid, final String regionType, final String regionName) {
+        def groups = metadataService.getGroups(regionFid, regionType, regionName)
 
         render template: 'groups', model: [groups: groups]
     }

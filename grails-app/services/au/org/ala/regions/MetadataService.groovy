@@ -116,20 +116,51 @@ class MetadataService {
      * @param regionFid
      * @param regionType
      * @param regionName
-     * @param from
-     * @param to
      * @return
      */
-    List getGroups() {
-        def response = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([:]).data
+    List getGroups(String regionFid, String regionType, String regionName) {
+        def responseGroups = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([:]).data
+        Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName)
+
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
-        response.each{group ->
+        responseGroups.each {group ->
             groups << [name: group.speciesGroup, commonName: group.speciesGroup]
-            group.taxa.each {subgroup -> groups << [name: subgroup.name, commonName: subgroup.common, parent:group.speciesGroup]}}
+            group.taxa.each {subgroup ->
+                if (subgroupsWithRecords[subgroup.common]) {
+                    groups << [name: subgroup.name, commonName: subgroup.common, parent: group.speciesGroup]
+                }
+            }
+        }
         return groups
     }
 
     /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @return
+     */
+    Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName) {
+        def response = new RESTClient(new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
+            query = [
+                    q: buildRegionFacet(regionFid, regionType, regionName),
+                    facets: 'species_subgroup',
+                    flimit: '-1',
+                    pageSize: 0
+            ]
+
+            return it
+        }.toString()).get([:]).data
+
+        Map subgroups = [:]
+        response?.facetResults[0]?.fieldResult.each {subgroup ->
+            subgroups << [(subgroup.label): subgroup.count]
+        }
+
+        return subgroups
+    }
+/**
      *
      * @param regionFid
      * @param regionType
