@@ -78,7 +78,7 @@
 
                     <div>
                         <div class="tish">
-                            <label for="toggleLayer">
+                            <label class="checkbox" for="toggleLayer">
                                 <input type="checkbox" name="layer" id="toggleLayer" value="1" checked/>
                                 All regions</label></div>
 
@@ -87,7 +87,7 @@
 
                     <div>
                         <div class="tish">
-                            <label for="toggleRegion">
+                            <label class="checkbox" for="toggleRegion">
                                 <input type="checkbox" name="region" id="toggleRegion" value="1" checked disabled/>
                                 Selected region</label></div>
 

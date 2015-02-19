@@ -142,7 +142,7 @@ class MetadataService {
      * @return
      */
     Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName) {
-        def response = new RESTClient(new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
+        String url = new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
             query = [
                     q: buildRegionFacet(regionFid, regionType, regionName),
                     facets: 'species_subgroup',
@@ -151,7 +151,11 @@ class MetadataService {
             ]
 
             return it
-        }.toString()).get([:]).data
+        }.toString()
+
+        log.debug("URL to retrieve subgroups with records = $url")
+
+        def response = new RESTClient(url).get([:]).data
 
         Map subgroups = [:]
         response?.facetResults[0]?.fieldResult.each {subgroup ->
