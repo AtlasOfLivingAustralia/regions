@@ -89,7 +89,7 @@ class ProxyController {
     }
 
     def lookupContentType(mimeType) {
-        def mimeTypes = ConfigurationHolder.config.grails.mime.types[mimeType]
+        def mimeTypes = grailsApplication.config.grails.mime.types[mimeType]
         if (mimeTypes instanceof String) {
             // only one
             return mimeTypes
@@ -269,7 +269,7 @@ class ProxyController {
 
     def bbox = {
         def baseUrl = grailsApplication.config.biocache.baseURL + "/ws/"
-        def url = baseUrl + "webportal/bounds?q=" + params.q.encodeAsURL()
+        def url = baseUrl + "webportal/bounds?q=" + URLEncoder.encode(params.q.trim(), 'UTF-8')
         def conn = new URL(url).openConnection()
         def box = conn.content.text
         render box

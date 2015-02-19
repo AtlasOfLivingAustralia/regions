@@ -2,6 +2,7 @@ package au.org.ala.regions
 
 import grails.converters.JSON
 import grails.util.GrailsUtil
+import org.apache.commons.lang.StringEscapeUtils
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
 class RegionsController {
@@ -88,7 +89,11 @@ class RegionsController {
      */
     def region = {
         def region = [:]
-        region.name = params.regionName
+        region.name = URLDecoder.decode(params.regionName, 'UTF-8')
+        region.name = StringEscapeUtils.unescapeHtml(region.name)
+//        region.name = URLEncoder.encode(region.name, 'UTF-8')
+
+
         region.type = params.regionType
         region.pid = params.pid ?: metadataService.lookupPid(region.type, region.name)
         region.bbox = metadataService.lookupBoundingBox(region.type, region.name)
@@ -109,15 +114,6 @@ class RegionsController {
                                    'Southern Highlands Link', 'Kanangra-Boyd to Wyangala Link', 'Jaliigirr Biodiversity Alliance', 'Illawarra to Shoalhaven',
                                    'Hinterland Bush Links', 'Central Victorian Biolinks']
                 break
-        //case "Hunter":
-        //    subRegions.subs = ['Hunter Areas of Interest','Upper Hunter Focus Area']
-        //    break
-        //case "Slopes to summit":
-        //    subRegions.subs = ['S2S Priority Areas','S2S Priority Area Billabong Creek']
-        //    break
-        //case "Kosciuszko to coast":
-        //    subRegions.subs = ['K2C Management Regions']
-        //    break
         }
         /* end hack */
 

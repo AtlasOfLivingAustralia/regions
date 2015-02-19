@@ -372,7 +372,7 @@ Region.prototype = {
         if (this.other) {
             return config.baseUrl + "/layer/" + this.name;
         } else {
-            return config.baseUrl + "/" + selectedRegionType.name + "/" + this.name;
+            return config.baseUrl + "/" + selectedRegionType.name + "/" + encodeURIComponent(encodeURIComponent(this.name));
         }
     },
     /* Write the region link and optional subregion name and zoom link at the top of the map.
@@ -386,16 +386,13 @@ Region.prototype = {
                 if (subregion) {
                     extra = "<span class='btn' id='extra'>(" + subregion + ")</span>";
                 }
-                showInfo("<a class='btn' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                showInfo("<a class='btn btn-ala' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
                         this.name + "</a>" + "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra);
             } else {
-                showInfo("<a class='btn' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                showInfo("<a class='btn btn-ala' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
                         this.name + "</a>" + "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>");
             }
         }
-        $('#click-info').animate({backgroundColor: '#fee6d2'}, 700, function () {
-            $('#click-info').animate({backgroundColor: 'white'}, 700);
-        });
     }
 };
 

@@ -261,10 +261,11 @@
             regionType: '${region.type}',
             regionFid: '${region.fid}',
             regionPid: '${region.pid}',
-            regionLayerName: ${region.pid},
+            regionLayerName: '${region.layerName}',
             urls: {
                 regionsApp: '${g.createLink(uri: '/', absolute: true)}',
                 proxyUrl: '${g.createLink(controller: 'proxy', action: 'index')}',
+                proxyUrlBbox: '${g.createLink(controller: 'proxy', action: 'bbox')}',
                 speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
                 biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
                 biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",

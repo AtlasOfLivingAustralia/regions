@@ -380,7 +380,7 @@ var RegionWidget = function (config) {
         },
 
         groupsLoaded: function() {
-            $('#groups').effect('highlight', 2000);
+            $('#groups').effect('highlight', {color: '#fee6d2'}, 2000);
             if (state.subgroup) {
                 // Display group hidden rows
                 $("tr[parent='" + getGroupId() + "']").show();
@@ -400,7 +400,7 @@ var RegionWidget = function (config) {
         },
 
         speciesLoaded: function() {
-            $('#species').effect('highlight', 2000);
+            $('#species').effect('highlight', {color: '#fee6d2'}, 2000);
             var totalRecords = $('#moreSpeciesZone').attr('totalRecords');
             if (isNaN(totalRecords)) {
                 $('#totalRecords').text('');
@@ -408,7 +408,7 @@ var RegionWidget = function (config) {
                 $('#totalRecords').text('(' + region.format(parseInt($('#moreSpeciesZone').attr('totalRecords'))) + ')');
             }
 
-            $('#occurrenceRecords').effect('highlight', 2000);
+            $('#occurrenceRecords').effect('highlight', {color: '#fee6d2'}, 2000);
         },
 
         showMoreSpecies: function() {
@@ -712,7 +712,7 @@ var RegionMap = function (config) {
                 new google.maps.LatLng(-42, 113),
                 new google.maps.LatLng(-14, 153)))) {
             $.ajax({
-                url: regionWidget.getUrls().proxyUrl + "?q=" + buildRegionFacet(regionType, regionName),
+                url: regionWidget.getUrls().proxyUrlBbox + "?q=" + region.buildRegionFacet(regionWidget.getCurrentState().regionType, regionWidget.getCurrentState().regionName, regionWidget.getCurrentState().regionFid),
                 //url: url,
                 dataType: 'json',
                 success: function (data) {
