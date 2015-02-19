@@ -10,7 +10,7 @@ grails.project.groupId = "au.org.ala"
 
 grails.project.dependency.resolver = "maven"
 
-grails.plugin.location."ajaxanywhere" = "../../aruizca/AjaxAnywhere-grails-plugin"
+//grails.plugin.location."ajaxanywhere" = "../../aruizca/AjaxAnywhere-grails-plugin"
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -36,7 +36,7 @@ grails.project.dependency.resolution = {
         build ":rest-client-builder:2.0.3"
 
         compile ":font-awesome-resources:4.2.0.0"
-//        compile ":ajaxanywhere:1.0-SNAPSHOT"
+        compile ":ajaxanywhere:1.0-SNAPSHOT"
 
         runtime (":ala-bootstrap2:1.3") {
             exclude "jquery"
