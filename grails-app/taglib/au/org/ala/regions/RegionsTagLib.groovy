@@ -37,11 +37,11 @@ class RegionsTagLib {
      * @deprecated use HeaderFooterTagLib
      */
     def loginoutLink2011 = { attrs ->
-        def requestUri = ConfigurationHolder.config.security.cas.serverName + request.forwardURI
+        def requestUri = grailsApplication.config.security.cas.serverName + request.forwardURI
         if (AuthenticationCookieUtils.cookieExists(request, AuthenticationCookieUtils.ALA_AUTH_COOKIE)) {
             // currently logged in
             out << link(controller: 'regions', action: 'logout',
-                    params: [casUrl: ConfigurationHolder.config.security.cas.logoutUrl,
+                    params: [casUrl: grailsApplication.config.security.cas.logoutUrl,
                             appUrl: attrs.fixedAppUrl ?: requestUri]) {'Logout'}
         } else {
             // currently logged out
