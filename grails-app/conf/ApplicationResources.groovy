@@ -2,7 +2,7 @@
 modules = {
 
     regions {
-        dependsOn  'jquery', 'jquery-ui', 'jquery-bbq', 'map', 'font-awesome'
+        dependsOn  'jquery', 'jquery-ui', 'jquery-bbq', 'map', 'font-awesome', 'he'
 
         resource url: '/js/regions.js'
         resource url: '/css/regions.css', attrs:[media:'all']
@@ -57,6 +57,10 @@ modules = {
 
     'number-functions' {
         resource url: '/vendor/number-functions/number-functions.js'
+    }
+
+    he {
+        resource url: '/vendor/he/he-0.5.0.js'
     }
 }
 
