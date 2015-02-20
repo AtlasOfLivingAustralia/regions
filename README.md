@@ -20,7 +20,7 @@ This project allows the user to conveniently browse existing ALA records that ha
 
 ## Changelog
 - Version 2.0 (20/02/2015):
-  - Mayor project overhaul to improve the look & feel and UX of the tool.
+  - Major project overhaul to improve the look & feel and UX of the tool.
   - There has been a mayor refactoring in all app layers to improve maintainability and reduce technical debt.
   - Lots of javascript Ajax boilerplate code has been removed by using the AjaxAnywhere Grails plugin.
   - Many existing bugs have been fixed.
