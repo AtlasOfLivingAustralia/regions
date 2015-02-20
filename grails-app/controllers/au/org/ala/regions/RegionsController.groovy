@@ -92,6 +92,7 @@ class RegionsController {
         // This decoding process is required because some region names contain a lot of unsafe characters
         region.name = URLDecoder.decode(params.regionName, 'UTF-8')
         region.name = StringEscapeUtils.unescapeHtml(region.name)
+        log.debug("Requested Region name = $region.name")
 
         region.type = params.regionType
         region.pid = params.pid ?: metadataService.lookupPid(region.type, region.name)
