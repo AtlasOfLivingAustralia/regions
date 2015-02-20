@@ -91,8 +91,6 @@ class RegionsController {
         def region = [:]
         region.name = URLDecoder.decode(params.regionName, 'UTF-8')
         region.name = StringEscapeUtils.unescapeHtml(region.name)
-//        region.name = URLEncoder.encode(region.name, 'UTF-8')
-
 
         region.type = params.regionType
         region.pid = params.pid ?: metadataService.lookupPid(region.type, region.name)

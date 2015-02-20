@@ -372,7 +372,7 @@ Region.prototype = {
         if (this.other) {
             return config.baseUrl + "/layer/" + this.name;
         } else {
-            return config.baseUrl + "/" + selectedRegionType.name + "/" + encodeURIComponent(encodeURIComponent(this.name));
+            return config.baseUrl + "/" + selectedRegionType.name + "/" + encodeURIComponent(he.encode(encodeURIComponent(this.name)));
         }
     },
     /* Write the region link and optional subregion name and zoom link at the top of the map.
@@ -395,6 +395,7 @@ Region.prototype = {
         }
     }
 };
+
 
 /*** map represents the map and its associated properties and events ************************************************/
 map = {
