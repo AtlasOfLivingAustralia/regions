@@ -89,6 +89,7 @@ class RegionsController {
      */
     def region = {
         def region = [:]
+        // This decoding process is required because some region names contain a lot of unsafe characters
         region.name = URLDecoder.decode(params.regionName, 'UTF-8')
         region.name = StringEscapeUtils.unescapeHtml(region.name)
 
