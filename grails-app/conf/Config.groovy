@@ -1,39 +1,26 @@
-// locations to search for config files that get merged into the main config
-// config files can either be Java properties files or ConfigSlurper scripts
-
-// grails.config.locations = [ "classpath:${appName}-config.properties",
-//                             "classpath:${appName}-config.groovy",
-//                             "file:${userHome}/.grails/${appName}-config.properties",
-//                             "file:${userHome}/.grails/${appName}-config.groovy"]
-
-// if(System.properties["${appName}.config.location"]) {
-//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
-// }
+import org.apache.log4j.Level
 
 /******************************************************************************\
  *  CONFIG MANAGEMENT
  \******************************************************************************/
-def ENV_NAME = "REGIONS_CONFIG"
-def default_config = "/data/regions/config/${appName}-config.properties"
+def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
+default_config = "/data/${appName}/config/${appName}-config.properties"
 if(!grails.config.locations || !(grails.config.locations instanceof List)) {
     grails.config.locations = []
 }
 if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
-    println "[REGIONS] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
-    grails.config.locations = ["file:" + System.getenv(ENV_NAME)]
+    println "[${appName}] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
+    grails.config.locations.add "file:" + System.getenv(ENV_NAME)
 } else if(System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
-    println "[REGIONS] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
-    grails.config.locations = ["file:" + System.getProperty(ENV_NAME)]
+    println "[${appName}] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
+    grails.config.locations.add "file:" + System.getProperty(ENV_NAME)
 } else if(new File(default_config).exists()) {
-    println "[REGIONS] Including default configuration file: " + default_config;
-    def loc = ["file:" + default_config]
-    println "[REGIONS] >> loc = " + loc
-    grails.config.locations = loc
-    println "[REGIONS]  grails.config.locations = " + grails.config.locations
+    println "[${appName}] Including default configuration file: " + default_config;
+    grails.config.locations.add "file:" + default_config
 } else {
-    println "[REGIONS] No external configuration file defined."
+    println "[${appName}] No external configuration file defined."
 }
-println "[REGIONS]  (*) grails.config.locations = ${grails.config.locations}"
+println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
 
 /******************************************************************************\
  *  RELOADABLE CONFIG
@@ -44,154 +31,46 @@ reloadable.cfgs = ["file:/data/regions/config/regions-config.properties"]
 
 /******************************************************************************\
  *  SKINNING
-\******************************************************************************/
+ \******************************************************************************/
 if (!ala.skin) {
     ala.skin = 'ala2';
 }
-/*if (!ala.skin.loginoutLinkTag.method) {
-    ala.skin.loginoutLinkTag.method = "buildLoginoutLink"
-}
-if (!ala.skin.loginoutLinkTag.clazz) {
-    ala.skin.loginoutLinkTag.clazz = "RegionsTagLib"
-}*/
-/******************************************************************************\
- *  EXTERNAL SERVERS
-\******************************************************************************/
-if (!bie.baseURL) {
-     bie.baseURL = "http://bie.ala.org.au"
-}
-if (!bie.searchPath) {
-     bie.searchPath = "/search"
-}
-if (!biocache.baseURL) {
-     biocache.baseURL = "http://biocache.ala.org.au/"
-}
-if (!spatial.baseURL) {
-     spatial.baseURL = "http://spatial.ala.org.au/"
-}
-if (!ala.baseURL) {
-    ala.baseURL = "http://www.ala.org.au"
-}
-if (!headerAndFooter.baseURL) {
-    headerAndFooter.baseURL = "http://www2.ala.org.au/commonui"
-}
-// spatial services
-if (!spatial.wms.url) {
-    spatial.wms.url = spatial.baseURL + "geoserver/ALA/wms?"
-}
-if (!spatial.wms.cache.url) {
-    spatial.wms.cache.url = spatial.baseURL + "geoserver/gwc/service/wms?"
-}
-if (!spatial.layers.service.url) {
-    spatial.layers.service.url = spatial.baseURL + "layers-service"
-}
 
-/******************************************************************************\
- *  SECURITY
- \******************************************************************************/
-if (!security.cas.urlPattern) {
-    security.cas.urlPattern = ""
-}
-if (!security.cas.loginUrl) {
-    security.cas.loginUrl = "https://auth.ala.org.au/cas/login"
-}
-if (!security.cas.logoutUrl) {
-    security.cas.logoutUrl = "https://auth.ala.org.au/cas/logout"
-}
+grails.project.groupId = 'au.org.ala' // change this to alter the default package name and Maven publishing destination
 
-grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
-grails.mime.file.extensions = true // enables the parsing of file extensions from URLs into the request format
-grails.mime.use.accept.header = false
-grails.mime.types = [ html: ['text/html','application/xhtml+xml'],
-                      xml: ['text/xml', 'application/xml'],
-                      text: 'text/plain',
-                      js: 'text/javascript',
-                      rss: 'application/rss+xml',
-                      atom: 'application/atom+xml',
-                      css: 'text/css',
-                      csv: 'text/csv',
-                      all: '*/*',
-                      json: ['application/json','text/json'],
-                      form: 'application/x-www-form-urlencoded',
-                      multipartForm: 'multipart/form-data'
-                    ]
+// The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
+grails.mime.disable.accept.header.userAgents = ['Gecko', 'WebKit', 'Presto', 'Trident']
+grails.mime.types = [ // the first one is the default format
+                      all          : '*/*', // 'all' maps to '*' or the first available format in withFormat
+                      atom         : 'application/atom+xml',
+                      css          : 'text/css',
+                      csv          : 'text/csv',
+                      form         : 'application/x-www-form-urlencoded',
+                      html         : ['text/html', 'application/xhtml+xml'],
+                      js           : 'text/javascript',
+                      json         : ['application/json', 'text/json'],
+                      multipartForm: 'multipart/form-data',
+                      rss          : 'application/rss+xml',
+                      text         : 'text/plain',
+                      hal          : ['application/hal+json', 'application/hal+xml'],
+                      xml          : ['text/xml', 'application/xml']
+]
 
 // URL Mapping Cache Max Size, defaults to 5000
 //grails.urlmapping.cache.maxsize = 1000
 
-// The default codec used to encode data with ${}
-grails.views.default.codec = "none" // none, html, base64
-grails.views.gsp.encoding = "UTF-8"
-grails.converters.encoding = "UTF-8"
-// enable Sitemesh preprocessing of GSP pages
-grails.views.gsp.sitemesh.preprocess = true
-// scaffolding templates configuration
-grails.scaffolding.templates.domainSuffix = 'Instance'
+// What URL patterns should be processed by the resources plugin
+grails.resources.adhoc.patterns = ['/js/*', '/images/*', '/css/*', '/plugins/*', '/vendor/*']
+grails.resources.adhoc.includes = ['/js/**', '/images/**', '/css/**','/plugins/**', '/vendor/**']
 
-// Set to false to use the new Grails 1.2 JSONBuilder in the render method
-grails.json.legacy.builder = false
-// enabled native2ascii conversion of i18n properties files
-grails.enable.native2ascii = true
-// whether to install the java.util.logging bridge for sl4j. Disable for AppEngine!
-grails.logging.jul.usebridge = true
-// packages to include in Spring bean scanning
-grails.spring.bean.packages = []
 
-// request parameters to mask when logging exceptions
-grails.exceptionresolver.params.exclude = ['password']
+// Legacy setting for codec used to encode data with ${}
+grails.views.default.codec = "html"
 
-// set per-environment serverURL stem for creating absolute links
-environments {
-    production {
-        if (!grails.serverURL) {
-            grails.serverURL = "http://regions.ala.org.au"
-        }
-        security.cas.serverName = grails.serverURL
-    }
-    development {
-        grails.hostName = "localhost:8080"
-        //grails.hostName = "woodfired.ala.org.au:8080"
-        grails.serverURL = "http://${grails.hostName}/${appName}"
-        security.cas.serverName = "http://${grails.hostName}"
-    }
-    test {
-        grails.serverURL = "http://localhost:8080/${appName}"
-    }
+// The default scope for controllers. May be prototype, session or singleton.
+// If unspecified, controllers are prototype scoped.
+grails.controllers.defaultScope = 'singleton'
 
-}
-
-// log4j configuration
-log4j = {
-    // Example of changing the log pattern for the default console
-    // appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
-    production {
-        appenders {
-           rollingFile name: "stacktrace", maxFileSize: 1024, file: "/var/log/tomcat6/regions-stacktrace.log"
-        }
-    }
-
-    error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
-           'org.codehaus.groovy.grails.web.pages', //  GSP
-           'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-           'org.codehaus.groovy.grails.web.mapping', // URL mapping
-           'org.codehaus.groovy.grails.commons', // core / classloading
-           'org.codehaus.groovy.grails.plugins', // plugins
-           'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
-           'org.springframework',
-           'org.hibernate',
-           'net.sf.ehcache.hibernate'
-
-    warn   'org.mortbay.log'
-}
-
-// Uncomment and edit the following lines to start using Grails encoding & escaping improvements
-
-/* remove this line 
 // GSP settings
 grails {
     views {
@@ -199,16 +78,78 @@ grails {
             encoding = 'UTF-8'
             htmlcodec = 'xml' // use xml escaping instead of HTML4 escaping
             codecs {
-                expression = 'html' // escapes values inside null
-                scriptlet = 'none' // escapes output from scriptlets in GSPs
+                expression = 'html' // escapes values inside ${}
+                scriptlet = 'html' // escapes output from scriptlets in GSPs
                 taglib = 'none' // escapes output from taglibs
                 staticparts = 'none' // escapes output from static template parts
             }
         }
         // escapes all not-encoded output at final stage of outputting
-        filteringCodecForContentType {
-            //'text/html' = 'html'
-        }
+        // filteringCodecForContentType.'text/html' = 'html'
     }
 }
-remove this line */
+
+
+grails.converters.encoding = "UTF-8"
+// scaffolding templates configuration
+grails.scaffolding.templates.domainSuffix = 'Instance'
+
+// Set to false to use the new Grails 1.2 JSONBuilder in the render method
+grails.json.legacy.builder = false
+// enabled native2ascii conversion of i18n properties files
+grails.enable.native2ascii = true
+// packages to include in Spring bean scanning
+grails.spring.bean.packages = []
+// whether to disable processing of multi part requests
+grails.web.disable.multipart = false
+
+// request parameters to mask when logging exceptions
+grails.exceptionresolver.params.exclude = ['password']
+
+// configure auto-caching of queries by default (if false you can cache individual queries with 'cache: true')
+grails.hibernate.cache.queries = false
+
+// configure passing transaction's read-only attribute to Hibernate session, queries and criterias
+// set "singleSession = false" OSIV mode in hibernate configuration after enabling
+grails.hibernate.pass.readonly = false
+// configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
+grails.hibernate.osiv.readonly = false
+
+
+def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
+def appName = grails.util.Metadata.current.'app.name'
+// log4j configuration
+log4j = {
+// Example of changing the log pattern for the default console
+// appender:
+    appenders {
+        environments {
+            production {
+                rollingFile name: "tomcatLog", maxFileSize: '1MB', file: "${loggingDir}/${appName}.log", threshold: Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+            }
+            development {
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n"), threshold: Level.DEBUG
+            }
+            test {
+                rollingFile name: "stdout,tomcatLog", maxFileSize: '1MB', file: "/tmp/${appName}", threshold: Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+            }
+        }
+    }
+    root {
+// change the root logger to my tomcatLog file
+        error 'tomcatLog'
+        warn 'tomcatLog'
+        additivity = true
+    }
+
+    warn 'au.org.ala.cas.client',
+            'grails.spring.BeanBuilder',
+            'grails.plugin.webxml',
+            'grails.plugin.cache.web.filter',
+            'grails.app.services.org.grails.plugin.resource',
+            'grails.app.taglib.org.grails.plugin.resource',
+            'grails.app.resourceMappers.org.grails.plugin.resource'
+
+    debug 'grails.app'
+}
+

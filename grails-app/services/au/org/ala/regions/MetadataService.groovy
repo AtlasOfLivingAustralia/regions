@@ -1,7 +1,13 @@
 package au.org.ala.regions
 
+import au.org.ala.regions.binding.DownloadParams
+import au.org.ala.web.AuthService
 import grails.converters.JSON
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
+import grails.util.Holders
+import groovyx.net.http.RESTClient
+import groovyx.net.http.URIBuilder
+
+import javax.annotation.PostConstruct
 
 class MetadataService {
 
@@ -37,9 +43,355 @@ class MetadataService {
         logReasonCache=loadLoggerReasons()
     }
 
+    def grailsApplication
+
+    AuthService authService
+
+    static final Map DOWNLOAD_OPTIONS = [
+            0: 'Download All Records',
+            1: 'Download Species Checklist',
+            2: 'Download Species FieldGuide'
+    ]
+
+
+    final static String WS_DATE_FROM_PREFIX = "-01-01T00:00:00Z"
+    final static String WS_DATE_TO_PREFIX = "-12-31T23:59:59Z"
+    final static String WS_DATE_FROM_DEFAULT = "1850"
+    final static String PAGE_SIZE = "50"
+
+    String BIE_URL, BIOCACHE_URL, ALERTS_URL, DEFAULT_IMG_URL
+
+    @PostConstruct
+    def init() {
+        BIE_URL = grailsApplication.config.bie.baseURL
+        BIOCACHE_URL = grailsApplication.config.biocache.baseURL
+        DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
+        ALERTS_URL = grailsApplication.config.alerts.baseURL
+    }
+
+    /**
+     *
+     * @param regionType
+     * @param regionName
+     * @return List<Map< with format: [[imgUrl: ...,<br/>
+     * scientificName: ...,<br/>
+     * commonName: ..., <br/>
+     * speciesUrl: ..., <br/>
+     * emblemType: ...], ...]
+     */
+    List<Map> getEmblemsMetadata(String regionType, String regionName) {
+        Map emblemGuids = [:]
+
+        if (regionType == 'states') {
+            // lookup state emblems
+            def emblems = getStateEmblems()[regionName]
+            if (emblems) {
+                ['animal','plant','marine','bird'].each {
+                    if (emblems[it]) {
+                        emblemGuids[it] = emblems."${it}".guid
+                    }
+                }
+            }
+        }
+
+        List<Map> emblemMetadata = []
+
+        emblemGuids.sort({it.key}).each {key, guid ->
+            String emblemInfoUrl = "${BIE_URL}/ws/species/moreInfo/${guid}.json"
+            def emblemInfo = new RESTClient(emblemInfoUrl).get([:]).data
+            emblemMetadata << [
+                "imgUrl":  emblemInfo?.images && emblemInfo?.images[0]?.thumbnail ? emblemInfo?.images[0]?.thumbnail : DEFAULT_IMG_URL,
+                "scientificName": emblemInfo?.taxonConcept?.nameString,
+                "commonName": emblemInfo?.commonNames && emblemInfo?.commonNames?.size() > 0 ? emblemInfo?.commonNames[0]?.nameString : "",
+                "speciesUrl": "${BIE_URL}/species/${guid}",
+                "emblemType": "${key.capitalize()} emblem"
+            ]
+        }
+
+        return emblemMetadata
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @return
+     */
+    List getGroups(String regionFid, String regionType, String regionName) {
+        def responseGroups = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([:]).data
+        Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName)
+
+        List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
+        responseGroups.each {group ->
+            groups << [name: group.speciesGroup, commonName: group.speciesGroup]
+            group.taxa.each {subgroup ->
+                if (subgroupsWithRecords[subgroup.common]) {
+                    groups << [name: subgroup.name, commonName: subgroup.common, parent: group.speciesGroup]
+                }
+            }
+        }
+        return groups
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @return
+     */
+    Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName) {
+        String url = new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
+            query = [
+                    q: buildRegionFacet(regionFid, regionType, regionName),
+                    facets: 'species_subgroup',
+                    flimit: '-1',
+                    pageSize: 0
+            ]
+
+            return it
+        }.toString()
+
+        log.debug("URL to retrieve subgroups with records = $url")
+
+        def response = new RESTClient(url).get([:]).data
+
+        Map subgroups = [:]
+        response?.facetResults[0]?.fieldResult.each {subgroup ->
+            subgroups << [(subgroup.label): subgroup.count]
+        }
+
+        return subgroups
+    }
+/**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param groupName
+     * @param isSubgroup
+     * @param from
+     * @param to
+     * @return
+     */
+    def getSpecies(String regionFid, String regionType, String regionName, String groupName, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
+        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex)).get([:]).data
+        return [
+                totalRecords: response.totalRecords,
+                records: response.facetResults[0]?.fieldResult.collect {result ->
+                    List info = Arrays.asList(result.label.split('\\|'))
+                    return [
+                            name: info.get(0),
+                            guid: info.get(1),
+                            commonName: info.size() == 5 ? info.get(2) : '',
+                            count: result.count
+                    ]
+                }
+        ]
+    }
+
+    /**
+     *
+     * @param region
+     * @return
+     */
+    String buildAlertsUrl(Map region) {
+        URLDecoder.decode(new URIBuilder("${ALERTS_URL}/webservice/createBiocacheNewRecordsAlert").with {
+            query = [
+                    webserviceQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name)}",
+                    uiQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name)}",
+                    queryDisplayName: region.name,
+                    baseUrlForWS: "${BIOCACHE_URL}/ws",
+                    baseUrlForUI: "${BIOCACHE_URL}&resourceName=Atlas"
+            ]
+            return it
+        }.toString(), 'UTF-8')
+    }
+
+    /**
+     *
+     * @param guid
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param from
+     * @param to
+     * @return
+     */
+    String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String from, String to) {
+        StringBuilder sb = new StringBuilder("${BIOCACHE_URL}/occurrences/search?q=lsid:\"${guid}\"" +
+                "&fq=${buildRegionFacet(regionFid, regionType, regionName)}")
+        if (isValidTimeRange(from, to)) {
+            " AND ${buildTimeFacet(from, to)}"
+        }
+
+        return sb.toString()
+    }
+
+    /**
+     *
+     * @param downloadParams
+     * @return
+     */
+    String buildDownloadRecordsUrl(DownloadParams downloadParams,String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+        String url
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, groupName, isSubgroup, from, to)
+        String wsUrl
+        switch (downloadParams.downloadOption) {
+            case '0':
+                // Download All Records
+                wsUrl = "${BIOCACHE_URL}/ws/occurrences/index/download"
+                params << [
+                        email: downloadParams.email,
+                        reasonTypeId: downloadParams.downloadReason,
+                        file: downloadParams.fileName
+                ]
+                break
+            case '1':
+                // Download Species Checklist
+                wsUrl = "${BIOCACHE_URL}/ws/occurrences/facets/download"
+                params << [
+                        facets: "species_guid",
+                        lookup: true,
+                        file: downloadParams.fileName
+                ]
+                break
+
+            case '2':
+                // Download Species FieldGuide
+                wsUrl = "${BIOCACHE_URL}/occurrences/fieldguide/download"
+                params << [
+                        facets: "species_guid"
+                ]
+                break
+        }
+
+        url = new URIBuilder(wsUrl).with {
+            query = params
+            return it
+        }.toString()
+        log.debug "Download Records (${downloadParams.downloadOption}) - REST URL generated = ${url}"
+        return url
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param groupName
+     * @param isSubgroup
+     * @param from
+     * @param to
+     * @return
+     */
+    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+        Map params = [
+                q : buildRegionFacet(regionFid, regionType, regionName),
+        ]
+
+        if (groupName && isSubgroup) {
+            params << [fq: "species_subgroup:\"${groupName}\""]
+        } else if (groupName && groupName != 'ALL_SPECIES') {
+            params << [fq: "species_group:\"${groupName}\""]
+        }
+
+        if (isValidTimeRange(from, to)) {
+            params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
+        }
+
+        return params
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param groupName
+     * @param isSubgroup
+     * @param from
+     * @param to
+     * @param pageIndex
+     * @return
+     */
+    String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
+        String url = new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
+            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, groupName, isSubgroup, from, to, pageIndex)
+            return it
+        }.toString()
+        log.debug "REST URL generated = ${url}"
+        return url
+    }
+
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @param groupName
+     * @param isSubgroup
+     * @param from
+     * @param to
+     * @param pageIndex
+     * @return
+     */
+    private Map buildSearchOccurrencesWsParams(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = "0") {
+        Map params =  [
+                q : buildRegionFacet(regionFid, regionType, regionName),
+                facets: 'names_and_lsid',
+                fsort: 'taxon_name',
+                pageSize : 0,
+                flimit: PAGE_SIZE,
+                foffset: Integer.parseInt(pageIndex) * Integer.parseInt(PAGE_SIZE),
+                fq: 'rank:(species OR subspecies)'
+        ]
+
+        if (groupName && isSubgroup) {
+            params << [fq: params.fq + ' AND ' + "species_subgroup:\"${groupName}\""]
+        } else if (groupName) {
+            params << [fq: params.fq + ' AND ' + "species_group:\"${groupName}\""]
+        }
+
+        if (isValidTimeRange(from, to)) {
+            params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
+        }
+
+        return params
+    }
+
+    private boolean isValidTimeRange(String from, String to) {
+        return from && to && (from != WS_DATE_FROM_DEFAULT|| to != Calendar.getInstance().get(Calendar.YEAR).toString())
+    }
+
+    /**
+     *
+     * @param regionFid
+     * @param regionType
+     * @param regionName
+     * @return
+     */
+    public String buildRegionFacet(String regionFid, String regionType, String regionName) {
+        regionType == 'layer' ? "${regionFid}:[* TO *]" : "${regionFid}:\"${regionName}\""
+    }
+
+    /**
+     *
+     * @param from
+     * @param to
+     * @return
+     */
+    public String buildTimeFacet(String from, String to) {
+        from = from.equals(WS_DATE_FROM_DEFAULT) ? "*" : from + WS_DATE_FROM_PREFIX
+        to = to.equals(Calendar.getInstance().get(Calendar.YEAR).toString()) ? "*" : to + WS_DATE_TO_PREFIX
+        "occurrence_year:[${from} TO ${to}]"
+    }
+
     static def loadLoggerReasons(){
         println("Refreshing the download reasons")
-        String url = "http://logger.ala.org.au/service/logger/reasons"
+        String url = "${Holders.config.logger.baseURL}/service/logger/reasons"
         def conn = new URL(url).openConnection()
         def map = [:]
         try{
@@ -108,7 +460,7 @@ class MetadataService {
             println "clearing cache for ${fid}"
             regionCacheLastRefreshed[fid] = new Date()
             //println "new cache date is ${regionCacheLastRefreshed[fid]}"
-            def url = ConfigurationHolder.config.spatial.baseURL + 'ws/field/' + fid
+            def url = grailsApplication.config.spatial.baseURL + '/ws/field/' + fid
             def conn = new URL(url).openConnection()
             try {
                 conn.setConnectTimeout(10000)
@@ -185,7 +537,7 @@ class MetadataService {
      */
     def lookupLayerMetadata(layerName) {
         println "getting metadata for " + layerName
-        def url = ConfigurationHolder.config.spatial.baseURL + "layers/more/" +
+        def url = grailsApplication.config.spatial.baseURL + "/layers/more/" +
                 layerName.encodeAsURL() + ".json"
 
         def conn = new URL(url).openConnection()
@@ -332,7 +684,7 @@ class MetadataService {
      */
    def getObjectsForALayer(fid) {
         def results = [:]
-        def url = ConfigurationHolder.config.spatial.baseURL + 'layers-service/field/' + fid
+        def url = grailsApplication.config.spatial.baseURL + '/layers-service/field/' + fid
         def conn = new URL(url).openConnection()
         try {
             conn.setConnectTimeout(10000)
@@ -557,5 +909,4 @@ class MetadataService {
             default: return regionMetadata('other',null)[region]?.fid
         }
     }
-
 }

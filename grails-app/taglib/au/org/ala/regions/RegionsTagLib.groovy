@@ -7,6 +7,8 @@ class RegionsTagLib {
 
     static namespace = 'rg'
 
+    MetadataService metadataService
+
     /**
      * Returns the username of the user if logged in else blank
      *
@@ -35,11 +37,11 @@ class RegionsTagLib {
      * @deprecated use HeaderFooterTagLib
      */
     def loginoutLink2011 = { attrs ->
-        def requestUri = ConfigurationHolder.config.security.cas.serverName + request.forwardURI
+        def requestUri = grailsApplication.config.security.cas.serverName + request.forwardURI
         if (AuthenticationCookieUtils.cookieExists(request, AuthenticationCookieUtils.ALA_AUTH_COOKIE)) {
             // currently logged in
             out << link(controller: 'regions', action: 'logout',
-                    params: [casUrl: ConfigurationHolder.config.security.cas.logoutUrl,
+                    params: [casUrl: grailsApplication.config.security.cas.logoutUrl,
                             appUrl: attrs.fixedAppUrl ?: requestUri]) {'Logout'}
         } else {
             // currently logged out
@@ -56,14 +58,33 @@ class RegionsTagLib {
      * @attr atBase true if the page is the base page of the root (no link is added)
      */
     def breadcrumbTrail = {attrs ->
-        if (ConfigurationHolder.config.ala.skin == 'ala') {
-            out << "<li><a href='${ConfigurationHolder.config.ala.baseURL}'>Home</a></li>" +
-                "<li> <a href='${ConfigurationHolder.config.ala.baseURL}/explore/'>Explore</a></li>"
+        if (grailsApplication.config.ala.skin == 'ala') {
+            out << """
+<li><a href='${grailsApplication.config.ala.baseURL}'>Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+<li><a href='${grailsApplication.config.ala.baseURL}/explore/'>Explore</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+"""
         }
         else {
-            out << "<li><a href='${ConfigurationHolder.config.ala.baseURL}'>Home</a></li>" +
-                "<li> <a href='${ConfigurationHolder.config.ala.baseURL}/species-by-location/'>Locations</a></li>"
+            out << """
+<li><a href='${grailsApplication.config.ala.baseURL}'>Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+<li><a href='${grailsApplication.config.ala.baseURL}/species-by-location/'>Locations</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+"""
         }
+
+        return out
+    }
+
+    /**
+     *
+     * @attr guid REQUIRED
+     * @attr regionFid REQUIRED
+     * @attr regionType REQUIRED
+     * @attr regionName REQUIRED
+     * @attr from REQUIRED
+     * @attr to REQUIRED
+     */
+    def speciesRecordListUrl = {attrs ->
+        out << metadataService.buildSpeciesRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.from, attrs.to)
     }
 
 }

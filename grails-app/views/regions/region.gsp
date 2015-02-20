@@ -1,186 +1,176 @@
-<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="layout" content="${ConfigurationHolder.config.ala.skin}" />
-        <title>${region.name} | Atlas of Living Australia</title>
-        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/regions.css" type="text/css" media="screen" />
-        <!--[if IE 7]> <link href="${ConfigurationHolder.config.grails.serverURL}/css/regions-ie.css" rel="stylesheet" type="text/css"> <![endif]-->
-        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/base.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/css/biocache.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="${ConfigurationHolder.config.grails.serverURL}/js/fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen">
-        <script type="text/javascript" language="javascript" src="http://www.google.com/jsapi"></script>
-        %{--<script type="text/javascript" src="http://collections.ala.org.au/js/charts.js"></script>--}%
-        <script type="text/javascript" src="${ConfigurationHolder.config.grails.serverURL}/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-        <g:javascript library="charts2"/>
-        <g:javascript library="jquery.jsonp-2.1.4.min"/>
-        <g:javascript library="jquery.cookie" />
-        <g:javascript library="region" />
-        <g:javascript library="wms" />
-        %{--<g:javascript library="datadumper" />--}%
-        <g:javascript library="number-functions" />
-        <g:javascript library="jquery.ba-bbq.min" />
-        <script src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
-        <g:javascript library="keydragzoom" />
-        <script type="text/javascript">
-          var altMap = true;
-        </script>
-    </head>
-    <body>
-    <div id="content" class="clearfix inner">
-      <div id="header">
-        <!--Breadcrumbs-->
-          <nav id="breadcrumb"><ol>
-              <rg:breadcrumbTrail/>
-              <li><a href="${ConfigurationHolder.config.grails.serverURL}#rt=${region.type}">Regions</a></li>
-          %{--TODO: do the following in a tag to support any depth --}%
-          <g:if test="${region.parent}">
-              <li><a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a></li>
-              <g:if test="${region.parent.child}">
-                  <li><a href="${ConfigurationHolder.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a></li>
-              </g:if>
-          </g:if>
-          <span class="current">${region.name}</span></ol></nav>
-        <div class="section full-width">
-          <g:if test="${flash.message}">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="layout" content="main" />
+    <title>${region.name} | Atlas of Living Australia</title>
+    <r:require modules="region"/>
+</head>
+<body class="nav-locations">
+
+<div class="row">
+    <div class="span12">
+        <ul class="breadcrumb pull-left">
+            <rg:breadcrumbTrail/>
+            <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+            <g:if test="${region.parent}">
+                <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                <g:if test="${region.parent.child}">
+                    <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+                </g:if>
+            </g:if>
+            <li class="active">${region.name}</li>
+        </ul>
+        <a id="alertsButton" class="btn btn-ala pull-right" href="${alertsUrl}">
+            Alerts
+            <i class="icon-bell icon-white"></i>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
+        <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
-          </g:if>
-          <header class="hrgroup">
-            <h1>${region.name}</h1>
-            <div id="emblems"></div>
-          </header><!--close hrgroup header-->
+        </g:if>
+        <h1>${region.name}</h1>
+        <aa:zone id="emblems" fragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name])}">
+            <i class="fa fa-cog fa-spin fa-2x"></i>
+        </aa:zone>
+    </div>
+</div>
 
-        </div><!--close section-->
-      </div><!--close header-->
-
+<div class="row">
+    <div class="span12">
         <g:if test="${region.description || region.notes}">
             <section class="section">
-              <h2>Description</h2>
-              <g:if test="${region.description}"><p>${region.description}</p></g:if>
-              <g:if test="${region.notes}"><h3>Notes on the map layer</h3><p>${region.notes}</p></g:if>
+                <h2>Description</h2>
+                <g:if test="${region.description}"><p>${region.description}</p></g:if>
+                <g:if test="${region.notes}"><h3>Notes on the map layer</h3><p>${region.notes}</p></g:if>
             </section>
         </g:if>
 
-        <section id="regionPage" class="section">
-            <h2 id="occurrenceRecords">Occurrence records</h2>
+        <h2 id="occurrenceRecords">Occurrence records <span id="totalRecords"></span></h2>
+    </div>
+</div>
 
-            <div id="explore">
-                <ul class='explore-tabs'>
-                    <li><a href="#" class="current">Explore by species</a></li>
-                    <li><a href="#">Explore by taxonomy</a></li>
-                </ul>
-                <div id="slider-pane">
-                    <div id="species">
-                        <div id="taxaBox">
-                            <div id="rightList" class="tableContainer">
-                                <table>
-                                    <thead class="fixedHeader">
-                                    <tr>
-                                        <th>&nbsp;</th>
-                                        <th>Species</th>
-                                        <th>Records</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody class="scrollContent">
-                                    </tbody>
-                                </table>
-                            </div>
+<div class="row">
+    <div class="span6">
+        <ul class="nav nav-tabs" id="explorerTabs">
+            <li class="active"><a id="speciesTab" href="#speciesTabContent" data-toggle="tab">Explore by species <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
+            <li><a id="taxonomyTab" href="#taxonomyTabContent" data-toggle="tab">Explore by taxonomy <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane active" id="speciesTabContent">
+                <table class="table table-condensed table-hover" id="groups">
+                    <thead>
+                        <tr>
+                            <th class="text-center">Group</th>
+                        </tr>
+                    </thead>
+                    <aa:zone id="groupsZone" tag="tbody" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups', params: [regionFid: region.fid,regionType: region.type, regionName: region.name])}"
+                             jsAfter="regionWidget.groupsLoaded();">
+                        <tr class="spinner">
+                            <td class="spinner text-center">
+                                <i class="fa fa-cog fa-spin fa-2x"></i>
+                            </td>
+                        </tr>
+                    </aa:zone>
+                </table>
+                <table class="table table-condensed table-hover" id="species">
+                    <thead>
+                        <tr>
+                            <th colspan="2" class="text-center">Species</th>
+                            <th class="text-right">Records</th>
+                        </tr>
+                    </thead>
+                    <aa:zone id="speciesZone" tag="tbody" jsAfter="regionWidget.speciesLoaded();">
+                        <tr class="spinner">
+                            <td colspan="3" class="spinner text-center">
+                                <i class="fa fa-cog fa-spin fa-2x"></i>
+                            </td>
+                        </tr>
+                    </aa:zone>
+                </table>
+                <div class="text-center" id="exploreButtons">
+                    <a href="" id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View Records</a>
 
-                            <div id="leftList">
-                                <table id="taxa-level-0">
-                                    <thead>
-                                    <tr>
-                                        <th>Group</th>
-                                        <th>Species</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div id="taxa-links" style="clear:both;">
-                                <ul>
-                                    <li>
-                                        <span id="viewRecords" class="link under">View all records</span>
-                                    </li>
-%{--
-                                    <li>
-                                        <img src="${resource(dir:'images',file: 'species-images-icon.png')}"/><br/>
-                                        <span id="viewImages" class="link">View images for species</span>
-                                    </li>
---}%
-                                    <li>
-                                        <a href="#download" id="downloadLink" title="Download records OR species checklist">Download all</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="taxonomy"><div id="charts"></div></div>
-                </div>
-                <button id="resetButton" type="button" onclick="resetAll()">Reset all</button>
-
-            </div>
-
-            <div id="map" class="section">
-                <div id="timeContainer">
-                    <span id="date-heading">Explore by date</span><span id="date-hint">Drag handles to restrict date or play by decade.</span>
-                    <div id="playControls"><span id="play">
-                        <img onclick="timeSlider.startPlay()" alt="Play timeline by decade" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Play-icon.png')}"/>
-                        <img onclick="timeSlider.pause()" alt="Pause play" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Pause.png')}"/>
-                        <img onclick="timeSlider.stop()" alt="Stop" width="32" height="32" src="${resource(dir:'images/skin',file:'EZ-Stop-icon.png')}"/>
-                    </span></div>
-                    %{--<p>Drag handles to restrict records by date of observation/collection.</p>--}%
-                    <div id="timeValues"><span id="from">1850</span> <span id="to">2010</span></div>
-                    <div id="timeSlider"></div>
-                    <div id="timeTicks"><img src="${resource(dir:'images/skin',file:'timescale.png')}"/></div>
-                    <div id="debugTime"></div>
-                </div>
-                <div id="region-map-container">
-                    <div id="region-map"></div>
-
-                    <span id="controls-toggle" class="link under">Advanced map controls</span>
-                    <div id="controls" class="ui-helper-hidden">
-                        <div>
-                            <div class="tish">
-                                <label for="toggleOccurrences">
-                                    <input type="checkbox" name="occurrences" id="toggleOccurrences" value="1" checked/>
-                                    Occurrences</label></div>
-
-                            <div id="occurrencesOpacity"></div>
-                            <span id="hide-controls" class="link under">Hide</span>
-                        </div>
-
-                        <div>
-                            <div class="tish">
-                                <label for="toggleRegion">
-                                    <input type="checkbox" name="region" id="toggleRegion" value="1" checked/>
-                                    Region</label></div>
-
-                            <div id="regionOpacity"></div>
-                        </div>
-                    </div>
-
-                    %{--<div>LatLng: <span id="location"></span></div>
-                    <div>Zoom: <span id="zoom"></span> <span id="using-bbox-hack"></span></div>
-                    <div><span id="bbox"></span></div>--}%
+                    <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog', params: [email: rg.loggedInUsername()])}"
+                       aa-refresh-zones="dialogZone" aa-js-before="$('#downloadRecordsModal').modal('show');" class="btn">
+                        <i class="fa fa-download"></i> Download Records
+                    </a>
                 </div>
             </div>
+            <div class="tab-pane" id="taxonomyTabContent">
+                <div id="charts">
+                    <i class="spinner fa fa-cog fa-spin fa-3x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="span6">
 
-        </section><!--close section-->
+        <ul class="nav nav-tabs" id="controlsMapTab">
+            <li class="active">
+                <a href="#">Time Controls and Map <i class="fa fa-info-circle fa-lg link" id="timeControlsInfo"
+                                                     data-content="Drag handles to restrict date or play by decade."
+                                                     data-placement="right" data-toggle="popover" data-original-title="How to use time controls"></i></a>
+            </li>
+        </ul>
 
-        <div style="clear:both;"> </div>
+        <div id="timeControls" class="text-center">
+            <div id="timeButtons">
+                <r:img uri="/images/play.png" class="timeControl link" id="playButton" title="Play timeline by decade" alt="Play timeline by decade"/>
+                <r:img uri="/images/pause.png" class="timeControl link" id="pauseButton" title="Pause play" alt="Pause play"/>
+                <r:img uri="/images/stop.png" class="timeControl link" id="stopButton" title="Stop" alt="Stop"/>
+                <r:img uri="/images/reset.png" class="timeControl link" id="resetButton" title="Reset" alt="Reset"/>
+            </div>
 
-        <section class="section">
-            <h2>Alerts</h2>
-            <div id="alerts"></div>
-        </section>
+            <div id="timeSlider">
+                <div id="timeRange"><span id="timeFrom"></span> - <span id="timeTo"></span></div>
+            </div>
+        </div>
 
-        <g:if test="${subRegions.ibras||subRegions.nrms||subRegions.imcras||subRegions.subs}">
-        <section id="subRegions" class="section">
+        <div id="region-map"></div>
+
+        <div class="accordion" id="opacityControls">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <a class="accordion-toggle" data-toggle="collapse" href="#opacityControlsContent">
+                        <i class="fa fa-chevron-right"></i>Map opacity controls
+                    </a>
+                </div>
+                <div id="opacityControlsContent" class="accordion-body collapse">
+                    <div class="accordion-inner">
+                        <label class="checkbox">
+                            <input type="checkbox"name="occurrences" id="toggleOccurrences" checked> Occurrences
+                        </label>
+                        <div id="occurrencesOpacity"></div>
+                        <label class="checkbox">
+                            <input type="checkbox" name="region" id="toggleRegion" checked> Region
+                        </label>
+                        <div id="regionOpacity"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="downloadRecordsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <aa:zone id="dialogZone">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">Download Records</h3>
+        </div>
+        <div class="modal-body text-center">
+            <i class="fa fa-cog fa-spin fa-2x"></i>
+        </div>
+    </aa:zone>
+</div>
+
+<g:if test="${subRegions.ibras||subRegions.nrms||subRegions.imcras||subRegions.subs}">
+    <div class="row">
+        <div class="span12" id="subRegions">
             <h2>Regions within ${region.name}</h2>
             <g:if test="${subRegions.ibras}">
                 <h3>Biogeographic (IBRA)</h3>
@@ -214,11 +204,13 @@
                     </g:each>
                 </ul>
             </g:if>
-        </section>
-        </g:if>
+        </div>
+    </div>
+</g:if>
 
-        <g:if test="${documents.factSheets||documents.publications||documents.links}">
-        <section id="docs" class="section">
+<g:if test="${documents.factSheets||documents.publications||documents.links}">
+    <div class="row">
+        <div class="span12" id="docs">
             <h2>Documents and Links</h2>
             <g:if test="${documents.factSheets}">
                 <h3>Fact sheets</h3>
@@ -252,211 +244,53 @@
             </g:if>
 
             <g:link elementId="manage-doc-link" action="documents">Add or manage documents and links</g:link>
-        </section>
-        </g:if>
-
-        <div style="display:none">
-
-        <div id="download">
-            <p id="termsOfUseDownload">
-                By downloading this content you are agreeing to use it in accordance with the Atlas
-                <a href="http://www.ala.org.au/about/terms-of-use/#TOUusingcontent">Terms of Use</a>
-                and individual <a href=" http://www.ala.org.au/support/faq/#q29">Data Provider Terms</a>.
-                <br/><br/>
-                Please provide the following <b>optional</b> details before downloading:
-            </p>
-            <form id="downloadForm">
-                <input type="hidden" name="url" id="downloadUrl" value="http://biocache.ala.org.au/ws/occurrences/download?q=state:&#034;South Australia&#034;&amp;qc="/>
-                <input type="hidden" name="url" id="downloadChecklistUrl" value="http://biocache.ala.org.au/ws/occurrences/facets/download?q=state:&#034;South Australia&#034;&amp;qc="/>
-                <input type="hidden" name="url" id="downloadFieldGuideUrl" value="http://biocache.ala.org.au/occurrences/fieldguide/download?q=state:&#034;South Australia&#034;&amp;qc="/>
-                <input type="hidden" name="url" id="fastDownloadUrl" value="http://biocache.ala.org.au/ws/occurrences/index/download?q=state:&#034;South Australia&#034;&amp;qc="/>
-
-                <fieldset>
-                    <p><label for="email">Email</label>
-                        <input type="text" name="email" id="email" value="${rg.loggedInUsername()}" size="30"  />
-                    </p>
-                    <p><label for="filename">File Name</label>
-                        <input type="text" name="filename" id="filename" value="data" size="30"  />
-                    </p>
-                    <p><label for="reasonTypeId" style="">Download Reason *</label>
-                        <select name="reasonTypeId" id="reasonTypeId">
-                            <option value="">-- select a reason --</option>
-                            <g:each in="${downloadReasons}" var="reason">
-                                <option value="${reason.key}">${reason.value}</option>
-                            </g:each>
-                        </select>
-                    </p>
-                    %{--<p><label for="reason" style="vertical-align: top">Download Reason</label>--}%
-                        %{--<textarea name="reason" rows="5" cols="30" id="reason"  ></textarea>--}%
-                    %{--</p>--}%
-                    <input type="submit" value="Download All Records" id="downloadSubmitButton"/>&nbsp;
-                    <input type="submit" value="Download Species Checklist" id="downloadCheckListSubmitButton"/>&nbsp;
-                    <input type="submit" value="Download Species Field Guide" id="downloadFieldGuideSubmitButton"/>&nbsp;
-                    <!--
-                    <input type="reset" value="Cancel" onClick="$.fancybox.close();"/>
-                    -->
-                    <p style="margin-top:10px;">
-                        <strong>Note</strong>: The field guide may take several minutes to prepare and download.
-                    </p>
-                </fieldset>
-            </form>
         </div>
+    </div>
+</g:if>
 
-        </div>
+<r:script>
 
-    </div><!--close content-->
+    google.load("visualization", "1", {packages:["corechart"]});
+    var regionWidget;
 
-    <script type="text/javascript">
+    $(function() {
 
-        var bieUrl = "${ConfigurationHolder.config.bie.baseURL}/",
-            baseUrl = "${ConfigurationHolder.config.grails.serverURL}",
-            bbox;
 
-        layerFid = "${region.fid}";
-
-        if (${useReflect == false}) {
-            useReflectService = false;
-        }
-
-        var $emblems = $('#emblems');
-        function showEmblem(emblemType, guid) {
-            if (guid == "") return;
-            // call the bie to get details
-            $.ajax({
-              url: bieUrl + "ws/species/moreInfo/" + guid + ".json",
-              dataType: 'jsonp',
-              error: function() {
-                cleanUp();
-              },
-              success: function(data) {
-                  var imageSrc = "http://bie.ala.org.au/static/images/noImage85.jpg";
-                  if (data.images && data.images.length > 0) {
-                      imageSrc = data.images[0].thumbnail;
-                  }
-                  var sciName = data.taxonConcept.nameString;
-                  var commonName = "";
-                  if (data.commonNames && data.commonNames.length > 0) {
-                      commonName = data.commonNames[0].nameString;
-                  }
-                  var link = bieUrl + "species/" + guid;
-                  var frag =
-                  '<div class="emblem">' +
-                  '<a id="' + makeId(emblemType) + '" href="' + link + '"><img src="' + imageSrc + '" class="emblemThumb" alt="' +
-                  sciName + ' image"/></a>' +
-                  '<h3>' + emblemType + '</h3>' +
-                  '<div id="' + makeId(emblemType) + '"><i>' + sciName + '</i><br> ' + commonName + '</div>' +
-                  '</div>';
-                  $emblems.append($(frag));
-              }
-            });
-        }
-        var query = buildRegionFacet("${region.type}","${region.name}"),
-            taxonomyChartOptions = {
-            query: query,
-            subquery: timeSlider.staticQueryString($.bbq.getState('from'), $.bbq.getState('to')),
-            rank: "kingdom",
-            width: 450,
-            clickThru: false,
-            notifyChange: "taxonChartChange",
-            collectionsUrl: "${ConfigurationHolder.config.grails.serverURL}",
-            biocacheServicesUrl: "${ConfigurationHolder.config.biocache.baseURL}ws",
-            displayRecordsUrl: "${ConfigurationHolder.config.biocache.baseURL}"
-        };
-
-        bbox = {sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
-                ne: {lat: ${region.bbox?.maxLat}, lng: ${region.bbox?.maxLng}} };
-
-        // Load Google maps via AJAX API
-//        google.load("maps", "3.3", {other_params:"sensor=false"});
-        // load visualisations
-        google.load("visualization", "1", {packages:["corechart"]});
-
-        // wire tabs
-        var $bySpecies = $('ul.explore-tabs li:first-child');
-        var $byTaxonomy = $('ul.explore-tabs li:last-child');
-        var $bySpeciesLink = $bySpecies.find('a');
-        var $byTaxonomyLink = $byTaxonomy.find('a');
-
-        $byTaxonomy.click(function() {
-            $byTaxonomyLink.addClass('current');
-            $bySpeciesLink.removeClass('current');
-            $('#slider-pane').animate({left: '-480px'}, 500, function() {
-                // don't fire notification until animation is complete - else animation can be jerky
-                taxonomySelected();
-            });
-            return false;
-        });
-        $bySpecies.click(function() {
-            $bySpeciesLink.addClass('current');
-            $byTaxonomyLink.removeClass('current');
-            $('#slider-pane').animate({left: '0'}, 500, function() {
-                speciesSelected();
-            });
-            return false;
+        regionWidget = new RegionWidget({
+            regionName: '${region.name}',
+            regionType: '${region.type}',
+            regionFid: '${region.fid}',
+            regionPid: '${region.pid}',
+            regionLayerName: '${region.layerName}',
+            urls: {
+                regionsApp: '${g.createLink(uri: '/', absolute: true)}',
+                proxyUrl: '${g.createLink(controller: 'proxy', action: 'index')}',
+                proxyUrlBbox: '${g.createLink(controller: 'proxy', action: 'bbox')}',
+                speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
+                biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
+                biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
+                spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
+                spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
+                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service",
+            },
+            username: '${rg.loggedInUsername()}'
         });
 
-        function setTab(tab) {
-            if (tab == 'species' && !$bySpecies.hasClass('current')) {
-                $bySpeciesLink.addClass('current');
-                $byTaxonomyLink.removeClass('current');
-                $('#slider-pane').css('left', 0);
-            }
-            else {
-                $byTaxonomyLink.addClass('current');
-                $bySpeciesLink.removeClass('current');
-                $('#slider-pane').css('left', '-480px');
-            }
-        }
+        regionWidget.setMap(new RegionMap({
+            bbox: {
+                sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
+                ne: {lat: ${region.bbox?.maxLat}, lng: ${region.bbox?.maxLng}}
+            },
+            useReflectService: ${useReflect}
+        }));
+        regionWidget.setTimeControls(new RegionTimeControls());
 
-        // get any tab state from url
-        var currentTab = $.bbq.getState('tab');
-        if (currentTab) { setTab(currentTab) }
-
-        // do stuff
-        google.setOnLoadCallback(function() {
-
-            showEmblem("Bird emblem", "${emblems?.birdEmblem}");
-            showEmblem("Animal emblem", "${emblems?.animalEmblem}");
-            showEmblem("Plant emblem", "${emblems?.plantEmblem}");
-            showEmblem("Marine emblem", "${emblems?.marineEmblem}");
-
-            var config = {
-                speciesPageUrl: "${ConfigurationHolder.config.bie.baseURL}/species/",
-                biocacheServiceUrl: "${ConfigurationHolder.config.biocache.baseURL}ws",
-                biocacheWebappUrl: "${ConfigurationHolder.config.biocache.baseURL}",
-                spatialWmsUrl: "${ConfigurationHolder.config.spatial.baseURL}geoserver/ALA/wms?",
-                spatialCacheUrl: "${ConfigurationHolder.config.spatial.baseURL}geoserver/gwc/service/wms?",
-                spatialServiceUrl: "${ConfigurationHolder.config.spatial.baseURL}layers-service"
-            };
-
-            // init time controls
-            $('#timeSlider').slider({
-                range: true,
-                min: 1850,
-                max: 2010,
-                values: [1850, 2010],
-                slide: slideHandler,
-                change: dateRangeChanged
-            });
-
-            // initialise the visible tab first
-            if (false) {
-                taxonomyChart.load(taxonomyChartOptions);
-                initTaxaBox("${region.type}","${region.name}", config);
-            }
-            else {
-                initTaxaBox("${region.type}","${region.name}", config);
-                taxonomyChart.load(taxonomyChartOptions);
-            }
-
-            initRegionMap("${region.type}", "${region.name}", "${region.layerName}",
-                    "${region.pid}", bbox, config);
-
-            // show alert messages
-            initAlerts("${rg.loggedInUsername()}");
-
+         google.setOnLoadCallback(function() {
+            regionWidget.setTaxonomyWidget(new TaxonomyWidget());
         });
 
-    </script>
-  </body>
+    });
+
+</r:script>
+</body>
 </html>

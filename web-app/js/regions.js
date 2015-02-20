@@ -30,8 +30,6 @@
  */
 (function (windows) {
     "use strict";
-/*jslint browser: true, vars: false, white: false, maxerr: 50, indent: 4 */
-/*global google, $, WMSTileLayer */
 
 var
     // represents the map and its associated properties and events
@@ -374,7 +372,7 @@ Region.prototype = {
         if (this.other) {
             return config.baseUrl + "/layer/" + this.name;
         } else {
-            return config.baseUrl + "/" + selectedRegionType.name + "/" + this.name;
+            return config.baseUrl + "/" + selectedRegionType.name + "/" + encodeURI(he.encode(encodeURIComponent(this.name)));
         }
     },
     /* Write the region link and optional subregion name and zoom link at the top of the map.
@@ -386,20 +384,18 @@ Region.prototype = {
         } else {
             if (this.other) {
                 if (subregion) {
-                    extra = "<span id='extra'>(" + subregion + ")</span>";
+                    extra = "<span class='btn' id='extra'>(" + subregion + ")</span>";
                 }
-                showInfo("<a href='" + this.urlToViewRegion() + "'>" +
-                        this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>" + extra);
+                showInfo("<a class='btn btn-ala' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                        this.name + "</a>" + "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra);
             } else {
-                showInfo("<a href='" + this.urlToViewRegion() + "'>" +
-                        this.name + "</a>" + "<span id='zoomTo'>Zoom to region</span>");
+                showInfo("<a class='btn btn-ala' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                        this.name + "</a>" + "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>");
             }
         }
-        $('#click-info').animate({backgroundColor: '#fee6d2'}, 700, function () {
-            $('#click-info').animate({backgroundColor: 'white'}, 700);
-        });
     }
 };
+
 
 /*** map represents the map and its associated properties and events ************************************************/
 map = {
@@ -590,11 +586,31 @@ function init (options) {
     | Set up accordion and handle changes
     \*****************************************/
     $('#accordion').accordion({
-        fillSpace: true,
-        change: function (event, ui) {
-            layers[$(ui.newContent).attr('id')].set();
+        activate: function (event, ui) {
+            layers[$(ui.newPanel).attr('id')].set();
         },
         active: selectedRegionType.order
+    });
+
+    /*****************************************\
+     | Set up opacity sliders
+     \*****************************************/
+    $('#layerOpacity').slider({
+        min: 0,
+        max: 100,
+        value: map.defaultLayerOpacity * 100,
+        change: function () {
+            selectedRegionType.drawLayer();
+        }
+    });
+    $('#regionOpacity').slider({
+        min: 0,
+        max: 100,
+        disabled: true,
+        value: map.defaultRegionOpacity * 100,
+        change: function () {
+            selectedRegion.displayRegion();
+        }
     });
 
     /*****************************************\
@@ -655,26 +671,7 @@ function init (options) {
     // also sets the region from the hash params once the region type data has been retrieved
     selectedRegionType.set(setDefaultRegion);
 
-    /*****************************************\
-    | Set up opacity sliders
-    \*****************************************/
-    $('#layerOpacity').slider({
-        min: 0,
-        max: 100,
-        value: map.defaultLayerOpacity * 100,
-        change: function () {
-            selectedRegionType.drawLayer();
-        }
-    });
-    $('#regionOpacity').slider({
-        min: 0,
-        max: 100,
-        disabled: true,
-        value: map.defaultRegionOpacity * 100,
-        change: function () {
-            selectedRegion.displayRegion();
-        }
-    });
+
 
     /*****************************************\
     | Activate the help link

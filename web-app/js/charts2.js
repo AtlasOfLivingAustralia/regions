@@ -6,7 +6,7 @@ var collectionsUrl = "http://collections.ala.org.au";  // should be overridden f
 // an instance of the biocache web services app - used for facet and taxonomic breakdowns
 var biocacheServicesUrl = "http://biocache.ala.org.au/ws";  // should be overridden from config by the calling page
 // an instance of a web app - used to display search results
-var biocacheWebappUrl = "http://biocache.ala.org.au";  // should be overridden from config by the calling page
+var biocacheWebappUrl = "http://biocache.ala.org.au/";  // should be overridden from config by the calling page
 
 // defaults for taxa chart
 var taxonomyPieChartOptions = {
@@ -92,7 +92,7 @@ function loadFacetCharts(chartOptions) {
     });
 }
 function cleanUp(chartOptions) {
-    $('img.loading').remove();
+    $('i.loading').remove();
     if (chartOptions != undefined && chartOptions.error) {
          window[chartOptions.error]();
     }
@@ -297,7 +297,7 @@ var taxonomyChart = {
         return this.hasState() ? this.historyState.pop() : {};
     },
     cleanUp: function () {
-        $('img.loading').remove();
+        $('i.loading').remove();
         if (this.chartOptions != undefined && this.chartOptions.error) {
             window[this.chartOptions.error]();
         }
@@ -321,7 +321,7 @@ var taxonomyChart = {
             this.threshold = chartOptions.threshold;
         }
 
-        var url = urlConcat(biocacheServicesUrl, "/breakdown.json?q=") + this.query;
+        var url = biocacheServicesUrl + "/breakdown.json?q=" + this.query;
 
         // add url params to set state
         if (this.rank) {
@@ -370,6 +370,7 @@ var taxonomyChart = {
         var opts = $.extend({}, taxonomyPieChartOptions);
         opts = $.extend(true, opts, this.chartOptions);
         opts.title = opts.name ? opts.name + " records by " + data.rank : "By " + data.rank;
+        opts.backgroundColor = { fill:'transparent' };
 
         // create the outer div that will contain the chart and the additional links
         var $outerContainer = $('#taxa');
@@ -399,6 +400,14 @@ var taxonomyChart = {
         // draw the chart
         chart.draw(dataTable, opts);
 
+        google.visualization.events.addListener(chart, 'onmouseover', function() {
+            $('#taxaChart').css('cursor','pointer');
+        });
+
+        google.visualization.events.addListener(chart, 'onmouseout', function() {
+            $('#taxaChart').css('cursor','default');
+        });
+
         // draw the back button / instructions
         var $backLink = $('#backLink');
         if ($backLink.length == 0) {
@@ -409,9 +418,7 @@ var taxonomyChart = {
                 if (!$backLink.hasClass('link')) return;
 
                 // show spinner while loading
-                $container.append($('<img class="loading" style="position:absolute;left:130px;top:220px;z-index:2000" ' +
-                        'alt="loading..." src="' + collectionsUrl + '/images/ala/ajax-loader.gif"/>'));
-
+                $container.append($('<i class="fa fa-cog fa-spin fa-3x loading" style="position:absolute;left:152px;top:142px;z-index:2000"></i>'));
                 // get state from history
                 var previous = thisChart.popState();
 
@@ -462,8 +469,7 @@ var taxonomyChart = {
                 /* DRILL DOWN */
                 if (drillDown && data.rank != "species") {
                     // show spinner while loading
-                    $container.append($('<img class="loading" style="position:absolute;left:130px;top:220px;z-index:2000" ' +
-                            'alt="loading..." src="' + collectionsUrl + '/images/ala/ajax-loader.gif"/>'));
+                    $container.append($('<i class="fa fa-cog fa-spin fa-3x loading" style="position:absolute;left:152px;top:142px;z-index:2000"></i>'));
 
                     // save current state as history - for back-tracking
                     thisChart.pushState();
@@ -484,6 +490,8 @@ var taxonomyChart = {
                 }
             });
         }
+
+        $("#charts i").hide();
     },
     showRecords: function () {
         // show occurrence records

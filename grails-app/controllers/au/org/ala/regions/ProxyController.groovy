@@ -89,7 +89,7 @@ class ProxyController {
     }
 
     def lookupContentType(mimeType) {
-        def mimeTypes = ConfigurationHolder.config.grails.mime.types[mimeType]
+        def mimeTypes = grailsApplication.config.grails.mime.types[mimeType]
         if (mimeTypes instanceof String) {
             // only one
             return mimeTypes
@@ -254,7 +254,7 @@ class ProxyController {
     def kml = {
 
         def pid = params.pid ?: 5388062 // ger
-        def baseUrl = ConfigurationHolder.config.spatial.baseURL
+        def baseUrl = grailsApplication.config.spatial.baseURL
         def url = baseUrl + "/layers-service/shape/kml/" + pid
 
         def conn = new URL(url).openConnection()
@@ -268,8 +268,8 @@ class ProxyController {
     }
 
     def bbox = {
-        def baseUrl = ConfigurationHolder.config.biocache.baseURL + "ws/"
-        def url = baseUrl + "webportal/bounds?q=" + params.q.encodeAsURL()
+        def baseUrl = grailsApplication.config.biocache.baseURL + "/ws/"
+        def url = baseUrl + "webportal/bounds?q=" + URLEncoder.encode(params.q.trim(), 'UTF-8')
         def conn = new URL(url).openConnection()
         def box = conn.content.text
         render box

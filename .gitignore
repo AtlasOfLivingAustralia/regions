@@ -34,4 +34,10 @@
 /.idea
 /.settings
 *.iml
+*.sha1
 
+/node_modules
+/bower_components
+
+*.log
+out/
