@@ -16,6 +16,7 @@ This project allows the user to conveniently browse existing ALA records that ha
   - [Bootstrap](http://getbootstrap.com/)
   - [jQuery](http://jquery.com/)
   - [AjaxAnywhere](http://ajaxanywhere.com)
+  - ...
 
 
 ## Changelog
