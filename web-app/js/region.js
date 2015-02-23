@@ -511,31 +511,7 @@ var RegionTimeControls = function(config) {
             reset();
         });
 
-        $('.timeControl').on('mouseover', function(){
-            if (!$(this).hasClass('selected')) {
-                var src = $(this).attr("src").match(/[-on]?[^\.]+/) + "-on.png";
-                $(this).attr("src", src);
-            }
-        });
-
-        $('.timeControl').on('mouseout', function(){
-            if (!$(this).hasClass('selected')) {
-                var src = $(this).attr("src").replace("-on.png", ".png");
-                $(this).attr("src", src);
-            }
-        });
-
-        $('.timeControl').on('selected', function(){
-            if ($(this).hasClass('selected')) {
-                var src = $(this).attr("src").replace(/(-on)?.png/, '-on.png');
-                $(this).attr("src", src);
-
-            } else {
-                var src = $(this).attr("src").replace("-on.png", ".png");
-                $(this).attr("src", src);
-            }
-        });
-    }
+    };
 
     var increaseTimeRangeByADecade = function() {
         var incrementTo = (regionWidget.getDefaultToYear() - playTimeRange[1]) < 10 ? regionWidget.getDefaultToYear() - playTimeRange[1] : 10;

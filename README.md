@@ -18,7 +18,6 @@ This project allows the user to conveniently browse existing ALA records that ha
   - [AjaxAnywhere](http://ajaxanywhere.com)
   - ...
 
-
 ## Changelog
 - Version 2.0 (20/02/2015):
   - Major project overhaul to improve the look & feel and UX of the tool.
