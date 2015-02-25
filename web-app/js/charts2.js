@@ -416,9 +416,9 @@ var taxonomyChart = {
             $backLink.click(function() {
                 // only act if link was real
                 if (!$backLink.hasClass('link')) return;
-
+                $("i.loading").remove();
                 // show spinner while loading
-                $container.append($('<i class="fa fa-cog fa-spin fa-3x loading" style="position:absolute;left:152px;top:142px;z-index:2000"></i>'));
+                $container.append($('<i class="fa fa-cog fa-spin fa-3x loading" style="position:relative;left:152px;top:-280px;z-index:2000"></i>'));
                 // get state from history
                 var previous = thisChart.popState();
 
@@ -469,7 +469,7 @@ var taxonomyChart = {
                 /* DRILL DOWN */
                 if (drillDown && data.rank != "species") {
                     // show spinner while loading
-                    $container.append($('<i class="fa fa-cog fa-spin fa-3x loading" style="position:absolute;left:152px;top:142px;z-index:2000"></i>'));
+                    $container.append($('<i class="fa fa-cog fa-spin fa-3x loading" style="position:relative;left:152px;top:-280px;z-index:2000"></i>'));
 
                     // save current state as history - for back-tracking
                     thisChart.pushState();
