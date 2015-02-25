@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row" id="emblemsContainer">
     <div class="span12">
         <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
