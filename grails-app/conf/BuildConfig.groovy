@@ -38,8 +38,7 @@ grails.project.dependency.resolution = {
         compile ":font-awesome-resources:4.2.0.0"
         compile ":ajaxanywhere:1.0-SNAPSHOT"
 
-        runtime (":ala-bootstrap2:2.0-SNAPSHOT") {
-            exclude "servlet-api"
+        runtime (":ala-bootstrap2:2.0") {
             exclude "jquery"
         }
         if (Environment.current == Environment.PRODUCTION) {
