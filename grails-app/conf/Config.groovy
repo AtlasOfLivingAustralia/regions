@@ -152,4 +152,3 @@ log4j = {
 
     debug 'grails.app'
 }
-
