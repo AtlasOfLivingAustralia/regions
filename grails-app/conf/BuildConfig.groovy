@@ -35,10 +35,9 @@ grails.project.dependency.resolution = {
         build ":release:3.0.1"
         build ":rest-client-builder:2.0.3"
 
-        compile ":font-awesome-resources:4.2.0.0"
         compile ":ajaxanywhere:1.0-SNAPSHOT"
 
-        runtime (":ala-bootstrap2:2.0") {
+        runtime (":ala-bootstrap2:2.1") {
             exclude "jquery"
         }
         if (Environment.current == Environment.PRODUCTION) {
