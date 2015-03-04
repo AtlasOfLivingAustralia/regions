@@ -457,7 +457,7 @@ class MetadataService {
         //println "checking cache for ${fid}: cache date is ${regionCacheLastRefreshed[fid]}; current date is ${new Date()}"
         if (!regionCache[fid] || new Date().after(regionCacheLastRefreshed[fid] + 2)) {
             regionCache[fid] = new TreeMap() // clear any stale content
-            println "clearing cache for ${fid}"
+            log.debug("clearing cache for ${fid}")
             regionCacheLastRefreshed[fid] = new Date()
             //println "new cache date is ${regionCacheLastRefreshed[fid]}"
             def url = grailsApplication.config.spatial.baseURL + '/ws/field/' + fid

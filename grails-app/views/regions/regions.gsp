@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <div class="span8">
+    <div class="span8" id="rightPanel">
             <span id="click-info"><i class="fa fa-info-circle"></i> Click on the map to select an area.</span>
             <span class="btn" id="reset-map"><i class="fa fa-refresh"></i> Reset map</span>
             <div id="map">

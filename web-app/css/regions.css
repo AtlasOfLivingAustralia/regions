@@ -55,7 +55,7 @@
 }
 
 #accordion {
-    margin: 19px 0 0 5px;
+    margin: 16px 0 0 5px;
     height: 446px;
 }
 
@@ -70,7 +70,7 @@
 
 #accordion .ui-accordion-content {
     height: auto !important;
-    max-height: 215px;
+    max-height: 205px;
 }
 
 #accordion ul {
@@ -113,9 +113,20 @@ li.regionLink {
     cursor: pointer;
 }
 
+@media (max-width: 767px) {
+    #rightPanel {
+        margin-top: 8em;
+    }
+}
+
 /************************************************************************************\
 | Region page
 \************************************************************************************/
+
+#emblemsContainer {
+    margin-bottom: .5em;
+    margin-top: .5em;
+}
 
 #emblems .span3 {
     margin-bottom: 0;
@@ -151,6 +162,14 @@ li.regionLink {
 
 #explorerTabs.nav-tabs li a, #controlsMapTab.nav-tabs li a {
     font-size: 1.1em;
+}
+
+.nav-tabs li a .popover-content {
+    font-size: .9em;
+}
+
+.nav-tabs li.active a {
+    background-color: #ffffff;
 }
 
 #groups, #species {
@@ -249,12 +268,12 @@ li.regionLink {
 }
 
 tr.groupSelected, tr.groupSelected:hover td {
-    background-color: #DF4A21 !important;
+    background-color: #C44D34 !important;
     color: white;
 }
 
 tr.speciesSelected, tr.speciesSelected:hover td {
-    background-color: #DF4A21 !important;
+    background-color: #C44D34 !important;
     color: white;
 }
 
@@ -430,8 +449,8 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     padding: 4px 12px;
     text-align: center;
     vertical-align: middle;
-    background-color: #df4a21;
-    background-image: linear-gradient(to bottom, #df4a21, #df4a21);
+    background-color: #C44D34;
+    background-image: linear-gradient(to bottom, #C44D34, #C44D34);
     background-repeat: repeat-x;
     border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
     color: #ffffff;
