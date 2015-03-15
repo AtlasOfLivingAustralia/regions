@@ -36,7 +36,7 @@
                         <div class="module-content">
                             <div class="custom custom-logo">
                                 <div style="margin: 16px 0 0;">
-                                    <p><a href="/"><img title="GER Logo" alt="ger-logo-205x150px" src="http://ger.staging.noisebirds.com.au/wp-content/themes/ger/images/ger-logo-205x150px.png" /></a></p>
+                                    <p><a href="http://ger.staging.noisebirds.com.au/"><img title="GER Logo" alt="ger-logo-205x150px" src="http://ger.staging.noisebirds.com.au/wp-content/themes/ger/images/ger-logo-205x150px.png" /></a></p>
                                 </div>
                             </div>
                         </div>
@@ -57,7 +57,7 @@
                             </div>
                         </div>
                         <a class="header-button" href="http://fnpw.org.au/great-eastern-ranges" target="_blank">Donate</a>
-                        <a class="header-button header-enews" href="/resources/subscribe-to-enewsletter/">Subscribe to enews</a>
+                        <a class="header-button header-enews" href="http://ger.staging.noisebirds.com.au/resources/subscribe-to-enewsletter/">Subscribe to enews</a>
                     </div>
 
                     <div class="gf-menu-device-container"></div>
@@ -356,7 +356,7 @@
                             <div class="custom"  >
                                 <h4>Key Supporters</h4>
                                 <p>The Great Eastern Ranges Initiative would not exist, nor have been so successful without the crucial funding provided by our key supporters.</p>
-                                <p><a href="http://www.environment.nsw.gov.au/grants/envtrust.htm" target="_blank"><img class="alignnone size-full wp-image-626" src="/wp-content/uploads/2014/07/nsw-logo.png" alt="nsw-logo" width="160" height="44" /></a> <a href="http://www.environment.gov.au/" target="_blank"><img class="alignnone size-full wp-image-623" src="http://ger.staging.noisebirds.com.au/wp-content/uploads/2014/07/ausgov-stacked.gif" alt="ausgov-stacked" width="110" height="55" /></a> <a href="http://www.ala.org.au/" target="_blank"><img class="alignnone size-full wp-image-624" src="http://ger.staging.noisebirds.com.au/wp-content/uploads/2014/07/ALA_NEW.gif" alt="ALA_NEW" width="55" height="45" /></a> </p>                              </div>
+                                <p><a href="http://www.environment.nsw.gov.au/grants/envtrust.htm" target="_blank"><img class="alignnone size-full wp-image-626" src="http://ger.staging.noisebirds.com.au/wp-content/uploads/2014/07/nsw-logo.png" alt="nsw-logo" width="160" height="44" /></a> <a href="http://www.environment.gov.au/" target="_blank"><img class="alignnone size-full wp-image-623" src="http://ger.staging.noisebirds.com.au/wp-content/uploads/2014/07/ausgov-stacked.gif" alt="ausgov-stacked" width="110" height="55" /></a> <a href="http://www.ala.org.au/" target="_blank"><img class="alignnone size-full wp-image-624" src="http://ger.staging.noisebirds.com.au/wp-content/uploads/2014/07/ALA_NEW.gif" alt="ALA_NEW" width="55" height="45" /></a> </p>                              </div>
                         </div>
                     </div>
                 </div>
