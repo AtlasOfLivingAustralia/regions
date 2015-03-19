@@ -41,6 +41,9 @@ var
     // the currently selected region type - an instance of RegionSet
     selectedRegionType,
 
+    // restrict accordion regions to those which intersect bounds (optional)
+    mapBounds,
+
     // the currently selected region - will be null if no region is selected else an instance of Region
     selectedRegion = null;
 
@@ -182,6 +185,23 @@ RegionSet.prototype = {
                     this.error = data.errorMessage;
                     $('#' + this.name).html(this.error);
                 } else {
+                    // optionally filter regions (lats are -ve in AUS)
+                    if (mapBounds) {
+                        var i, name, obj, bbox, names = [], objs = {};
+                        for (i = 0; i < data.names.length; i++) {
+                            obj = data.objects[name = data.names[i]];
+                            bbox = obj.bbox;
+                            if (!bbox) continue;
+                            if (bbox.minLat > mapBounds[0]) continue; // too north
+                            if (bbox.maxLng < mapBounds[1]) continue; // too west
+                            if (bbox.maxLat < mapBounds[2]) continue; // too south
+                            if (bbox.minLng > mapBounds[3]) continue; // too east
+                            names.push(name);
+                            objs[name] = obj;
+                        }
+                        data.names = names;
+                        data.objects = objs;
+                    }
                     // add to cache
                     this.objects = data.objects;
                     this.sortedList = data.names;
@@ -572,6 +592,8 @@ function init (options) {
     /*****************************************\
     | Create the region types from metadata
     \*****************************************/
+    if (options.mapBounds && options.mapBounds.length == 4)
+        mapBounds = options.mapBounds;
     createRegionTypes();
 
     /*****************************************\
@@ -591,6 +613,8 @@ function init (options) {
         },
         active: selectedRegionType.order
     });
+    if (options.accordionPanelMaxHeight)
+        $('#accordion .ui-accordion-content').css('max-height', options.accordionPanelMaxHeight);
 
     /*****************************************\
      | Set up opacity sliders
@@ -648,6 +672,12 @@ function init (options) {
     | Create map
     \*****************************************/
     map.containerId = options.mapContainer;
+    if (options.mapHeight)
+        $('#'+map.containerId).height(options.mapHeight);
+    if (options.mapBounds && options.mapBounds.length == 4)
+        map.initialBounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(options.mapBounds[0], options.mapBounds[1]),
+            new google.maps.LatLng(options.mapBounds[2], options.mapBounds[3]));
     map.init();
 
     /*****************************************\
