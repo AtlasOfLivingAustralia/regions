@@ -1,7 +1,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="main" />
+    <meta name="layout" content="${grailsApplication.config.layout.skin?:'main'}"/>
     <title>${region.name} | Atlas of Living Australia</title>
     <r:require modules="region"/>
 </head>
@@ -44,7 +44,7 @@
         <g:if test="${region.description || region.notes}">
             <section class="section">
                 <h2>Description</h2>
-                <g:if test="${region.description}"><p>${region.description}</p></g:if>
+                <g:if test="${region.description}"><p>${raw(region.description)}</p></g:if>
                 <g:if test="${region.notes}"><h3>Notes on the map layer</h3><p>${region.notes}</p></g:if>
             </section>
         </g:if>
@@ -249,7 +249,6 @@
 </g:if>
 
 <r:script>
-
     google.load("visualization", "1", {packages:["corechart"]});
     var regionWidget;
 
