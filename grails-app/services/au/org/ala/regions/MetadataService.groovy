@@ -60,6 +60,7 @@ class MetadataService {
     final static String PAGE_SIZE = "50"
 
     String BIE_URL, BIOCACHE_URL, ALERTS_URL, DEFAULT_IMG_URL
+    String CONFIG_DIR
 
     @PostConstruct
     def init() {
@@ -67,6 +68,7 @@ class MetadataService {
         BIOCACHE_URL = grailsApplication.config.biocache.baseURL
         DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
         ALERTS_URL = grailsApplication.config.alerts.baseURL
+        CONFIG_DIR = grailsApplication.config.config_dir
     }
 
     /**
@@ -609,7 +611,7 @@ class MetadataService {
             return regionsMetadataCache
         }
         // use external file if available
-        def md = new File("/data/regions/config/regions-metadata.json")?.text
+        def md = new File(CONFIG_DIR + "/regions-metadata.json")?.text
         if (md) {
             regionsMetadataCache = JSON.parse(md)
             return regionsMetadataCache
@@ -657,7 +659,7 @@ class MetadataService {
         // seed list of other regions if needed
         if (!otherRegions) {
             // use external file if available
-            def md = new File("/data/regions/config/layer-regions-metadata.json")?.text
+            def md = new File(CONFIG_DIR + "/layer-regions-metadata.json")?.text
             if (md) {
                 otherRegions = JSON.parse(md)
             }
@@ -672,7 +674,7 @@ class MetadataService {
     }
 
     def getStateEmblems() {
-        def json = JSON.parse(new FileInputStream("/data/regions/config/state-emblems.json"), "UTF-8")
+        def json = JSON.parse(new FileInputStream(CONFIG_DIR + "/state-emblems.json"), "UTF-8")
         return json
     }
 

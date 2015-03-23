@@ -4,6 +4,7 @@ import org.apache.log4j.Level
  *  CONFIG MANAGEMENT
  \******************************************************************************/
 def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
+config_dir = "/data/${appName}/config"
 default_config = "/data/${appName}/config/${appName}-config.properties"
 if(!grails.config.locations || !(grails.config.locations instanceof List)) {
     grails.config.locations = []
@@ -27,7 +28,7 @@ println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
  \******************************************************************************/
 //reloadable.cfgPollingFrequency = 1000 * 60 * 60 // 1 hour
 //reloadable.cfgPollingRetryAttempts = 5
-reloadable.cfgs = ["file:/data/regions/config/regions-config.properties"]
+reloadable.cfgs = ["file:/data/${appName}/config/${appName}-config.properties"]
 
 /******************************************************************************\
  *  SKINNING

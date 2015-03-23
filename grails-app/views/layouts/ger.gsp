@@ -321,7 +321,7 @@
 <!-- Container -->
 <div class="${containerType}" id="main">
     <div>
-        <img src="/regions/static/images/ALA_Powered.jpg" style="float:right; height: 3.5em;">
+        <r:img uri="/images/ALA_Powered.jpg" style="float:right; height: 3.5em;"/>
         <a href="http://bie.ala.org.au"><h1>Great Eastern Ranges Biodiversity Atlas</h1></a>
         <div style="clear:both"></div>
     </div>
