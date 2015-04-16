@@ -22,8 +22,8 @@ var region = {
      * @param start [optional] start parameter for paging results
      * @returns {{q: *, pageSize: number}}
      */
-    buildBiocacheQuery: function(regionType, regionName, regionFid, start) {
-        var params = {q:region.buildRegionFacet(regionType, regionName, regionFid), pageSize: 50},
+    buildBiocacheQuery: function(q, start) {
+        var params = {q:q, pageSize: 50},
             timeFacet = region.buildTimeFacet();
         if (start) {
             params.start = start
@@ -53,18 +53,6 @@ var region = {
         var fromPhrase = this.from() === this.defaultFrom ? '*' : this.from() + "-01-01T00:00:00Z",
             toPhrase = this.to() === this.defaultTo ? "*" : (this.to() - 1) + "-12-31T23:59:59Z";
         return "occurrence_year:[" + fromPhrase + " TO " + toPhrase + "]";
-    },
-
-    /**
-     * Builds the query phrase for a region based on its type and name.
-     */
-    buildRegionFacet: function(regionType, regionName, regionFid) {
-        if (regionType == 'layer') {
-            return regionFid + ":[* TO *]";
-        }
-        else {
-            return regionFid + ':"' + regionName + '"';
-        }
     },
 
     /**
@@ -125,7 +113,8 @@ var RegionWidget = function (config) {
         guid: '',
         from: '',
         to: '',
-        tab: ''
+        tab: '',
+        q: ''
     };
 
     var urls = {};
@@ -145,6 +134,8 @@ var RegionWidget = function (config) {
         state.from = state.from ? state.from : defaultFromYear;
         state.to = state.to ? state.to : defaultToYear;
         state.tab = state.tab ? state.tab : defaultTab;
+
+        state.q = config.q;
 
         // Check previous existing state
         updateState($.bbq.getState());
@@ -171,7 +162,7 @@ var RegionWidget = function (config) {
 
         initializeViewRecordsButton();
 
-        // Initialize Download records dialog
+        // Initialize `nload records dialog
         $('#downloadRecordsModal').modal({show: false});
     };
 
@@ -195,8 +186,7 @@ var RegionWidget = function (config) {
         $('#viewRecords').click(function(event) {
             event.preventDefault();
             // check what group is active
-            var url = urls.biocacheWebappUrl + '/occurrences/search?q=' +
-                region.buildRegionFacet(state.regionType, state.regionName, state.regionFid) +
+            var url = urls.biocacheWebappUrl + '/occurrences/search?q=' + decodeURI(state.q) +
                 '&fq=rank:(species OR subspecies)';
             if (!regionWidget.isDefaultFromYear() || !regionWidget.isDefaultToYear()) {
                 url += '&fq=' + region.buildTimeFacet();
@@ -591,7 +581,7 @@ var TaxonomyWidget = function(config){
 
     var TaxonomyWidget = function(config){
         var currentState = regionWidget.getCurrentState();
-        query = region.buildRegionFacet(currentState.regionType,currentState.regionName, currentState.regionFid);
+        query = currentState.q;
 
         taxonomyChartOptions = {
             query: query,
@@ -688,7 +678,7 @@ var RegionMap = function (config) {
                 new google.maps.LatLng(-42, 113),
                 new google.maps.LatLng(-14, 153)))) {
             $.ajax({
-                url: regionWidget.getUrls().proxyUrlBbox + "?q=" + region.buildRegionFacet(regionWidget.getCurrentState().regionType, regionWidget.getCurrentState().regionName, regionWidget.getCurrentState().regionFid),
+                url: regionWidget.getUrls().proxyUrlBbox + "?q=" + decodeURI(regionWidget.getCurrentState().q),
                 //url: url,
                 dataType: 'json',
                 success: function (data) {
@@ -788,7 +778,7 @@ var RegionMap = function (config) {
         var currentState = regionWidget.getCurrentState();
         var urls = regionWidget.getUrls();
 
-        if (currentState.regionType == 'layer') {
+        if (currentState.q.indexOf("%3A*") == currentState.q.length - 4) {
             /* this draws the region as a WMS layer */
             var layerParams = [
                 "FORMAT=" + overlayFormat,
@@ -833,8 +823,8 @@ var RegionMap = function (config) {
         ];
 
         //Add query string params to custom params
-        var query = region.buildBiocacheQuery(currentState.regionType, currentState.regionName, currentState.regionFid,0, true);
-        var searchParam = encodeURI("?q=" + query.q + "&fq=" + query.fq + "&fq=geospatial_kosher:true");
+        var query = region.buildBiocacheQuery(currentState.q, 0, true);
+        var searchParam = encodeURI("?q=" + decodeURI(query.q) + "&fq=" + query.fq + "&fq=geospatial_kosher:true");
 
         var fqParam = "";
         if ($("#taxonomyTab").hasClass('active')) {
@@ -874,13 +864,13 @@ var RegionMap = function (config) {
         var urls = regionWidget.getUrls();
 
         var url = urls.biocacheWebappUrl + "/ws/webportal/wms/reflect?",
-            query = region.buildBiocacheQuery(currentState.regionType, currentState.regionName, currentState.regionFid,0, true);
+            query = region.buildBiocacheQuery(currentState.q, 0, true);
         var prms = [
             "FORMAT=" + overlayFormat,
             "LAYERS=ALA%3Aoccurrences",
             "STYLES=",
             "BGCOLOR=0xFFFFFF",
-            'q=' + encodeURIComponent(query.q),
+            'q=' + query.q,
             "fq=geospatial_kosher:true",
             'CQL_FILTER=',
             "symsize=3",

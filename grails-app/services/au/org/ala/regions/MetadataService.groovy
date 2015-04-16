@@ -6,6 +6,7 @@ import grails.converters.JSON
 import grails.util.Holders
 import groovyx.net.http.RESTClient
 import groovyx.net.http.URIBuilder
+import org.apache.commons.lang.StringEscapeUtils
 
 import javax.annotation.PostConstruct
 
@@ -26,21 +27,17 @@ class MetadataService {
      */
     static regionsMetadataCache = null
 
-    /**
-     * Cache for metadata about region objects that are layers rather than objects - the 'other' regions
-     * This is populated from external 'static' config AND then enriched by spatial services calls.
-     */
-    static otherRegions = null
-    //static otherRegionsCacheLastRefreshed = [:]
-
     static logReasonCache =loadLoggerReasons()
 
     /* cache management */
     def clearCaches = {
         regionsMetadataCache = null
         regionCache = [:]
-        otherRegions = null
+
         logReasonCache=loadLoggerReasons()
+        layersServiceFields = [:]
+        layersServiceLayers = [:]
+        menu = null
     }
 
     def grailsApplication
@@ -73,7 +70,6 @@ class MetadataService {
 
     /**
      *
-     * @param regionType
      * @param regionName
      * @return List<Map< with format: [[imgUrl: ...,<br/>
      * scientificName: ...,<br/>
@@ -81,17 +77,15 @@ class MetadataService {
      * speciesUrl: ..., <br/>
      * emblemType: ...], ...]
      */
-    List<Map> getEmblemsMetadata(String regionType, String regionName) {
+    List<Map> getEmblemsMetadata(String regionName) {
         Map emblemGuids = [:]
 
-        if (regionType == 'states') {
-            // lookup state emblems
-            def emblems = getStateEmblems()[regionName]
-            if (emblems) {
-                ['animal','plant','marine','bird'].each {
-                    if (emblems[it]) {
-                        emblemGuids[it] = emblems."${it}".guid
-                    }
+        // lookup state emblems
+        def emblems = getStateEmblems()[regionName]
+        if (emblems) {
+            ['animal','plant','marine','bird'].each {
+                if (emblems[it]) {
+                    emblemGuids[it] = emblems."${it}".guid
                 }
             }
         }
@@ -120,9 +114,9 @@ class MetadataService {
      * @param regionName
      * @return
      */
-    List getGroups(String regionFid, String regionType, String regionName) {
+    List getGroups(String regionFid, String regionType, String regionName, String regionPid) {
         def responseGroups = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([:]).data
-        Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName)
+        Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid)
 
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
         responseGroups.each {group ->
@@ -143,10 +137,10 @@ class MetadataService {
      * @param regionName
      * @return
      */
-    Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName) {
+    Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName, String regionPid) {
         String url = new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
             query = [
-                    q: buildRegionFacet(regionFid, regionType, regionName),
+                    q: buildRegionFacet(regionFid, regionType, regionName, regionPid),
                     facets: 'species_subgroup',
                     flimit: '-1',
                     pageSize: 0
@@ -177,8 +171,8 @@ class MetadataService {
      * @param to
      * @return
      */
-    def getSpecies(String regionFid, String regionType, String regionName, String groupName, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
-        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex)).get([:]).data
+    def getSpecies(String regionFid, String regionType, String regionName, String regionPid, String groupName, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
+        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex)).get([:]).data
         return [
                 totalRecords: response.totalRecords,
                 records: response.facetResults[0]?.fieldResult.collect {result ->
@@ -201,8 +195,8 @@ class MetadataService {
     String buildAlertsUrl(Map region) {
         URLDecoder.decode(new URIBuilder("${ALERTS_URL}/webservice/createBiocacheNewRecordsAlert").with {
             query = [
-                    webserviceQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name)}",
-                    uiQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name)}",
+                    webserviceQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name, region.pid)}",
+                    uiQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name, region.pid)}",
                     queryDisplayName: region.name,
                     baseUrlForWS: "${BIOCACHE_URL}/ws",
                     baseUrlForUI: "${BIOCACHE_URL}&resourceName=Atlas"
@@ -221,9 +215,9 @@ class MetadataService {
      * @param to
      * @return
      */
-    String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String from, String to) {
+    String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String from, String to) {
         StringBuilder sb = new StringBuilder("${BIOCACHE_URL}/occurrences/search?q=lsid:\"${guid}\"" +
-                "&fq=${buildRegionFacet(regionFid, regionType, regionName)}")
+                "&fq=${buildRegionFacet(regionFid, regionType, regionName, regionPid)}")
         if (isValidTimeRange(from, to)) {
             " AND ${buildTimeFacet(from, to)}"
         }
@@ -236,9 +230,9 @@ class MetadataService {
      * @param downloadParams
      * @return
      */
-    String buildDownloadRecordsUrl(DownloadParams downloadParams,String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+    String buildDownloadRecordsUrl(DownloadParams downloadParams,String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
         String url
-        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, groupName, isSubgroup, from, to)
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to)
         String wsUrl
         switch (downloadParams.downloadOption) {
             case '0':
@@ -279,6 +273,45 @@ class MetadataService {
 
     /**
      *
+     * @return
+     */
+    String buildDownloadRecordsUrlPrefix(int option, String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+        String url
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to)
+        String wsUrl
+        switch (option) {
+            case '0':
+                // Download All Records
+                wsUrl = "${BIOCACHE_URL}/ws/occurrences/index/download"
+                break
+            case '1':
+                // Download Species Checklist
+                wsUrl = "${BIOCACHE_URL}/ws/occurrences/facets/download"
+                params << [
+                        facets: "species_guid",
+                        lookup: true
+                ]
+                break
+
+            case '2':
+                // Download Species FieldGuide
+                wsUrl = "${BIOCACHE_URL}/occurrences/fieldguide/download"
+                params << [
+                        facets: "species_guid"
+                ]
+                break
+        }
+
+        url = new URIBuilder(wsUrl).with {
+            query = params
+            return it
+        }.toString()
+        log.debug "Download Records prefix (${option}) - REST URL generated = ${url}"
+        return url
+    }
+
+    /**
+     *
      * @param regionFid
      * @param regionType
      * @param regionName
@@ -288,9 +321,9 @@ class MetadataService {
      * @param to
      * @return
      */
-    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
         Map params = [
-                q : buildRegionFacet(regionFid, regionType, regionName),
+                q : buildRegionFacet(regionFid, regionType, regionName, regionPid),
         ]
 
         if (groupName && isSubgroup) {
@@ -318,9 +351,9 @@ class MetadataService {
      * @param pageIndex
      * @return
      */
-    String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
+    String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
         String url = new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
-            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, groupName, isSubgroup, from, to, pageIndex)
+            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, pageIndex)
             return it
         }.toString()
         log.debug "REST URL generated = ${url}"
@@ -340,9 +373,9 @@ class MetadataService {
      * @param pageIndex
      * @return
      */
-    private Map buildSearchOccurrencesWsParams(String regionFid, String regionType, String regionName, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = "0") {
+    private Map buildSearchOccurrencesWsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = "0") {
         Map params =  [
-                q : buildRegionFacet(regionFid, regionType, regionName),
+                q : buildRegionFacet(regionFid, regionType, regionName, regionPid),
                 facets: 'names_and_lsid',
                 fsort: 'taxon_name',
                 pageSize : 0,
@@ -375,8 +408,11 @@ class MetadataService {
      * @param regionName
      * @return
      */
-    public String buildRegionFacet(String regionFid, String regionType, String regionName) {
-        regionType == 'layer' ? "${regionFid}:[* TO *]" : "${regionFid}:\"${regionName}\""
+    public String buildRegionFacet(String regionFid, String regionType, String regionName, String regionPid) {
+        //unescape regionName for q term creation
+        def name = StringEscapeUtils.unescapeHtml(regionName)
+
+        regionPid == null || regionPid.isEmpty() ? "-${regionFid}:n/a AND ${regionFid}:*" : "${regionFid}:\"${name}\""
     }
 
     /**
@@ -410,7 +446,7 @@ class MetadataService {
         } catch (Exception e){
             //load the default
             println("Using the default list...")
-            return defaultRegionsMetadata
+            return defaultLoggerReasons
         }
         return map
     }
@@ -418,7 +454,7 @@ class MetadataService {
 
 
     /**
-     * Get some metadata for a region.
+     * Get some metadata for a region (top level menu).
      *
      * If name is defined then just return metadata for that named region
      * else for all regions of the specified type.
@@ -428,9 +464,6 @@ class MetadataService {
      * @return name, area, pid and bbox as a map for the named region or a map of all objects if no name supplied
      */
     def regionMetadata(type, name) {
-        if (type == 'other') {
-            return getOtherRegions()
-        }
         def fid = fidFor(type)
         //println "MS: ${type} - ${fid}"
         def regionMd = getRegionMetadata(fid)
@@ -462,7 +495,7 @@ class MetadataService {
             log.debug("clearing cache for ${fid}")
             regionCacheLastRefreshed[fid] = new Date()
             //println "new cache date is ${regionCacheLastRefreshed[fid]}"
-            def url = grailsApplication.config.spatial.baseURL + '/ws/field/' + fid
+            def url = grailsApplication.config.layersService.baseURL + '/field/' + fid
             def conn = new URL(url).openConnection()
             try {
                 conn.setConnectTimeout(10000)
@@ -470,11 +503,8 @@ class MetadataService {
                 def json = conn.content.text
                 def result = JSON.parse(json)
                 result.objects.each {
-                    // TODO: write type-specific closures to do this filtering
-                    if (!(it.name in ['Unknown1', 'Macquarie Island', 'Ashmore and Cartier Islands', 'Coral Sea Islands'])) {
-                        regionCache[fid].put it.name,
-                                [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
-                    }
+                    regionCache[fid].put it.name,
+                            [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
                 }
             } catch (SocketTimeoutException e) {
                 def message = "Timed out looking up pid. URL= ${url}."
@@ -492,84 +522,12 @@ class MetadataService {
     }
 
     /**
-     * Retrieve the specified property value for the specified layer.
-     *
-     * Will cause a service lookup if the property is not in the cache.
-     *
-     * @param name the human readable name of the layer (displayname)
-     * @param property to be retrieved
-     * @return the value of the specified property
-     */
-    def getLayerMetadata(name, property) {
-        if (!getOtherRegions()[name]) {
-
-            // we don't know about it
-            // Check if it's a subregion
-            def result = lookupLayerMetadata(lookupLayerName(name))
-
-            if (result && result[property]) {
-                return result[property]
-            }
-
-            if (property == 'fid') {
-                return fidForLayer(name)
-            }
-            else if (property == 'bbox') {
-                return [minLat: -42, minLng: 113, maxLat: -14, maxLng: 153]
-            }
-            else {
-                return null
-            }
-        }
-        // check cache first
-        def value = getOtherRegions()[name][property]
-        //println "value of ${property} for ${name} is ${value}"
-        if (!value) {
-            // else lookup and load all properties
-            getOtherRegions()[name] += lookupLayerMetadata(getOtherRegions()[name].layerName)
-        }
-        return getOtherRegions()[name][property]
-    }
-
-    /**
-     * Uses the 'layers/more/<layerName>' service to retrieve metadata for a layer.
-     *
-     * @param layerName the name of the layer in geoserver
-     * @return a map of available properties
-     */
-    def lookupLayerMetadata(layerName) {
-        println "getting metadata for " + layerName
-        def url = grailsApplication.config.spatial.baseURL + "/layers/more/" +
-                layerName.encodeAsURL() + ".json"
-
-        def conn = new URL(url).openConnection()
-        try {
-            conn.setConnectTimeout(10000)
-            conn.setReadTimeout(50000)
-            def json = conn.content.text
-            def more = JSON.parse(json).layer
-            return [id: more.id, layerName: more.name, source: more.sourcelink, notes: more.notes,fid: "cl"+more.id,
-                    bbox: [minLat: more.minlatitude, minLng: more.minlongitude,
-                            maxLat: more.maxlatitude, maxLng: more.maxlongitude] ]
-        } catch (SocketTimeoutException e) {
-            log.warn "Timed out looking up layer details. URL= ${url}."
-            [error: "Timed out looking up layer details."]
-        } catch (Exception e) {
-            log.warn "Failed to lookup layer details. ${e.getClass()} ${e.getMessage()} URL= ${url}."
-            [error: "Failed to lookup layer details. ${e.getClass()} ${e.getMessage()} URL= ${url}."]
-        }
-    }
-
-    /**
      * Get the fid (field id) of the layer that represents the specified region type.
      * @param regionType
      * @return
      */
     def fidFor(regionType) {
-        switch (regionType) {
-            case 'other': return 'other'
-            default: return getRegionsMetadata()[regionType].fid
-        }
+        return getRegionsMetadata()[regionType].fid
     }
 
     /**
@@ -582,9 +540,6 @@ class MetadataService {
      */
     Map lookupBoundingBox(regionType, regionName) {
         //println "MS: regionType=${regionType} regionName=${regionName}"
-        if (regionType == 'layer') {
-            return getLayerMetadata(regionName, 'bbox') as Map
-        }
         def bbox = regionMetadata(regionType, regionName)?.bbox
         return bbox ?: [minLat: -42, minLng: 113, maxLat: -14, maxLng: 153]
     }
@@ -607,19 +562,86 @@ class MetadataService {
      */
     def getRegionsMetadata() {
         // use cache if loaded
-        if (regionsMetadataCache) {
+        if (regionsMetadataCache != null) {
             return regionsMetadataCache
         }
-        // use external file if available
-        def md = new File(CONFIG_DIR + "/regions-metadata.json")?.text
-        if (md) {
-            regionsMetadataCache = JSON.parse(md)
-            return regionsMetadataCache
+
+        //update
+        def md = [:]
+        int i = 0
+        getMenu().each{ v ->
+            md.put(v.label, [
+                    name: v.label,
+                    layerName: v.layerName,
+                    fid: v.fid,
+                    bieContext: "not in use",
+                    order: i
+            ])
+
+            i++
         }
-        // last resort - use static metadata
-        else {
-            return defaultRegionsMetadata
+        regionsMetadataCache = md
+        return regionsMetadataCache
+    }
+
+    def layersServiceLayers = [:]
+    def getLayersServiceLayers() {
+        if (layersServiceLayers.size() > 0) {
+            return layersServiceLayers
         }
+
+        def results = [:]
+        def url = grailsApplication.config.layersService.baseURL + '/layers'
+        def conn = new URL(url).openConnection()
+        try {
+            conn.setConnectTimeout(10000)
+            conn.setReadTimeout(50000)
+            def json = conn.content.text
+            def result = JSON.parse(json)
+            def map = [:]
+            result.each { v ->
+                map.put String.valueOf(v.id), v
+            }
+            layersServiceLayers = map
+        } catch (SocketTimeoutException e) {
+            log.warn "Timed out looking up fid. URL= ${url}."
+            println "Timed out looking up fid. URL= ${url}."
+        } catch (Exception e) {
+            log.warn "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+            println "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+        }
+
+        return layersServiceLayers
+    }
+
+    def layersServiceFields = [:]
+    def getLayersServiceFields() {
+        if (layersServiceFields.size() > 0) {
+            return layersServiceFields
+        }
+
+        def results = [:]
+        def url = grailsApplication.config.layersService.baseURL + '/fields'
+        def conn = new URL(url).openConnection()
+        try {
+            conn.setConnectTimeout(10000)
+            conn.setReadTimeout(50000)
+            def json = conn.content.text
+            def result = JSON.parse(json)
+            def map = [:]
+            result.each { v ->
+                map.put v.id, v
+            }
+            layersServiceFields = map
+        } catch (SocketTimeoutException e) {
+            log.warn "Timed out looking up fid. URL= ${url}."
+            println "Timed out looking up fid. URL= ${url}."
+        } catch (Exception e) {
+            log.warn "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+            println "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+        }
+
+        return layersServiceFields
     }
 
     /**
@@ -638,41 +660,6 @@ class MetadataService {
         return "var REGIONS = {metadata: " + getRegionsMetadataAsJson() + "}"
     }
 
-    /**
-     * Use spatial services calls to inject additional metadata to the 'other' regions metadata.
-     * @return
-     */
-    def populateOtherRegions() {
-        otherRegions.each { key, obj ->
-            //println "MS: ${key} " + lookupLayerMetadata(obj.layerName).bbox
-            otherRegions[key] += lookupLayerMetadata(obj.layerName)
-        }
-//        otherRegionCacheLastRefreshed['other'] = new Date()
-    }
-
-    /**
-     * Returns fully-populated metadata for 'other' regions.
-     *
-     * @return
-     */
-    def getOtherRegions() {
-        // seed list of other regions if needed
-        if (!otherRegions) {
-            // use external file if available
-            def md = new File(CONFIG_DIR + "/layer-regions-metadata.json")?.text
-            if (md) {
-                otherRegions = JSON.parse(md)
-            }
-            // last resort - use static metadata
-            else {
-                otherRegions = defaultOtherRegions.clone()
-            }
-            populateOtherRegions()
-        }
-
-        return otherRegions;
-    }
-
     def getStateEmblems() {
         def json = JSON.parse(new FileInputStream(CONFIG_DIR + "/state-emblems.json"), "UTF-8")
         return json
@@ -686,7 +673,7 @@ class MetadataService {
      */
    def getObjectsForALayer(fid) {
         def results = [:]
-        def url = grailsApplication.config.spatial.baseURL + '/layers-service/field/' + fid
+        def url = grailsApplication.config.layersService.baseURL + '/field/' + fid
         def conn = new URL(url).openConnection()
         try {
             conn.setConnectTimeout(10000)
@@ -738,27 +725,6 @@ class MetadataService {
         return regionMetadata(regionType, regionName)?.pid
     }
 
-    /**
-     * Returns the layerName for the specified region type.
-     * @param regionType
-     * @return
-     */
-    String layerNameForType(regionType) {
-        return getRegionsMetadata()[regionType]?.layerName
-    }
-
-    /**
-     * Backup regions metadata - for when all other sources are unavailable
-     */
-    static defaultRegionsMetadata = [
-            states: [name: 'states', layerName: 'aus1', fid: 'cl22', bieContext: 'aus_states', order: 0],
-            lgas: [name: 'lgas', layerName: 'lga_aust', fid: 'cl959', bieContext: 'gadm_admin', order: 1],
-            ibras: [name: 'ibras', layerName: 'ibra_merged', fid: 'cl20', bieContext: 'ibra_no_states', order: 2],
-            imcras: [name: 'imcras', layerName: 'imcra4_pb', fid: 'cl21', bieContext: 'imcra', order: 3],
-            nrms: [name: 'nrms', layerName: 'nrm_regions_2010', fid: 'cl916', bieContext: 'nrm', order: 4],
-            other: [name: 'other', layerName: '', fid: 'other', bieContext: '', order: 5]
-    ]
-
     static defaultLoggerReasons =[
             0: "conservation management/planning",
             1: "biosecurity management",
@@ -773,142 +739,95 @@ class MetadataService {
             10: "testing"
     ]
 
-    /**
-     * Backup other regions metadata - for when all other sources are unavailable
-     */
-    static defaultOtherRegions = [
-            'Great Eastern Ranges Initiative': [
-                    name: 'Great Eastern Ranges Initiative',
-                    layerName: 'ger_initiative'
-            ],
-            'RAMSAR wetland regions': [
-                    name: 'RAMSAR wetland regions',
-                    layerName: 'ramsar'
-            ],
-            'Directory of Important Wetlands': [
-                    name: 'Directory of Important Wetlands',
-                    layerName: 'diwa_type_criteria'
-            ],
-            'Areas for Further Assessment within the East Marine Region': [
-                    name: 'Areas for Further Assessment within the East Marine Region',
-                    layerName: 'east_afa_final'
-            ],
-            'Australian Coral Ecoregions': [
-                    name: 'Australian Coral Ecoregions',
-                    layerName: 'australian_coral_ecoregions'
-            ],
-            'Collaborative Australian Protected Areas Database': [
-                    name: 'Collaborative Australian Protected Areas Database',
-                    layerName: 'capad08_ext'
-            ],
-            'Exclusive Economic Zone': [
-                    name: 'Exclusive Economic Zone',
-                    layerName: 'eez_poly'
-            ],
-            'Myrtle Rust Observations': [
-                    name: 'Myrtle Rust Observations',
-                    layerName: 'myrtle_rust'
-            ]
-    ]
-
-    /*********************************************************************************************************
-     * The following methods supply metadata for 'sub-regions'. These are GER areas that are not directly
-     * accessible from the regions front page. They are currently included to show the potential for region
-     * exploration.
-     *
-     * We need a plan for dealing with these 'sub-areas' before we can externalise the config properly.
-     ********************************************************************************************************/
-
-    /**
-     * Returns the layer name for a specified 'other' region.
-     *
-     * @param name
-     * @return
-     */
-    String lookupLayerName(name) {
-        switch (name.toLowerCase()) {
-            case "great eastern ranges initiative": return "ger_initiative"
-            case "ramsar wetland regions": return "ramsar"
-            case "hunter valley partnership": return "ger_hunter_valley_20121031"
-            case "slopes to summit": return "ger_slopes_to_summit_20121031"
-            case "kosciuszko to coast": return "ger_kosciuszko2coast_20121031"
-            case "border ranges alliance": return "ger_border_ranges_20121031"
-            case "myrtle rust observations": return "myrtle_rust";
-            case "kanangra-boyd to wyangala link": return "ger_kanangra_wyangala";
-            case "jaliigirr biodiversity alliance": return "ger_jaliigirr_20121031";
-            case "illawarra to shoalhaven": return "ger_illawarra_shoalhaven_20121031";
-            case "southern highlands link": return "ger_southern_highlands_20121031";
-            case "hinterland bush links": return ""
-            case "central victorian biolinks": return "ger_cvb2"
-            default: return regionMetadata('other',null)[name]?.layerName
+    def getLayerNameForFid(String fid) {
+        def layerName = null
+        def layer = getLayerForFid(fid)
+        if (layer != null) {
+            layerName = layer.name
         }
+        layerName
     }
 
-    /**
-     * Defines a hierarchy for GER sub-regions.
-     *
-     * @param name
-     * @return
-     */
-    Map lookupParentChain(name) {
-        switch (name.toLowerCase()) {
-            case "hunter valley partnership": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "slopes to summit": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "kosciuszko to coast": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "border ranges alliance": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "kanangra-boyd to wyangala link": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "jaliigirr biodiversity alliance": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "illawarra to shoalhaven": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "southern highlands link": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "hinterland bush links": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            case "central victorian biolinks": return [type:'layer',name:'Great Eastern Ranges Initiative']
-            default: return [:]
+    def getLayerForFid(String fid) {
+        def layer = null
+        def lsf = getLayersServiceFields().get(fid)
+        if (lsf != null) {
+            layer = getLayersServiceLayers().get(lsf.spid)
         }
+        layer
     }
 
-    /**
-     * Returns a description for GER sub-regions to simulate richer region metadata.
-     * @param name
-     * @return
-     */
-    String lookupDescription(name) {
-        switch (name.toLowerCase()) {
-            case "great eastern ranges initiative": return 'The Great Eastern Ranges Initiative (GER) is bringing people and organisations together to protect, link and restore healthy habitats over 3,600 kilometers from Western Victoria, through NSW and the ACT, to Far North Queensland. GER is a strategic response to mitigate the potential impacts of climate change, invasive species, land clearing and other environmental changes on the Great Eastern Ranges. This vast area contains Australia’s richest diversity of plants and animals and catchments that provide a reliable, clean source of water for over 90% of eastern Australia’s population. Visit <a href="http://www.greateasternranges.org.au">www.greateasternranges.org.au</a> for more information.'
-            case "hunter valley partnership": return 'The Hunter Valley comprises a complex region of east-west and north-south connections, in one of the few parts of the GER corridor where the Great Dividing Range diminishes to a naturally low and narrow line of hills. The landscape supports of complex mix of inland and coastal species, and forms a natural ‘bottle-neck’ for forest and woodland species migrating along the ranges. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/hunter-valley-partnership/">Click here for more information.</a>'
-            case "slopes to summit": return 'The Slopes to Summit landscape area forms a natural altitudinal gradient linking the high country habitats of the Australian Alps and northern central Victoria, with the temperate woodlands and grasslands of inland NSW. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/slopes-to-summit/">Click here for more information.</a>'
-            case "kosciuszko to coast": return 'The Kosciuszko to Coast region links the Australian Alps National Parks through natural temperate grasslands and woodlands to tablelands, forests and coastal ecosystems. This creates the tallest altitudinal gradient in the GER corridor between Australia’s highest peak Mount Kosciuszko (2,228 meters) and sea level. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/kosciusko2coast/">Click here for more information.</a>'
-            case "border ranges alliance": return "The Border Ranges is one of Australia's most biologically diverse regions, a spectacular backdrop to local communities, and home to many unique plants and animals. It is part of the World Heritage listed Gondwana Rainforests of Australia. <a href=\"http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/border-ranges-alliance/\">Click here for more information.</a>"
-            case "southern highlands link": return 'The Southern Highlands Link provides several connections linking the World Heritage-listed reserves of the Greater Blue Mountains with major sandstone reserves to the south. Although parts of the Southern Highlands have been extensively cleared for agriculture and urban expansion, it remains an important landscape for a variety of bird migrations along the ranges and between the coast and inland. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/southern-highlands-link/">Click here for more information.</a>'
-            case "kanangra-boyd to wyangala link": return 'The Kanangra-Boyd to Wyangala Link forms a natural corridor connecting the cool forests of Australia’s east coast with the drier temperate and semi-arid woodlands of the interior. The corridor allows species which are normally associated with forest environments to occupy habitat which is not available in the surrounding landscape, and also provides a refuge for woodland species during periods of prolonged drought. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/kanangra-boyd-to-wyangala-link/">Click here for more information.</a>'
-            case "jaliigirr biodiversity alliance": return 'The Jaliigirr (Coffs Coast hinterland) landscape is located at the convergence of tropical, subtropical and temperate zones creating a unique diversity and complexity of habitats and species. These ecological communities provide our water supply, clean air, crop pollination, nutrient recycling, food, medicines, building materials and the regeneration of primary production soils, contributing billions of dollars to our local economy annually. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/jalliigirr-biodiversity-alliance/">Click here for more information.</a>'
-            case "illawarra to shoalhaven": return 'The Illawarra to Shoalhaven landscape comprises both a major north-south rainforest corridor formed by the Illawarra and Cambewarra escarpments, and a series of altitudinal linkages enabling seasonal migration of species between coastal reserves, the Southern Highlands and beyond. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/illawarra-to-shoalhaven/">Click here for more information.</a>'
-            case "hinterland bush links": return 'Centred on the Glasshouse Mountains, the Sunshine Coast Hinterland Bush Links connects habitats comprising a natural biodiversity hotspot between Caboolture and Gympie, and from the coast to Nanango. Populations of many species are declining in the area due to loss, degradation and fragmentation of habitat, making the landscape important for locally resident species as well as migratory fauna. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/hinterland-bush-links/">Click here for more information</a>'
-            case "central victorian biolinks": return 'The Central Victorian BioLinks landscape comprises a complex mosaic of local and continental scale landscape linkages connecting the Grampians with the Victorian Alps, and supporting seasonal species movements between the Murray River and the Macedon Ranges. The landscape occurs on a naturally low section of the eastern ranges, making the woodlands and riparian forests of the landscape even more important for nomadic and migratory species. <a href="http://www.greateasternranges.org.au/our-partners/ger-regional-partnerships/central-victorian-biolinks/">Click here for more information.</a>'
-            default: return ""
+    def menu
+    def getMenu() {
+        if (menu == null) {
+            // use external file if available
+            def md = new File(CONFIG_DIR + "/menu-config.json")?.text
+            if (!md) {
+                //use default resource
+                md = new File(this.class.classLoader.getResource('default/menu-config.json').toURI())?.text
+            }
+            if (md) {
+                menu = JSON.parse(md)
+
+                menu.each { v ->
+                    def layerName = getLayerNameForFid(v.fid)
+
+                    if (layerName == null) {
+                        log.warn "Failed to find layer name for fid= ${v.fid}"
+                        println "Failed to find layer name for fid= ${v.fid}"
+                        layerName = v.label.replace(" ", "")
+                    }
+
+                    v.layerName = layerName
+                }
+            }
         }
+
+        menu
     }
 
-    /**
-     * Returns the fid (field identifier) for GER sub-regions.
-     *
-     * @param region
-     */
-    private fidForLayer(region) {
-        switch (region.toLowerCase()) {
-            case "great eastern ranges initiative": return "cl2049" //replaces cl904;
-            case "ramsar wetland regions": return "cl935";
-            case "hunter valley partnership": return "cl1063"; //replaces cl905
-            case "border ranges alliance": return "cl1062"; //replaces cl903
-            case "kosciuszko to coast": return "cl1067"; //replaces cl909
-            case "slopes to summit": return "cl1069"; //replaces cl912
-            case "Myrtle Rust Observations": return "cl934";
-            case "southern highlands link": return 'cl1070';
-            case "kanangra-boyd to wyangala link": return 'cl2050';
-            case "jaliigirr biodiversity alliance": return 'cl1065';
-            case "illawarra to shoalhaven": return 'cl1064';
-            case "hinterland bush links": return ''
-            case "central victorian biolinks": return 'cl2048'
-            default: return regionMetadata('other',null)[region]?.fid
+    def getMenuItems(type) {
+        def map = [:]
+
+        //init
+        getMenu()
+
+        menu.each { v ->
+            if (v.label.equals(type)) {
+                if (v.fid) {
+                    def objects = getRegionMetadata(v.fid)
+                    if (v.exclude) {
+                        objects.each{ k, o ->
+                            if (!v.exclude.contains(k)) {
+                                map.put(k, o)
+                            }
+                        }
+                    } else {
+                        map = objects
+                    }
+                } else if (v.submenu) {
+                    v.submenu.each { v2 ->
+                        if (v2.fid) {
+                            def layer = getLayerForFid(v2.fid)
+
+                            if (layer == null) {
+                                def message = "Failed to find layer for fid=" + v2.fid
+                                log.warn message
+                                println message
+                            } else {
+                                map.put(v2.label, [
+                                        name : v2.label, layerName: layer.name, id: layer.id, fid: v2.fid,
+                                        bbox : parseBbox(layer.bbox),
+                                        source: null,
+                                        notes: "todo: notes"
+                                ])
+                            }
+                        }
+                    }
+                }
+            }
         }
+
+        map
     }
 }

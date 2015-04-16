@@ -40,30 +40,11 @@
     <div class="span4">
         <p style="font-size:15px;margin-left:15px;padding-bottom:0"><i class="fa fa-info-circle"></i> Click on a region name to select an area.</p>
         <div id="accordion">
-            <h2><a href="#">States and territories</a></h2>
-            <div id="states"><span class="loading">Loading..</span>
-            </div>
-            <h2><a href="#">Local government</a></h2>
-            <div id="lgas"><span class="loading">Loading..</span>
-            </div>
-            <h2><a href="#">Biogeographic regions</a></h2>
-            <div id="ibras"><span class="loading">Loading..</span>
-            </div>
-            <h2><a href="#">Marine regions</a></h2>
-            <div id="imcras"><span class="loading">Loading..</span>
-            </div>
-            <h2><a href="#">Management regions</a></h2>
-            <div id="nrms"><span class="loading">Loading..</span>
-            </div>
-            <h2><a href="#">Indigenous protected areas</a></h2>
-            <div id="ipa_7aug13"><span class="loading">Loading..</span>
-            </div>
-            <h2><a href="#">Indigenous land use agreements</a></h2>
-            <div id="ilua"><span class="loading">Loading..</span>
-            </div>
-            <h2><a href="#">Other regions</a></h2>
-            <div id="other"><span class="loading">Loading..</span>
-            </div>
+            <g:each in="${menu}" var="item">
+                <h2><a href="#">${item.label}</a></h2>
+                <div id="${item.layerName}" layer="${item.label}"><span class="loading">Loading..</span>
+                </div>
+            </g:each>
         </div>
     </div>
 

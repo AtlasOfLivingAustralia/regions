@@ -4,13 +4,15 @@ class UrlMappings {
 
         "/$regionType/$regionName" (controller: 'regions', action: 'region') {
             constraints {
-                regionType(inList:['states','lgas','ibras','imcras','nrms','ipa_7aug13','ilua','layer'])
+                //do not match controllers
+                regionType(matches:'(?!(^data\$|^proxy\$|^region\$|^regions\$)).*')
             }
         }
         
         "/$regionType" (controller: 'regions', action: 'regions') {
             constraints {
-                regionType(inList:['states','lgas','ibras','imcras','nrms','ipa_7aug13', 'ilua','layer'])
+                //do not match controllers
+                regionType(matches:'(?!(^data\$|^proxy\$|^region\$|^regions\$)).*')
             }
         }
 

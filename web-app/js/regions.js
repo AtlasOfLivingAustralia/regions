@@ -118,11 +118,12 @@ var RegionSet = function (name, layerName, fid, bieContext, order, displayName) 
     this.objects = {};
     this.sortedList = [];
     this.error = null;
-    this.other = name === 'other';
+    this.other = fid == null;
 };
 RegionSet.prototype = {
     /* Set this instance as the selected set */
     set: function (callbacks) {
+        var prevSelection = selectedRegion
         selectedRegionType = this;
 
         // clear any selected region
@@ -165,7 +166,7 @@ RegionSet.prototype = {
     /* Return metadata for the region in this set with the specified name
      * @param name of the region */
     getRegion: function (name) {
-        return this.objects[name];
+        return this.objects[name.replace( '&amp;', '&' )];
     },
     /* Is the content loaded? */
     loaded: function () {
@@ -217,7 +218,7 @@ RegionSet.prototype = {
     /* Write the list of regions to the regionSet's DOM container - loading first if required
      * @param callbackOnComplete a global-scope function to call when the list is written */
     writeList: function (callbackOnComplete) {
-        var $content = $('#' + this.name), html = "<ul>", me = this,
+        var $content = $('#' + layers[this.name].layerName), html = "<ul>", me = this,
             id;
         if (!this.loaded()) {
             // load content asynchronously and execute this method when complete
@@ -328,6 +329,7 @@ Region.prototype = {
     /* Set this instance as the currently selected region */
     set: function () {
         clearSelectedRegion();
+        var prevSelection = selectedRegion
         selectedRegion = this;
         if (this.name.toLowerCase() !== 'n/a') {
             $.bbq.pushState({region: this.name});
@@ -335,9 +337,9 @@ Region.prototype = {
         }
         this.setLinks();
         if (this.other) {
-            this.id = layers.other.objects[this.name].fid;
+            this.id = layers[selectedRegionType.name].objects[this.name].fid;
             // other regions draw as a full layer
-            layers.other.drawLayer();
+            layers[selectedRegionType.name].drawLayer();
         }
         else {
             this.id = selectedRegionType.getPid(this.name);
@@ -389,11 +391,7 @@ Region.prototype = {
     },
     /* Build the url to view the current region */
     urlToViewRegion: function () {
-        if (this.other) {
-            return config.baseUrl + "/layer/" + this.name;
-        } else {
-            return config.baseUrl + "/" + selectedRegionType.name + "/" + encodeURI(he.encode(encodeURIComponent(this.name)));
-        }
+        return config.baseUrl + "/" + encodeURI(selectedRegionType.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(this.name)));
     },
     /* Write the region link and optional subregion name and zoom link at the top of the map.
      * @param subregion the name of the subregion */
@@ -530,7 +528,7 @@ map = {
                                     name.toLowerCase() !== 'n/a') {
                                 document.location.href = selectedRegion.urlToViewRegion();
                             }
-                            new Region(name).set();
+                            var region = new Region(name).set();
                         }
                 }
             }
@@ -599,8 +597,7 @@ function init (options) {
     /*****************************************\
     | Set state from hash params
     \*****************************************/
-    initialRegionTypeStr = $.bbq.getState('rt') || 'states';
-    if (initialRegionTypeStr == 'layer') { initialRegionTypeStr = 'other'; }
+    initialRegionTypeStr = $.bbq.getState('rt') || Object.keys(layers)[0];
     selectedRegionType = layers[initialRegionTypeStr];
     Region.initialRegion = $.bbq.getState('region');
 
@@ -609,7 +606,7 @@ function init (options) {
     \*****************************************/
     $('#accordion').accordion({
         activate: function (event, ui) {
-            layers[$(ui.newPanel).attr('id')].set();
+            layers[$(ui.newPanel).attr('layer')].set();
         },
         active: selectedRegionType.order
     });
