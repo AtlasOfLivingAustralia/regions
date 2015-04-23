@@ -9,7 +9,7 @@
         "regions_within": [
           {
             "label": "Biogeographic (IBRA)",
-            "fid": "cl20",
+            "fid": "cl1048",
             "regions": [
               {
                 "label": "Australian Alps"
@@ -24,7 +24,7 @@
           },
           {
             "label": "Marine and Coastal (IMCRA)",
-            "pid": "cl21",
+            "fid": "cl21",
             "regions": [
               {
                 "label": "Southeast Shelf Transition"
@@ -33,7 +33,7 @@
           },
           {
             "label": "Natural Resource Management (NRM)",
-            "pid": "cl916",
+            "fid": "cl916",
             "regions": [
               {
                 "label": "ACT"
@@ -50,7 +50,7 @@
   },
   {
     "label": "Biogeographic regions",
-    "fid": "cl20"
+    "fid": "cl1048"
   },
   {
     "label": "Marine regions",

@@ -74,16 +74,6 @@ class RegionsController {
         render result as JSON
     }
 
-    /*def regionSearch = {
-        def featuresList = metadataService.regionMetadata(params.type, null)
-        assert featuresList
-
-        // filter by query
-        def list = featuresList.findAll { it.name.toLowerCase() =~ params.term}
-
-        render list.collect {it.name} as JSON
-    }*/
-
     /**
      * Show the descriptive page for a region.
      *
@@ -94,7 +84,7 @@ class RegionsController {
     def region = {
         def region = [:]
         // This decoding process is required because some region names contain a lot of unsafe characters
-        region.name = URLDecoder.decode(params.regionName, 'UTF-8')
+        region.name = URLDecoder.decode(params.regionName.replace("%253B", "%3B"), 'UTF-8')
         region.name = StringEscapeUtils.unescapeHtml(region.name)
         log.debug("Requested Region name = $region.name")
 

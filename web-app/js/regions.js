@@ -391,7 +391,7 @@ Region.prototype = {
     },
     /* Build the url to view the current region */
     urlToViewRegion: function () {
-        return config.baseUrl + "/" + encodeURI(selectedRegionType.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(this.name)));
+        return config.baseUrl + "/" + encodeURI(selectedRegionType.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(this.name))).replace("%3B", "%253B");
     },
     /* Write the region link and optional subregion name and zoom link at the top of the map.
      * @param subregion the name of the subregion */
