@@ -1,10 +1,5 @@
 package au.org.ala.regions
 
-import grails.converters.JSON
-import java.sql.Timestamp
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
-import groovy.xml.StreamingMarkupBuilder
-
 class ProxyController {
 
     def allowedHosts = ['v2.suite.opengeo.org','spatial.ala.org.au']
@@ -104,8 +99,8 @@ class ProxyController {
     def kml = {
 
         def pid = params.pid ?: 5388062 // ger
-        def baseUrl = grailsApplication.config.spatial.baseURL
-        def url = baseUrl + "/layers-service/shape/kml/" + pid
+        def baseUrl = grailsApplication.config.layersService.baseURL
+        def url = baseUrl + "/shape/kml/" + pid
 
         def conn = new URL(url).openConnection()
         def kml = conn.content.text

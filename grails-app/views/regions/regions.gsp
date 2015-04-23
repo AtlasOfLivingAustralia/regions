@@ -91,7 +91,7 @@
 
         init_regions({
             server: '${grailsApplication.config.grails.serverURL}',
-            spatialService: "${grailsApplication.config.spatial.baseURL}/layers-service",
+            spatialService: "${grailsApplication.config.layersService.baseURL}/",
             spatialWms: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
             spatialCache: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
             accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',

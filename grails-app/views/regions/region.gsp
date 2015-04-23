@@ -250,7 +250,7 @@
                 biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
                 spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
                 spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
-                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service",
+                spatialServiceUrl: "${grailsApplication.config.layersService.baseURL}/",
             },
             username: '${rg.loggedInUsername()}',
             q: '${region.q}'
