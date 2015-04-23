@@ -33,7 +33,7 @@
             <div class="message">${flash.message}</div>
         </g:if>
         <h1>${region.name}</h1>
-        <aa:zone id="emblems" fragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name])}">
+        <aa:zone id="emblems" fragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name, regionPid: region.pid])}">
             <i class="fa fa-cog fa-spin fa-2x"></i>
         </aa:zone>
     </div>
@@ -67,7 +67,7 @@
                             <th class="text-center">Group</th>
                         </tr>
                     </thead>
-                    <aa:zone id="groupsZone" tag="tbody" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups', params: [regionFid: region.fid,regionType: region.type, regionName: region.name])}"
+                    <aa:zone id="groupsZone" tag="tbody" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups', params: [regionFid: region.fid,regionType: region.type, regionName: region.name, regionPid: region.pid])}"
                              jsAfter="regionWidget.groupsLoaded();">
                         <tr class="spinner">
                             <td class="spinner text-center">
@@ -94,7 +94,11 @@
                 <div class="text-center" id="exploreButtons">
                     <a href="" id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View Records</a>
 
-                    <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog', params: [email: rg.loggedInUsername()])}"
+                    <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog',
+                            params: [email: rg.loggedInUsername(),
+                                     regionType: region.type, regionName: region.name,
+                                     regionFid: region.fid, regionPid: region.pid
+                                     ])}"
                        aa-refresh-zones="dialogZone" aa-js-before="$('#downloadRecordsModal').modal('show');" class="btn">
                         <i class="fa fa-download"></i> Download Records
                     </a>
@@ -168,42 +172,18 @@
     </aa:zone>
 </div>
 
-<g:if test="${subRegions.ibras||subRegions.nrms||subRegions.imcras||subRegions.subs}">
+<g:if test="${subRegions.size() > 0}">
     <div class="row">
         <div class="span12" id="subRegions">
             <h2>Regions within ${region.name}</h2>
-            <g:if test="${subRegions.ibras}">
-                <h3>Biogeographic (IBRA)</h3>
+            <g:each in="${subRegions}" var="item">
+                <h3>${item.key}</h3>
                 <ul>
-                    <g:each in="${subRegions.ibras}" var="r">
-                        <li><g:link action="region" params="[regionType:'ibras',regionName:r]">${r}</g:link></li>
+                    <g:each in="${item.value.list}" var="r">
+                        <li><g:link action="region" params="[regionType:item.value.name,regionName:r,parent:region.name]">${r}</g:link></li>
                     </g:each>
                 </ul>
-            </g:if>
-            <g:if test="${subRegions.nrms}">
-                <h3>Natural Resource Management (NRM)</h3>
-                <ul>
-                    <g:each in="${subRegions.nrms}" var="r">
-                        <li><g:link action="region" params="[regionType:'nrms',regionName:r]">${r}</g:link></li>
-                    </g:each>
-                </ul>
-            </g:if>
-            <g:if test="${subRegions.imcras}">
-                <h3>Marine and Coastal (IMCRA)</h3>
-                <ul>
-                    <g:each in="${subRegions.imcras}" var="r">
-                        <li><g:link action="region" params="[regionType:'imcras',regionName:r]">${r}</g:link></li>
-                    </g:each>
-                </ul>
-            </g:if>
-            <g:if test="${subRegions.subs}">
-                <h3>Administrative</h3>
-                <ul>
-                    <g:each in="${subRegions.subs}" var="r">
-                        <li><g:link action="region" params="[regionType:'layer',regionName:r,parent:region.name]">${r}</g:link></li>
-                    </g:each>
-                </ul>
-            </g:if>
+            </g:each>
         </div>
     </div>
 </g:if>
@@ -270,9 +250,10 @@
                 biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
                 spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
                 spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
-                spatialServiceUrl: "${grailsApplication.config.spatial.baseURL}/layers-service",
+                spatialServiceUrl: "${grailsApplication.config.layersService.baseURL}/",
             },
-            username: '${rg.loggedInUsername()}'
+            username: '${rg.loggedInUsername()}',
+            q: '${region.q}'
         });
 
         regionWidget.setMap(new RegionMap({

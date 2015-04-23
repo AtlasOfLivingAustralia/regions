@@ -5,6 +5,8 @@ import grails.util.GrailsUtil
 import org.apache.commons.lang.StringEscapeUtils
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
+import java.util.regex.Pattern
+
 class RegionsController {
 
     def metadataService
@@ -35,7 +37,9 @@ class RegionsController {
     /**
      * Display the top-level regions page.
      */
-    def regions = {}
+    def regions = {
+        [ "menu": metadataService.getMenu()]
+    }
 
     def documents = {
         render "Not implemented yet"
@@ -55,7 +59,7 @@ class RegionsController {
     def regionList = {
 
         // get the list
-        def map = metadataService.regionMetadata(params.type, null)
+        def map = metadataService.getMenuItems(params.type)
 
         def result
 
@@ -70,16 +74,6 @@ class RegionsController {
         render result as JSON
     }
 
-    /*def regionSearch = {
-        def featuresList = metadataService.regionMetadata(params.type, null)
-        assert featuresList
-
-        // filter by query
-        def list = featuresList.findAll { it.name.toLowerCase() =~ params.term}
-
-        render list.collect {it.name} as JSON
-    }*/
-
     /**
      * Show the descriptive page for a region.
      *
@@ -90,7 +84,7 @@ class RegionsController {
     def region = {
         def region = [:]
         // This decoding process is required because some region names contain a lot of unsafe characters
-        region.name = URLDecoder.decode(params.regionName, 'UTF-8')
+        region.name = URLDecoder.decode(params.regionName.replace("%253B", "%3B"), 'UTF-8')
         region.name = StringEscapeUtils.unescapeHtml(region.name)
         log.debug("Requested Region name = $region.name")
 
@@ -102,37 +96,84 @@ class RegionsController {
         def emblemGuids = [:]
         def subRegions = [:]
         region.gid = 0  // in case none other specified
-        /* hack to inject some sub-region content */
-        switch (region.name) {
-            case "Australian Capital Territory":
-                subRegions.ibras = ['Australian Alps', 'South Eastern Highlands', 'Sydney Basin']
-                subRegions.imcras = ['Southeast Shelf Transition']
-                subRegions.nrms = ['ACT']
-                break
-            case "Great Eastern Ranges Initiative":
-                subRegions.subs = ['Hunter Valley Partnership', 'Border Ranges Alliance', 'Kosciuszko to Coast', 'Slopes to Summit',
-                                   'Southern Highlands Link', 'Kanangra-Boyd to Wyangala Link', 'Jaliigirr Biodiversity Alliance', 'Illawarra to Shoalhaven',
-                                   'Hinterland Bush Links', 'Central Victorian Biolinks']
-                break
-        }
-        /* end hack */
 
-        if (region.type == 'layer') {
-            region.fid = metadataService.getLayerMetadata(region.name, 'fid')
-            region.layerName = metadataService.getLayerMetadata(region.name, 'layerName')
-            // hack for sub-regions
-            if (!region.layerName) {
-                region.layerName = metadataService.lookupLayerName(region.name)
+        //get the menu item for the regionType
+        def menu = null
+        metadataService.getMenu().each { v ->
+            if (v.label.equals(region.type)) {
+                menu = v
             }
-            region.id = region.fid //??
-            region.source = metadataService.getLayerMetadata(region.name, 'source')
-            region.description = metadataService.lookupDescription(region.name)
-            region.notes = metadataService.getLayerMetadata(region.name, 'notes')
-            region.parent = metadataService.lookupParentChain(region.name)
+        }
 
+        //get submenu menu item if applicable
+        if (menu.submenu != null) {
+            menu.submenu.each { v ->
+                if (v.label.equals(region.name) || v.label.equals(params.parent)) {
+                    menu = v
+                }
+            }
+        }
+
+        //get subregion menu item if applicable
+        if (params.parent != null && menu.subregions != null) {
+            menu.subregions.each { v ->
+                v.regions_within.each { rw ->
+                    rw.regions.each { r ->
+                        if (r.label.equals(region.name)) {
+                            menu = r
+                        }
+                    }
+                }
+            }
+
+            region.parent = [:]
+            region.parent.name = params.parent
+            region.parent.type = region.type
+        }
+
+        region.layerName = metadataService.getLayerNameForFid(menu.fid)
+        region.fid = menu.fid
+
+        if (menu.source) {
+            region.source = menu.source
+        }
+
+        if (menu.notes) {
+            region.notes = menu.notes
+        }
+
+        if (menu.description) {
+            region.description = menu.description
+        }
+
+        if (menu != null && menu.subregions) {
+            menu.subregions.each { v ->
+                if (Pattern.matches(v.match_exp, region.name)) {
+                    v.regions_within.each { r ->
+                        def list = []
+                        r.regions.each { i ->
+                            list.add(i.label)
+                        }
+                        def name = null
+                        metadataService.getMenu().each { m ->
+                            if (m.fid.equals(r.fid)) {
+                                name = m.label
+                            }
+                        }
+                        if (name == null) {
+                            def message = "Failed to get layer name for fid=" + r.fid
+                            log.warn message
+                            println message
+                        } else {
+                            subRegions.put(r.label, [list: list, name: name])
+                        }
+                    }
+                }
+            }
+
+            region.q = URLEncoder.encode(metadataService.buildRegionFacet(region.fid, region.type, region.name, region.pid), "UTF-8")
         } else {
-            region.layerName = metadataService.layerNameForType(region.type)
-            region.fid = metadataService.fidFor(region.type)
+            region.q = URLEncoder.encode(metadataService.buildRegionFacet(region.fid, region.type, region.name, region.pid), "UTF-8")
         }
 
         if (region.type == 'states') {
