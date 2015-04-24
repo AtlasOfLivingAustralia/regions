@@ -22,10 +22,12 @@ This project allows the user to conveniently browse existing ALA records that ha
 - **Version 2.2** (24/04/2015):
   - Made changes to reuse code base for GER (Great Eastern Ranges) webpapp
   - Separate layersService and spatial URLs
-  - Add Major drainage divisions
   - Add dataResourceUid to records download
   - Update download form
-  - Fix encoding issues
+  - Added Major drainage divisions.
+  - Biogeographic regions is now IBRA 7 instead of IBRA 6.
+  - Myrtle rust is removed.
+  - CAPAD is now CAPAD 2014 instead of CAPAD 2008.
 - **Version 2.1** (04/03/2015):
   - Integrated new 2015 look & feel design
   - Minor fixes
