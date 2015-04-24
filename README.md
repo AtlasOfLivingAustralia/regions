@@ -19,7 +19,19 @@ This project allows the user to conveniently browse existing ALA records that ha
   - ...
 
 ## Changelog
-- Version 2.0 (20/02/2015):
+- **Version 2.2** (24/04/2015):
+  - Made changes to reuse code base for GER (Great Eastern Ranges) webpapp
+  - Separate layersService and spatial URLs
+  - Add Major drainage divisions
+  - Add dataResourceUid to records download
+  - Update download form
+  - Fix encoding issues
+- **Version 2.1** (04/03/2015):
+  - Integrated new 2015 look & feel design
+  - Minor fixes
+- **Version 2.0.1** (25/02/2015):
+  - Fixes small bug with Ajax indicator
+- **Version 2.0** (23/02/2015):
   - Major project overhaul to improve the look & feel and UX of the tool.
   - There has been a mayor refactoring in all app layers to improve maintainability and reduce technical debt.
   - Lots of javascript Ajax boilerplate code has been removed by using the AjaxAnywhere Grails plugin.
