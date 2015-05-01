@@ -33,7 +33,7 @@
             <div class="message">${flash.message}</div>
         </g:if>
         <h1>${region.name}</h1>
-        <aa:zone id="emblems" fragmentUrl="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name, regionPid: region.pid])}">
+        <aa:zone id="emblems" href="${g.createLink(controller: 'region', action: 'showEmblems', params: [regionType: region.type, regionName: region.name, regionPid: region.pid])}">
             <i class="fa fa-cog fa-spin fa-2x"></i>
         </aa:zone>
     </div>
@@ -67,7 +67,7 @@
                             <th class="text-center">Group</th>
                         </tr>
                     </thead>
-                    <aa:zone id="groupsZone" tag="tbody" fragmentUrl="${g.createLink(controller: 'region', action: 'showGroups', params: [regionFid: region.fid,regionType: region.type, regionName: region.name, regionPid: region.pid])}"
+                    <aa:zone id="groupsZone" tag="tbody" href="${g.createLink(controller: 'region', action: 'showGroups', params: [regionFid: region.fid,regionType: region.type, regionName: region.name, regionPid: region.pid])}"
                              jsAfter="regionWidget.groupsLoaded();">
                         <tr class="spinner">
                             <td class="spinner text-center">
