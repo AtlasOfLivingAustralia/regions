@@ -424,6 +424,11 @@ var RegionWidget = function (config) {
 
         getTaxonomyWidget: function() {
             return taxonomyWidget;
+        },
+
+        showDownloadDialog: function() {
+            AjaxAnywhere.dynamicParams=this.getCurrentState();
+            $('#downloadRecordsModal').modal('show');
         }
     };
 

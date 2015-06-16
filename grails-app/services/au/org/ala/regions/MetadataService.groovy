@@ -324,16 +324,18 @@ class MetadataService {
     private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
         Map params = [
                 q : buildRegionFacet(regionFid, regionType, regionName, regionPid),
+                fq: 'rank:(species OR subspecies)',
         ]
 
+
         if (groupName && isSubgroup) {
-            params << [fq: "species_subgroup:\"${groupName}\""]
+            params << [fq: params.fq + ' AND ' + "species_subgroup:\"${groupName}\""]
         } else if (groupName && groupName != 'ALL_SPECIES') {
-            params << [fq: "species_group:\"${groupName}\""]
+            params << [fq: params.fq + ' AND ' + "species_group:\"${groupName}\""]
         }
 
         if (isValidTimeRange(from, to)) {
-            params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
+            params << [fq: params.fq + ' AND ' + params.fq + ' AND ' + buildTimeFacet(from, to)]
         }
 
         return params

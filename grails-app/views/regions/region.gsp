@@ -94,12 +94,8 @@
                 <div class="text-center" id="exploreButtons">
                     <a href="" id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View Records</a>
 
-                    <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog',
-                            params: [email: rg.loggedInUsername(),
-                                     regionType: region.type, regionName: region.name,
-                                     regionFid: region.fid, regionPid: region.pid
-                                     ])}"
-                       aa-refresh-zones="dialogZone" aa-js-before="$('#downloadRecordsModal').modal('show');" class="btn">
+                    <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog')}"
+                       aa-refresh-zones="dialogZone" aa-js-before="regionWidget.showDownloadDialog();" class="btn">
                         <i class="fa fa-download"></i> Download Records
                     </a>
                 </div>
