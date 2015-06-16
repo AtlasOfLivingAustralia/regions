@@ -19,6 +19,8 @@ This project allows the user to conveniently browse existing ALA records that ha
   - ...
 
 ## Changelog
+- **Version 2.3** (16/06/2015):
+  - Bug fix for URL generation to download records
 - **Version 2.2** (24/04/2015):
   - Made changes to reuse code base for GER (Great Eastern Ranges) webpapp
   - Separate layersService and spatial URLs
