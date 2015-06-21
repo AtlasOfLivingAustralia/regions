@@ -115,7 +115,7 @@ class MetadataService {
      * @return
      */
     List getGroups(String regionFid, String regionType, String regionName, String regionPid) {
-        def responseGroups = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([:]).data
+        def responseGroups = getUrlJSON("${BIOCACHE_URL}/ws/explore/hierarchy")
         Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid)
 
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
@@ -151,7 +151,7 @@ class MetadataService {
 
         log.debug("URL to retrieve subgroups with records = $url")
 
-        def response = new RESTClient(url).get([:]).data
+        def response = getUrlJSON(url)
 
         Map subgroups = [:]
         response?.facetResults[0]?.fieldResult.each {subgroup ->
@@ -172,7 +172,7 @@ class MetadataService {
      * @return
      */
     def getSpecies(String regionFid, String regionType, String regionName, String regionPid, String groupName, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
-        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex)).get([:]).data
+        def response = getUrlJSON(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex))
         return [
                 totalRecords: response.totalRecords,
                 records: response.facetResults[0]?.fieldResult.collect {result ->
@@ -831,5 +831,21 @@ class MetadataService {
         }
 
         map
+    }
+    
+    def getUrlJSON(url) {
+        def result = null
+        try {
+            def conn = new URL(url).openConnection()
+            conn.setConnectTimeout(10000)
+            conn.setReadTimeout(50000)
+            def json = conn.content.text
+            result = JSON.parse(json)
+        } catch (SocketTimeoutException e) {
+            log.warn "Timed out looking up url. URL= ${url}."
+        } catch (Exception e) {
+            log.warn "Failed to lookup url. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+        }
+        result
     }
 }
