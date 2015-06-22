@@ -19,6 +19,8 @@ This project allows the user to conveniently browse existing ALA records that ha
   - ...
 
 ## Changelog
+- **Version 2.3.1** (22/06/2015):
+  - Modification performed to add the 'User-Agent' header to all the biocache WS requests so they work
 - **Version 2.3** (16/06/2015):
   - Bug fix for URL generation to download records
 - **Version 2.2** (24/04/2015):

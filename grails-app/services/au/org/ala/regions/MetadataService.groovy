@@ -55,6 +55,7 @@ class MetadataService {
     final static String WS_DATE_TO_PREFIX = "-12-31T23:59:59Z"
     final static String WS_DATE_FROM_DEFAULT = "1850"
     final static String PAGE_SIZE = "50"
+    final static Map userAgent = ['User-Agent': 'whatever']
 
     String BIE_URL, BIOCACHE_URL, ALERTS_URL, DEFAULT_IMG_URL
     String CONFIG_DIR
@@ -94,7 +95,7 @@ class MetadataService {
 
         emblemGuids.sort({it.key}).each {key, guid ->
             String emblemInfoUrl = "${BIE_URL}/ws/species/moreInfo/${guid}.json"
-            def emblemInfo = new RESTClient(emblemInfoUrl).get([:]).data
+            def emblemInfo = new RESTClient(emblemInfoUrl).get([headers: userAgent]).data
             emblemMetadata << [
                 "imgUrl":  emblemInfo?.images && emblemInfo?.images[0]?.thumbnail ? emblemInfo?.images[0]?.thumbnail : DEFAULT_IMG_URL,
                 "scientificName": emblemInfo?.taxonConcept?.nameString,
@@ -115,7 +116,7 @@ class MetadataService {
      * @return
      */
     List getGroups(String regionFid, String regionType, String regionName, String regionPid) {
-        def responseGroups = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([:]).data
+        def responseGroups = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([headers: userAgent]).data
         Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid)
 
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
@@ -151,7 +152,7 @@ class MetadataService {
 
         log.debug("URL to retrieve subgroups with records = $url")
 
-        def response = new RESTClient(url).get([:]).data
+        def response = new RESTClient(url).get([headers: userAgent]).data
 
         Map subgroups = [:]
         response?.facetResults[0]?.fieldResult.each {subgroup ->
@@ -172,7 +173,7 @@ class MetadataService {
      * @return
      */
     def getSpecies(String regionFid, String regionType, String regionName, String regionPid, String groupName, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
-        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex)).get([:]).data
+        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex)).get([headers: userAgent]).data
         return [
                 totalRecords: response.totalRecords,
                 records: response.facetResults[0]?.fieldResult.collect {result ->
