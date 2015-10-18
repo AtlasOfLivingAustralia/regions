@@ -2,14 +2,14 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="${grailsApplication.config.layout.skin?:'main'}"/>
-    <title>${region.name} | Atlas of Living Australia</title>
+    <title>${region.name} | ${grailsApplication.config.orgNameLong}</title>
     <r:require modules="region"/>
 </head>
-<body class="nav-locations">
+<body class="nav-locations regions">
 
 <div class="row">
     <div class="span12">
-        <ul class="breadcrumb pull-left">
+        <ol class="breadcrumb pull-left">
             <rg:breadcrumbTrail/>
             <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
             <g:if test="${region.parent}">
@@ -19,7 +19,7 @@
                 </g:if>
             </g:if>
             <li class="active">${region.name}</li>
-        </ul>
+        </ol>
         <a id="alertsButton" class="btn btn-ala pull-right" href="${alertsUrl}">
             Alerts
             <i class="icon-bell icon-white"></i>
@@ -242,10 +242,10 @@
                 proxyUrl: '${g.createLink(controller: 'proxy', action: 'index')}',
                 proxyUrlBbox: '${g.createLink(controller: 'proxy', action: 'bbox')}',
                 speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
-                biocacheServiceUrl: "${grailsApplication.config.biocache.baseURL}/ws",
+                biocacheServiceUrl: "${grailsApplication.config.biocacheService.baseURL}",
                 biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
-                spatialWmsUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
-                spatialCacheUrl: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
+                spatialWmsUrl: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
+                spatialCacheUrl: "${grailsApplication.config.geoserver.baseURL}/gwc/service/wms?",
                 spatialServiceUrl: "${grailsApplication.config.layersService.baseURL}/",
             },
             username: '${rg.loggedInUsername()}',

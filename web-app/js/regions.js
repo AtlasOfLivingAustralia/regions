@@ -192,11 +192,11 @@ RegionSet.prototype = {
                         for (i = 0; i < data.names.length; i++) {
                             obj = data.objects[name = data.names[i]];
                             bbox = obj.bbox;
-                            if (!bbox) continue;
-                            if (bbox.minLat > mapBounds[0]) continue; // too north
-                            if (bbox.maxLng < mapBounds[1]) continue; // too west
-                            if (bbox.maxLat < mapBounds[2]) continue; // too south
-                            if (bbox.minLng > mapBounds[3]) continue; // too east
+                            //if (!bbox) continue;
+                            //if (bbox.minLat > mapBounds[0]) continue; // too north
+                            //if (bbox.maxLng < mapBounds[1]) continue; // too west
+                            //if (bbox.maxLat < mapBounds[2]) continue; // too south
+                            //if (bbox.minLng > mapBounds[3]) continue; // too east
                             names.push(name);
                             objs[name] = obj;
                         }

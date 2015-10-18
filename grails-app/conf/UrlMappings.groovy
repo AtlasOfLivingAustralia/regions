@@ -2,6 +2,8 @@ class UrlMappings {
 
 	static mappings = {
 
+        "/feature/$pid" (controller: 'regions', action: 'region')
+
         "/$regionType/$regionName" (controller: 'regions', action: 'region') {
             constraints {
                 //do not match controllers

@@ -4,6 +4,7 @@ import au.org.ala.regions.binding.DownloadParams
 import au.org.ala.web.AuthService
 import grails.converters.JSON
 import grails.util.Holders
+import groovy.json.JsonSlurper
 import groovyx.net.http.RESTClient
 import groovyx.net.http.URIBuilder
 import org.apache.commons.lang.StringEscapeUtils
@@ -27,7 +28,7 @@ class MetadataService {
      */
     static regionsMetadataCache = null
 
-    static logReasonCache =loadLoggerReasons()
+    static logReasonCache = loadLoggerReasons()
 
     /* cache management */
     def clearCaches = {
@@ -41,6 +42,9 @@ class MetadataService {
     }
 
     def grailsApplication
+
+    def layersServiceLayers = [:]
+    def layersServiceFields = [:]
 
     AuthService authService
 
@@ -57,13 +61,15 @@ class MetadataService {
     final static String PAGE_SIZE = "50"
     final static Map userAgent = ['User-Agent': 'whatever']
 
-    String BIE_URL, BIOCACHE_URL, ALERTS_URL, DEFAULT_IMG_URL
+    String BIE_URL, BIE_SERVICE_URL, BIOCACHE_URL, BIOCACHE_SERVICE_URL, ALERTS_URL, DEFAULT_IMG_URL
     String CONFIG_DIR
 
     @PostConstruct
     def init() {
         BIE_URL = grailsApplication.config.bie.baseURL
+        BIE_SERVICE_URL = grailsApplication.config.bieService.baseURL
         BIOCACHE_URL = grailsApplication.config.biocache.baseURL
+        BIOCACHE_SERVICE_URL = grailsApplication.config.biocacheService.baseURL
         DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
         ALERTS_URL = grailsApplication.config.alerts.baseURL
         CONFIG_DIR = grailsApplication.config.config_dir
@@ -94,7 +100,7 @@ class MetadataService {
         List<Map> emblemMetadata = []
 
         emblemGuids.sort({it.key}).each {key, guid ->
-            String emblemInfoUrl = "${BIE_URL}/ws/species/moreInfo/${guid}.json"
+            String emblemInfoUrl = "${BIE_SERVICE_URL}/species/moreInfo/${guid}.json"
             def emblemInfo = new RESTClient(emblemInfoUrl).get([headers: userAgent]).data
             emblemMetadata << [
                 "imgUrl":  emblemInfo?.images && emblemInfo?.images[0]?.thumbnail ? emblemInfo?.images[0]?.thumbnail : DEFAULT_IMG_URL,
@@ -116,7 +122,7 @@ class MetadataService {
      * @return
      */
     List getGroups(String regionFid, String regionType, String regionName, String regionPid) {
-        def responseGroups = new RESTClient("${BIOCACHE_URL}/ws/explore/hierarchy").get([headers: userAgent]).data
+        def responseGroups = new RESTClient("${BIOCACHE_SERVICE_URL}/explore/hierarchy").get([headers: userAgent]).data
         Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid)
 
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
@@ -139,7 +145,7 @@ class MetadataService {
      * @return
      */
     Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName, String regionPid) {
-        String url = new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
+        String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
             query = [
                     q: buildRegionFacet(regionFid, regionType, regionName, regionPid),
                     facets: 'species_subgroup',
@@ -161,7 +167,7 @@ class MetadataService {
 
         return subgroups
     }
-/**
+    /**
      *
      * @param regionFid
      * @param regionType
@@ -199,7 +205,7 @@ class MetadataService {
                     webserviceQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name, region.pid)}",
                     uiQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name, region.pid)}",
                     queryDisplayName: region.name,
-                    baseUrlForWS: "${BIOCACHE_URL}/ws",
+                    baseUrlForWS: "${BIOCACHE_SERVICE_URL}",
                     baseUrlForUI: "${BIOCACHE_URL}&resourceName=Atlas"
             ]
             return it
@@ -238,7 +244,7 @@ class MetadataService {
         switch (downloadParams.downloadOption) {
             case '0':
                 // Download All Records
-                wsUrl = "${BIOCACHE_URL}/ws/occurrences/index/download"
+                wsUrl = "${BIOCACHE_SERVICE_URL}/occurrences/index/download"
                 params << [
                         email: downloadParams.email,
                         reasonTypeId: downloadParams.downloadReason,
@@ -247,7 +253,7 @@ class MetadataService {
                 break
             case '1':
                 // Download Species Checklist
-                wsUrl = "${BIOCACHE_URL}/ws/occurrences/facets/download"
+                wsUrl = "${BIOCACHE_SERVICE_URL}/occurrences/facets/download"
                 params << [
                         facets: "species_guid",
                         lookup: true,
@@ -283,11 +289,11 @@ class MetadataService {
         switch (option) {
             case '0':
                 // Download All Records
-                wsUrl = "${BIOCACHE_URL}/ws/occurrences/index/download"
+                wsUrl = "${BIOCACHE_SERVICE_URL}/occurrences/index/download"
                 break
             case '1':
                 // Download Species Checklist
-                wsUrl = "${BIOCACHE_URL}/ws/occurrences/facets/download"
+                wsUrl = "${BIOCACHE_SERVICE_URL}/occurrences/facets/download"
                 params << [
                         facets: "species_guid",
                         lookup: true
@@ -328,7 +334,6 @@ class MetadataService {
                 fq: 'rank:(species OR subspecies)',
         ]
 
-
         if (groupName && isSubgroup) {
             params << [fq: params.fq + ' AND ' + "species_subgroup:\"${groupName}\""]
         } else if (groupName && groupName != 'ALL_SPECIES') {
@@ -355,7 +360,7 @@ class MetadataService {
      * @return
      */
     String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
-        String url = new URIBuilder("${BIOCACHE_URL}/ws/occurrences/search").with {
+        String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
             query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, pageIndex)
             return it
         }.toString()
@@ -454,8 +459,6 @@ class MetadataService {
         return map
     }
 
-
-
     /**
      * Get some metadata for a region (top level menu).
      *
@@ -542,7 +545,6 @@ class MetadataService {
      * @return
      */
     Map lookupBoundingBox(regionType, regionName) {
-        //println "MS: regionType=${regionType} regionName=${regionName}"
         def bbox = regionMetadata(regionType, regionName)?.bbox
         return bbox ?: [minLat: -42, minLng: 113, maxLat: -14, maxLng: 153]
     }
@@ -587,7 +589,12 @@ class MetadataService {
         return regionsMetadataCache
     }
 
-    def layersServiceLayers = [:]
+    def getObjectByPid(pid){
+        def url = grailsApplication.config.layersService.baseURL + '/object/' + pid
+        def js = new JsonSlurper()
+        js.parseText(new URL(url).text)
+    }
+
     def getLayersServiceLayers() {
         if (layersServiceLayers.size() > 0) {
             return layersServiceLayers
@@ -617,7 +624,7 @@ class MetadataService {
         return layersServiceLayers
     }
 
-    def layersServiceFields = [:]
+
     def getLayersServiceFields() {
         if (layersServiceFields.size() > 0) {
             return layersServiceFields
@@ -664,8 +671,11 @@ class MetadataService {
     }
 
     def getStateEmblems() {
-        def json = JSON.parse(new FileInputStream(CONFIG_DIR + "/state-emblems.json"), "UTF-8")
-        return json
+        if(new File(CONFIG_DIR + "/state-emblems.json").exists()){
+            JSON.parse(new FileInputStream(CONFIG_DIR + "/state-emblems.json"), "UTF-8")
+        } else {
+            []
+        }
     }
 
     /**

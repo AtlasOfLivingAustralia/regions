@@ -83,22 +83,33 @@ class RegionsController {
      */
     def region = {
         def region = [:]
-        // This decoding process is required because some region names contain a lot of unsafe characters
-        region.name = URLDecoder.decode(params.regionName.replace("%253B", "%3B"), 'UTF-8')
-        region.name = StringEscapeUtils.unescapeHtml(region.name)
-        log.debug("Requested Region name = $region.name")
+        def menu = [:]
 
-        region.type = params.regionType
-        region.pid = params.pid ?: metadataService.lookupPid(region.type, region.name)
-        region.bbox = metadataService.lookupBoundingBox(region.type, region.name)
+        if(params.pid){
+            def metadata = metadataService.getObjectByPid(params.pid)
+            region.name = metadata.name
+            region.pid = metadata.pid
+            region.type = "layer"
+            region.bbox = [minLat: -42, minLng: 113, maxLat: -14, maxLng: 153]  //need to parse WKT
+            menu.fid = metadata.fid
 
-        def error = ""
+        } else {
+            // This decoding process is required because some region names contain a lot of unsafe characters
+            region.name = URLDecoder.decode(params.regionName.replace("%253B", "%3B"), 'UTF-8')
+            region.name = StringEscapeUtils.unescapeHtml(region.name)
+            log.debug("Requested Region name = $region.name")
+
+            region.type = params.regionType
+            region.pid = params.pid ?: metadataService.lookupPid(region.type, region.name)
+            region.bbox = metadataService.lookupBoundingBox(region.type, region.name)
+        }
+
         def emblemGuids = [:]
         def subRegions = [:]
         region.gid = 0  // in case none other specified
 
         //get the menu item for the regionType
-        def menu = null
+
         metadataService.getMenu().each { v ->
             if (v.label.equals(region.type)) {
                 menu = v

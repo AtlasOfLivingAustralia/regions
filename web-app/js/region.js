@@ -868,7 +868,7 @@ var RegionMap = function (config) {
         var currentState = regionWidget.getCurrentState();
         var urls = regionWidget.getUrls();
 
-        var url = urls.biocacheWebappUrl + "/ws/webportal/wms/reflect?",
+        var url = urls.biocacheServiceUrl + "/mapping/wms/reflect?",
             query = region.buildBiocacheQuery(currentState.q, 0, true);
         var prms = [
             "FORMAT=" + overlayFormat,

@@ -117,6 +117,15 @@ grails.hibernate.pass.readonly = false
 grails.hibernate.osiv.readonly = false
 
 
+//the allowed hosts for proxy calls
+allowedHostsList = []
+if(allowedHosts){
+    allowedHostsList = allowedHosts.split(",")
+} else {
+    allowedHostsList = ['v2.suite.opengeo.org','spatial.ala.org.au']
+}
+
+
 def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
 def appName = grails.util.Metadata.current.'app.name'
 // log4j configuration

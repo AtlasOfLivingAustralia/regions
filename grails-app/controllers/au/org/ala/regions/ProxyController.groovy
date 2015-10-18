@@ -2,8 +2,6 @@ package au.org.ala.regions
 
 class ProxyController {
 
-    def allowedHosts = ['v2.suite.opengeo.org','spatial.ala.org.au']
-
     def badRequest = {text ->
         render(status:400, text: text)
     }
@@ -44,7 +42,7 @@ class ProxyController {
         def host = url.tokenize('/')[1]
         //println "Host = ${host}"
 
-        if (!(host in allowedHosts)) {
+        if (!(host in grailsApplication.config.allowedHostsList)) {
             badGateway host
             return
         }
@@ -111,8 +109,8 @@ class ProxyController {
     }
 
     def bbox = {
-        def baseUrl = grailsApplication.config.biocache.baseURL + "/ws/"
-        def url = baseUrl + "webportal/bounds?q=" + URLEncoder.encode(params.q.trim(), 'UTF-8')
+        def baseUrl = grailsApplication.config.biocacheService.baseURL
+        def url = baseUrl + "/mapping/bounds?q=" + URLEncoder.encode(params.q.trim(), 'UTF-8')
         def conn = new URL(url).openConnection()
         def box = conn.content.text
         render box

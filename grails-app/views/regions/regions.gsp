@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="${grailsApplication.config.layout.skin?:'main'}"/>
-    <title>Regions | Atlas of Living Australia</title>
+    <title>Regions | ${grailsApplication.config.orgNameLong}</title>
     <script src="${g.createLink(controller: 'data',action: 'regionsMetadataJavascript')}"></script>
     <r:require modules="regions"/>
 
@@ -92,8 +92,8 @@
         init_regions({
             server: '${grailsApplication.config.grails.serverURL}',
             spatialService: "${grailsApplication.config.layersService.baseURL}/",
-            spatialWms: "${grailsApplication.config.spatial.baseURL}/geoserver/ALA/wms?",
-            spatialCache: "${grailsApplication.config.spatial.baseURL}/geoserver/gwc/service/wms?",
+            spatialWms: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
+            spatialCache: "${grailsApplication.config.geoserver.baseURL}/gwc/service/wms?",
             accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
             mapBounds: JSON.parse('${grailsApplication.config.map.bounds?:[]}'),
             mapHeight: '${grailsApplication.config.map.height}',

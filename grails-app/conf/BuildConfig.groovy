@@ -37,7 +37,7 @@ grails.project.dependency.resolution = {
 
         compile ":ajaxanywhere:1.0-SNAPSHOT"
 
-        runtime (":ala-bootstrap2:2.1") {
+        runtime (":ala-bootstrap2:2.3") {
             exclude "jquery"
         }
         if (Environment.current == Environment.PRODUCTION) {
