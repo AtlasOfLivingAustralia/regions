@@ -69,8 +69,8 @@
 }
 
 #accordion .ui-accordion-content {
-    height: auto !important;
-    max-height: 205px;
+    max-height: 195px;
+    padding: 0.5em 2.2em;
 }
 
 #accordion ul {

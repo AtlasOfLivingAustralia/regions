@@ -233,6 +233,10 @@ RegionSet.prototype = {
             html += "</ul>";
             $content.find('span.loading').remove();
             $content.append(html);
+            // Correctly size the content box based on the number of items.  We are relying on the max-height css
+            // to stop it from growing too large.
+            var itemHeight = $content.find('li').height();
+            $content.height(this.sortedList.length*itemHeight);
         }
         if (callbackOnComplete) {
             // assume global scope
