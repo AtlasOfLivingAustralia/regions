@@ -1,7 +1,8 @@
 package au.org.ala.regions
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import au.org.ala.cas.util.AuthenticationCookieUtils
+import grails.util.Environment
+import groovy.xml.MarkupBuilder
 
 class RegionsTagLib {
 
@@ -85,6 +86,26 @@ class RegionsTagLib {
      */
     def speciesRecordListUrl = {attrs ->
         out << metadataService.buildSpeciesRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.regionPid, attrs.from, attrs.to)
+    }
+
+    /**
+     * Output the meta tags (HTML head section) for the build meta data in application.properties
+     * E.g.
+     * <meta name="svn.revision" content="${g.meta(name:'svn.revision')}"/>
+     * etc.
+     *
+     * Updated to use properties provided by build-info plugin
+     */
+    def addApplicationMetaTags = { attrs ->
+        // def metaList = ['svn.revision', 'svn.url', 'java.version', 'java.name', 'build.hostname', 'app.version', 'app.build']
+        def metaList = ['app.version', 'app.grails.version', 'build.date', 'scm.version', 'environment.BUILD_NUMBER', 'environment.BUILD_ID', 'environment.BUILD_TAG', 'environment.GIT_BRANCH', 'environment.GIT_COMMIT']
+        def mb = new MarkupBuilder(out)
+
+        mb.meta(name:'grails.env', content: "${Environment.current}")
+        metaList.each {
+            mb.meta(name:it, content: g.meta(name:it))
+        }
+        mb.meta(name:'java.version', content: "${System.getProperty('java.version')}")
     }
 
 }

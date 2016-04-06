@@ -62,5 +62,11 @@ modules = {
     he {
         resource url: '/vendor/he/he-0.5.0.js'
     }
+
+    // Used by the mdba skin
+    mdba {
+
+        resource url: [dir:'css', file:'mdba-styles.css']
+    }
 }
 
