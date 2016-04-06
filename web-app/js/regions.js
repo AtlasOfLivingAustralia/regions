@@ -582,6 +582,8 @@ function setDefaultRegion () {
  * - spatialWms:
  * - spatialCache:
  * - mapContainer: id of the html element to hold the map
+ * - defaultRegionType: string containing the name of the top level menu item to select by default
+ * - defaultRegion: string containing the name of the region within the defaultRegionType menu to select by default
  */
 function init (options) {
     var initialRegionTypeStr;
@@ -599,11 +601,12 @@ function init (options) {
     createRegionTypes();
 
     /*****************************************\
-    | Set state from hash params
+    | Set state from hash params or defaults
     \*****************************************/
-    initialRegionTypeStr = $.bbq.getState('rt') || Object.keys(layers)[0];
+
+    initialRegionTypeStr = $.bbq.getState('rt') || options.defaultRegionType || Object.keys(layers)[0];
     selectedRegionType = layers[initialRegionTypeStr];
-    Region.initialRegion = $.bbq.getState('region');
+    Region.initialRegion = $.bbq.getState('region') || options.defaultRegion;
 
     /*****************************************\
     | Set up accordion and handle changes

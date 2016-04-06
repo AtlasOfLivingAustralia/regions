@@ -97,7 +97,10 @@
             accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
             mapBounds: JSON.parse('${grailsApplication.config.map.bounds?:[]}'),
             mapHeight: '${grailsApplication.config.map.height}',
-            mapContainer: 'map_canvas'
+            mapContainer: 'map_canvas',
+            defaultRegionType: "${grailsApplication.config.default.regionType}",
+            defaultRegion: "${grailsApplication.config.default.region}",
+
         });
     })
 </r:script>
