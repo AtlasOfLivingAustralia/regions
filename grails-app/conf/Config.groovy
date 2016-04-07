@@ -36,6 +36,14 @@ reloadable.cfgs = ["file:/data/${appName}/config/${appName}-config.properties"]
 if (!ala.skin) {
     ala.skin = 'ala2';
 }
+// Defaults used for the breadcrumb if the skin doesn't override them
+// Skins should use the prefix: skin.breadcrumb instead of breadcrumb.default.  They can also
+// supply a skin.homeURL which will be used as a prefix for the paths.
+breadcrumb.default.level1.title='Home'
+breadcrumb.default.level1.path=''
+breadcrumb.default.level2.title='Explore'
+breadcrumb.default.level2.path='/explore/'
+
 
 grails.project.groupId = 'au.org.ala' // change this to alter the default package name and Maven publishing destination
 

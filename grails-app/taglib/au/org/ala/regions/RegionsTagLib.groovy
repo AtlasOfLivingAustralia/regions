@@ -1,7 +1,8 @@
 package au.org.ala.regions
 
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import au.org.ala.cas.util.AuthenticationCookieUtils
+import grails.util.Environment
+import groovy.xml.MarkupBuilder
 
 class RegionsTagLib {
 
@@ -53,22 +54,27 @@ class RegionsTagLib {
      * Write the appropriate breadcrumb trail.
      *
      * Checks the config for skin to choose the correct hierarchy.
+     * A skin can define the breadcrumb using the properties:
      *
-     * @attr home the root of the page - defaults to collections
-     * @attr atBase true if the page is the base page of the root (no link is added)
+     * skin.breadcrumb.level1.title=
+     * skin.breadcrumb.level1.path=
+     * skin.breadcrumb.level2.title=
+     * skin.breadcrumb.level2.path=
+     * etc
+     *
+     * Note that only 9 levels are supported as the levels are sorted alphabetically.
+     * All paths are considered to be relative to the skin.homeUrl URL.
+     *
+     * If these properties are not specified, the defaults are used. breadcrumb.default.level1.title etc.
+     * See config.groovy for these defaults.
      */
     def breadcrumbTrail = {attrs ->
-        if (grailsApplication.config.ala.skin == 'ala') {
-            out << """
-<li><a href='${grailsApplication.config.ala.baseURL}'>Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-<li><a href='${grailsApplication.config.ala.baseURL}/explore/'>Explore</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-"""
-        }
-        else {
-            out << """
-<li><a href='${grailsApplication.config.ala.baseURL}'>Home</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-<li><a href='${grailsApplication.config.ala.baseURL}/species-by-location/'>Locations</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-"""
+
+        String homeURL = grailsApplication.config.skin.homeURL ?: grailsApplication.config.ala.baseURL
+        SortedMap breadcrumbConfig = new TreeMap(grailsApplication.config.skin.breadcrumb ?: grailsApplication.config.breadcrumb.default)
+
+        breadcrumbConfig.each { String level, Map config ->
+            out << """<li><a href='${homeURL+config.path}'>${config.title}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>"""
         }
 
         return out
@@ -85,6 +91,26 @@ class RegionsTagLib {
      */
     def speciesRecordListUrl = {attrs ->
         out << metadataService.buildSpeciesRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.regionPid, attrs.from, attrs.to)
+    }
+
+    /**
+     * Output the meta tags (HTML head section) for the build meta data in application.properties
+     * E.g.
+     * <meta name="svn.revision" content="${g.meta(name:'svn.revision')}"/>
+     * etc.
+     *
+     * Updated to use properties provided by build-info plugin
+     */
+    def addApplicationMetaTags = { attrs ->
+        // def metaList = ['svn.revision', 'svn.url', 'java.version', 'java.name', 'build.hostname', 'app.version', 'app.build']
+        def metaList = ['app.version', 'app.grails.version', 'build.date', 'scm.version', 'environment.BUILD_NUMBER', 'environment.BUILD_ID', 'environment.BUILD_TAG', 'environment.GIT_BRANCH', 'environment.GIT_COMMIT']
+        def mb = new MarkupBuilder(out)
+
+        mb.meta(name:'grails.env', content: "${Environment.current}")
+        metaList.each {
+            mb.meta(name:it, content: g.meta(name:it))
+        }
+        mb.meta(name:'java.version', content: "${System.getProperty('java.version')}")
     }
 
 }

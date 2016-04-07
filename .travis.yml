@@ -5,6 +5,8 @@ sudo: false
 branches:
   only:
   - master
+  - mdba
+
 before_install:
 - wget -q https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/ala_common.sh
 - chmod +x ala_common.sh
@@ -14,6 +16,14 @@ before_install:
 
 script:
 - ala_travis_grails_build
+
+# Build versions of regions with a different app.name.  This is so they can be deployed to the same server without config directories overlapping.
+- sed -i 's/app.name.*/app.name=regions-mdba/' ./application.properties
+- ala_travis_grails_build
+
+- sed -i 's/app.name.*/app.name=regions-ger/' ./application.properties
+- ala_travis_grails_build
+
 env:
   global:
   - secure: RIhAEjfKDzlXrqrTAHgC7wg+FODTmEq2AyWVzYYt2P46YHHdClBbVf5o1MhfhbQfn2E7yTSOXnZaP4KGhhotMHsqSxg9Ys42Nq4KXp/CXYfVPbw0MneKIv8Y4pgkAOhz1wBcDSTSHgO9oijfANAnI37V391tqvSrL9NiJfbLZLA=
