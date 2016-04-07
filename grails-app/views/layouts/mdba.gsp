@@ -91,10 +91,10 @@
             <div class="pull-right">
                 <div class="nav-collapse collapse pull-right">
                     <ul class="nav">
-                        <li><a href="${request.contextPath}/index">Home</a></li>
-                        <li><a href="${request.contextPath}/search">Search</a></li>
-                        <li><a href="${request.contextPath}/about">About</a></li>
-                        <li><a href="${request.contextPath}/help">Help</a></li>
+                        <li><a href="${grailsApplication.config.skin.homeURL}/index">Home</a></li>
+                        <li><a href="${grailsApplication.config.skin.homeURL}/search">Search</a></li>
+                        <li><a href="${grailsApplication.config.skin.homeURL}/about">About</a></li>
+                        <li><a href="${grailsApplication.config.skin.homeURL}/help">Help</a></li>
                     </ul>
                 </div><!--/.nav-collapse -->
                 %{--<div class="controls" style="padding-top: 18px">--}%
@@ -119,9 +119,9 @@
        <div class="row  navbar-inverse">
            <div class="span6">
                <ul class="nav">
-                   <li><a href="${request.contextPath}/contact">Contact us </a></li>
-                   <li><a href="${request.contextPath}/access">Accessibility </a></li>
-                   <li><a href="${request.contextPath}/disclaim">Disclaimer</a></li>
+                   <li><a href="${grailsApplication.config.skin.homeURL}/contact">Contact us </a></li>
+                   <li><a href="${grailsApplication.config.skin.homeURL}/access">Accessibility </a></li>
+                   <li><a href="${grailsApplication.config.skin.homeURL}/disclaim">Disclaimer</a></li>
                </ul>
            </div><!--/.spanX -->
            <div class="span6 smlinks text-right">
