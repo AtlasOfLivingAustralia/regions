@@ -29,6 +29,28 @@ class RegionsTagLib {
     }
 
     /**
+     * Generate the login link for the banner.
+     *
+     * Will be to log in or out based on current auth status.
+     *
+     * @attr fixedAppUrl if supplied will be used for logout instead of the current page
+     *
+     * @deprecated use HeaderFooterTagLib
+     */
+    def loginoutLink2011 = { attrs ->
+        def requestUri = grailsApplication.config.security.cas.serverName + request.forwardURI
+        if (AuthenticationCookieUtils.cookieExists(request, AuthenticationCookieUtils.ALA_AUTH_COOKIE)) {
+            // currently logged in
+            out << link(controller: 'regions', action: 'logout',
+                    params: [casUrl: grailsApplication.config.security.cas.logoutUrl,
+                            appUrl: attrs.fixedAppUrl ?: requestUri]) {'Logout'}
+        } else {
+            // currently logged out
+            out << "<a href='https://auth.ala.org.au/cas/login?service=${requestUri}'><span>Log in</span></a>"
+        }
+    }
+
+    /**
      * Write the appropriate breadcrumb trail.
      *
      * Checks the config for skin to choose the correct hierarchy.
@@ -67,7 +89,7 @@ class RegionsTagLib {
      * @attr from REQUIRED
      * @attr to REQUIRED
      */
-    def speciesRecordListUrl = { attrs ->
+    def speciesRecordListUrl = {attrs ->
         out << metadataService.buildSpeciesRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.regionPid, attrs.from, attrs.to)
     }
 
