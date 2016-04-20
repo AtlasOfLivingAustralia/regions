@@ -624,13 +624,14 @@ var TaxonomyWidget = function(config){
 var RegionMap = function (config) {
 
     var map;
-    var overlays = [null,null];  // first is the region, second is the occurrence data
+    var overlays = [null, null];  // first is the region, second is the occurrence data
     var defaultOccurrenceOpacity = 0.7;
     var defaultRegionOpacity = 0.5;
     var initialBounds;
     var infoWindow;
     var useReflectService = true;
     var overlayFormat = "image/png";
+    var enableRegionOverlay = true;
 
     var init = function (config) {
         initialBounds = new google.maps.LatLngBounds(
@@ -638,6 +639,7 @@ var RegionMap = function (config) {
             new google.maps.LatLng(config.bbox.ne.lat, config.bbox.ne.lng));
 
         useReflectService = config.useReflectService;
+        enableRegionOverlay = config.enableRegionOverlay;
 
         var myOptions = {
             scrollwheel: false,
@@ -659,7 +661,7 @@ var RegionMap = function (config) {
         map.fitBounds(initialBounds);
         map.enableKeyDragZoom();
 
-        initializeOpcaityControls();
+        initializeOpacityControls();
 
         /*****************************************\
          | Overlay the region shape
@@ -703,7 +705,7 @@ var RegionMap = function (config) {
     /**
      * Set up opacity sliders
      */
-    var initializeOpcaityControls = function() {
+    var initializeOpacityControls = function() {
 
         $('#occurrencesOpacity').slider({
             min: 0,
@@ -780,28 +782,30 @@ var RegionMap = function (config) {
      */
     var drawRegionOverlay = function () {
 
-        var currentState = regionWidget.getCurrentState();
-        var urls = regionWidget.getUrls();
+        if(enableRegionOverlay) {
+            var currentState = regionWidget.getCurrentState();
+            var urls = regionWidget.getUrls();
 
-        if (currentState.q.indexOf("%3A*") == currentState.q.length - 4) {
-            /* this draws the region as a WMS layer */
-            var layerParams = [
-                "FORMAT=" + overlayFormat,
-                "LAYERS=ALA:" + currentState.regionLayerName,
-                "STYLES=polygon"
-            ];
-            overlays[0] = new WMSTileLayer(currentState.regionLayerName, urls.spatialCacheUrl, layerParams, wmsTileLoaded, getRegionOpacity());
-            map.overlayMapTypes.setAt(0, overlays[0]);
+            if (currentState.q.indexOf("%3A*") == currentState.q.length - 4) {
+                /* this draws the region as a WMS layer */
+                var layerParams = [
+                    "FORMAT=" + overlayFormat,
+                    "LAYERS=ALA:" + currentState.regionLayerName,
+                    "STYLES=polygon"
+                ];
+                overlays[0] = new WMSTileLayer(currentState.regionLayerName, urls.spatialCacheUrl, layerParams, wmsTileLoaded, getRegionOpacity());
+                map.overlayMapTypes.setAt(0, overlays[0]);
 
-        } else {
-            var params = [
-                "FORMAT=" + overlayFormat,
-                "LAYERS=ALA:Objects",
-                "viewparams=s:" + currentState.regionPid,
-                "STYLES=polygon"
-            ];
-            overlays[0] = new WMSTileLayer(currentState.regionLayerName, urls.spatialWmsUrl, params, wmsTileLoaded, getRegionOpacity());
-            map.overlayMapTypes.setAt(0, overlays[0]);
+            } else {
+                var params = [
+                    "FORMAT=" + overlayFormat,
+                    "LAYERS=ALA:Objects",
+                    "viewparams=s:" + currentState.regionPid,
+                    "STYLES=polygon"
+                ];
+                overlays[0] = new WMSTileLayer(currentState.regionLayerName, urls.spatialWmsUrl, params, wmsTileLoaded, getRegionOpacity());
+                map.overlayMapTypes.setAt(0, overlays[0]);
+            }
         }
     };
 
@@ -879,8 +883,7 @@ var RegionMap = function (config) {
             "fq=geospatial_kosher:true",
             'CQL_FILTER=',
             "symsize=3",
-            "ENV=color:3366CC;name:circle;size:3;opacity:" + getOccurrenceOpacity(),
-            //"ENV=color:22a467;name:circle;size:4;opacity:0.8",
+            "ENV=color:FF0000;name:circle;size:3;opacity:" + getOccurrenceOpacity(),
             "EXCEPTIONS=application-vnd.ogc.se_inimage"
         ];
 

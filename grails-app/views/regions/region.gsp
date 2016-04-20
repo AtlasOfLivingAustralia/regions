@@ -7,12 +7,17 @@
 </head>
 <body class="nav-locations regions">
 
-<div class="row">
+<div class="row-fluid">
     <div class="span12">
         <ol class="breadcrumb pull-left">
             <rg:breadcrumbTrail/>
-            <li><a href="${grailsApplication.config.grails.serverURL}#rt=${region.type}">Regions</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
-            <g:if test="${region.parent}">
+            <g:if test="${isHabitat}">
+                <li><a href="${grailsApplication.config.grails.serverURL}/habitats/">Habitats</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+            </g:if>
+            <g:else>
+                <li><a href="${grailsApplication.config.grails.serverURL}${region.type != 'layer' ? '#rt='+ region.type :''}">Regions</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
+            </g:else>
+            <g:if test="${region.parent && region.parent.type && region.parent.name}">
                 <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.type}/${region.parent.name}">${region.parent.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
                 <g:if test="${region.parent.child}">
                     <li><a href="${grailsApplication.config.grails.serverURL}/${region.parent.child.type}/${region.parent.child.name}">${region.parent.child.name}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>
@@ -27,7 +32,7 @@
     </div>
 </div>
 
-<div class="row" id="emblemsContainer">
+<div class="row-fluid" id="emblemsContainer">
     <div class="span12">
         <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
@@ -39,7 +44,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row-fluid">
     <div class="span12">
         <g:if test="${region.description || region.notes}">
             <section class="section">
@@ -53,7 +58,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row-fluid">
     <div class="span6">
         <ul class="nav nav-tabs" id="explorerTabs">
             <li class="active"><a id="speciesTab" href="#speciesTabContent" data-toggle="tab">Explore by species <i class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
@@ -169,7 +174,7 @@
 </div>
 
 <g:if test="${subRegions.size() > 0}">
-    <div class="row">
+    <div class="row-fluid">
         <div class="span12" id="subRegions">
             <h2>Regions within ${region.name}</h2>
             <g:each in="${subRegions}" var="item">
@@ -230,7 +235,6 @@
 
     $(function() {
 
-
         regionWidget = new RegionWidget({
             regionName: '${region.name}',
             regionType: '${region.type}',
@@ -257,14 +261,15 @@
                 sw: {lat: ${region.bbox?.minLat}, lng: ${region.bbox?.minLng}},
                 ne: {lat: ${region.bbox?.maxLat}, lng: ${region.bbox?.maxLng}}
             },
-            useReflectService: ${useReflect}
+            useReflectService: ${useReflect},
+            enableRegionOverlay: ${enableRegionOverlay != null ? enableRegionOverlay : 'true'}
         }));
+
         regionWidget.setTimeControls(new RegionTimeControls());
 
-         google.setOnLoadCallback(function() {
+        google.setOnLoadCallback(function() {
             regionWidget.setTaxonomyWidget(new TaxonomyWidget());
         });
-
     });
 
 </r:script>

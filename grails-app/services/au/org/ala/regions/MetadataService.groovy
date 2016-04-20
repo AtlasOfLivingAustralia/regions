@@ -4,6 +4,7 @@ import au.org.ala.regions.binding.DownloadParams
 import au.org.ala.web.AuthService
 import grails.converters.JSON
 import grails.util.Holders
+import grails.util.Metadata
 import groovy.json.JsonSlurper
 import groovyx.net.http.RESTClient
 import groovyx.net.http.URIBuilder
@@ -842,5 +843,13 @@ class MetadataService {
         }
 
         map
+    }
+
+    def getHabitatConfig(){
+        def appName = Metadata.current.'app.name'
+        def json = new File("/data/${appName}/config/habitats.json").text
+        def js = new JsonSlurper()
+        def config = js.parseText(json)
+        config
     }
 }

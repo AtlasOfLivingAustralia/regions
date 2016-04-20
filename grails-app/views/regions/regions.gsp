@@ -10,7 +10,7 @@
 
 </head>
 <body class="nav-locations">
-<div class="row">
+<div class="row-fluid">
     <div class="span12">
         <ul class="breadcrumb">
             <rg:breadcrumbTrail/>
@@ -19,7 +19,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row-fluid">
     <div class="span12">
         <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
@@ -36,9 +36,9 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row-fluid">
     <div class="span4">
-        <p style="font-size:15px;margin-left:15px;padding-bottom:0"><i class="fa fa-info-circle"></i> Click on a region name to select an area.</p>
+        <p style="font-size:15px;margin-left:15px;padding-bottom:0;"><i class="fa fa-info-circle"></i> Click on a region name to select an area.</p>
         <div id="accordion">
             <g:each in="${menu}" var="item">
                 <h2><a href="#">${item.label}</a></h2>
@@ -97,7 +97,10 @@
             accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
             mapBounds: JSON.parse('${grailsApplication.config.map.bounds?:[]}'),
             mapHeight: '${grailsApplication.config.map.height}',
-            mapContainer: 'map_canvas'
+            mapContainer: 'map_canvas',
+            defaultRegionType: "${grailsApplication.config.default.regionType}",
+            defaultRegion: "${grailsApplication.config.default.region}",
+
         });
     })
 </r:script>

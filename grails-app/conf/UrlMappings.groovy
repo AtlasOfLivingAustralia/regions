@@ -2,7 +2,19 @@ class UrlMappings {
 
 	static mappings = {
 
-        "/feature/$pid" (controller: 'regions', action: 'region')
+        "/habitats" (controller: 'habitat', action: 'index')
+        "/habitats/" (controller: 'habitat', action: 'index')
+
+        "/habitat/$pid" (controller: 'regions', action: 'habitat')
+
+        "/habitats/sld" (controller: 'habitat', action: 'sld')
+
+        "/habitats/records/$habitatID" (controller: 'habitat', action: 'viewRecords')
+
+        name regionByFeature: "/feature/$pid" (controller: 'regions', action: 'region')
+
+        name habitatByFeature : "/habitat/$pid" (controller: 'regions', action: 'habitat')
+        name habitatByFeature : "/habitats/$pid" (controller: 'regions', action: 'habitat')
 
         "/$regionType/$regionName" (controller: 'regions', action: 'region') {
             constraints {
@@ -10,7 +22,7 @@ class UrlMappings {
                 regionType(matches:'(?!(^data\$|^proxy\$|^region\$|^regions\$)).*')
             }
         }
-        
+
         "/$regionType" (controller: 'regions', action: 'regions') {
             constraints {
                 //do not match controllers

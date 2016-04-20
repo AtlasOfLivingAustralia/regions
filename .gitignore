@@ -2,6 +2,10 @@
 ### Grails template
 # .gitignore for Grails 1.2 and 1.3
 
+
+
+.slcache
+
 # web application files
 /web-app/WEB-INF/classes
 
