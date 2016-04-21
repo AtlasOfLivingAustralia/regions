@@ -170,3 +170,14 @@ log4j = {
 
     debug 'grails.app'
 }
+
+// app specific config
+// switch this on to query hub specific data
+hub.enableHubData=false
+// add hub id here eg. "data_hub_uid:dh10"
+hub.hubFilter=""
+
+// switch on query context
+biocache.enableQueryContext=false
+// add query context eg. 'cl2110:"Murray-Darling Basin Boundary"'
+biocache.queryContext=""

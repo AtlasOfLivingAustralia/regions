@@ -385,6 +385,10 @@ tr.speciesSelected, tr.speciesSelected:hover td {
     padding-right: .5em;
 }
 
+.switch-padding{
+    padding-top: 18px;
+}
+
 /* Taxonomy Chart */
 #charts {
     text-align: center;

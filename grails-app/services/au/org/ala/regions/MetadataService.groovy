@@ -61,7 +61,8 @@ class MetadataService {
     final static String PAGE_SIZE = "50"
     final static Map userAgent = ['User-Agent': 'whatever']
 
-    String BIE_URL, BIE_SERVICE_URL, BIOCACHE_URL, BIOCACHE_SERVICE_URL, ALERTS_URL, DEFAULT_IMG_URL
+    String BIE_URL, BIE_SERVICE_URL, BIOCACHE_URL, BIOCACHE_SERVICE_URL, ALERTS_URL, DEFAULT_IMG_URL, QUERY_CONTEXT, HUB_FILTER
+    Boolean ENABLE_HUB_DATA = false, ENABLE_QUERY_CONTEXT = false
     String CONFIG_DIR
 
     @PostConstruct
@@ -73,6 +74,10 @@ class MetadataService {
         DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
         ALERTS_URL = grailsApplication.config.alerts.baseURL
         CONFIG_DIR = grailsApplication.config.config_dir
+        ENABLE_HUB_DATA = grailsApplication.config.hub.enableHubData?.toBoolean()
+        HUB_FILTER = grailsApplication.config.hub.hubFilter
+        ENABLE_QUERY_CONTEXT = grailsApplication.config.biocache.enableQueryContext?.toBoolean()
+        QUERY_CONTEXT = grailsApplication.config.biocache.queryContext
     }
 
     /**
@@ -121,9 +126,9 @@ class MetadataService {
      * @param regionName
      * @return
      */
-    List getGroups(String regionFid, String regionType, String regionName, String regionPid) {
+    List getGroups(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
         def responseGroups = new RESTClient("${BIOCACHE_SERVICE_URL}/explore/hierarchy").get([headers: userAgent]).data
-        Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid)
+        Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid, showHubData)
 
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
         responseGroups.each {group ->
@@ -144,7 +149,7 @@ class MetadataService {
      * @param regionName
      * @return
      */
-    Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName, String regionPid) {
+    Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
         String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
             query = [
                     q: buildRegionFacet(regionFid, regionType, regionName, regionPid),
@@ -152,6 +157,14 @@ class MetadataService {
                     flimit: '-1',
                     pageSize: 0
             ]
+
+            if(ENABLE_QUERY_CONTEXT){
+                query << [qc: QUERY_CONTEXT]
+            }
+
+            if(showHubData && ENABLE_HUB_DATA){
+                query << [fq: HUB_FILTER]
+            }
 
             return it
         }.toString()
@@ -178,8 +191,8 @@ class MetadataService {
      * @param to
      * @return
      */
-    def getSpecies(String regionFid, String regionType, String regionName, String regionPid, String groupName, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
-        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex)).get([headers: userAgent]).data
+    def getSpecies(String regionFid, String regionType, String regionName, String regionPid, String groupName, Boolean isSubgroup = false, Boolean showHubData, String from = null, String to = null, String pageIndex = '0') {
+        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex, showHubData)).get([headers: userAgent]).data
         return [
                 totalRecords: response.totalRecords,
                 records: response.facetResults[0]?.fieldResult.collect {result ->
@@ -222,11 +235,20 @@ class MetadataService {
      * @param to
      * @return
      */
-    String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String from, String to) {
+    String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String from, String to, Boolean showHubData) {
         StringBuilder sb = new StringBuilder("${BIOCACHE_URL}/occurrences/search?q=lsid:\"${guid}\"" +
                 "&fq=${buildRegionFacet(regionFid, regionType, regionName, regionPid)}")
         if (isValidTimeRange(from, to)) {
             " AND ${buildTimeFacet(from, to)}"
+        }
+
+        if(ENABLE_QUERY_CONTEXT){
+            // when using qc, biocache search fails. AtlasOfLivingAustralia/biocache-hubs#176
+            sb.append("&fq=${URLEncoder.encode(QUERY_CONTEXT, 'UTF-8')}")
+        }
+
+        if(showHubData && ENABLE_HUB_DATA){
+            sb.append("&fq=${URLEncoder.encode(HUB_FILTER, 'UTF-8')}")
         }
 
         return sb.toString()
@@ -282,9 +304,9 @@ class MetadataService {
      *
      * @return
      */
-    String buildDownloadRecordsUrlPrefix(int option, String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+    String buildDownloadRecordsUrlPrefix(int option, String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, Boolean showHubData = false) {
         String url
-        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to)
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData)
         String wsUrl
         switch (option) {
             case '0':
@@ -328,7 +350,7 @@ class MetadataService {
      * @param to
      * @return
      */
-    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
+    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, Boolean showHubData = false) {
         Map params = [
                 q : buildRegionFacet(regionFid, regionType, regionName, regionPid),
                 fq: 'rank:(species OR subspecies)',
@@ -342,6 +364,14 @@ class MetadataService {
 
         if (isValidTimeRange(from, to)) {
             params << [fq: params.fq + ' AND ' + params.fq + ' AND ' + buildTimeFacet(from, to)]
+        }
+
+        if(ENABLE_QUERY_CONTEXT){
+            params << [qc: QUERY_CONTEXT]
+        }
+
+        if(showHubData && ENABLE_HUB_DATA){
+            params << [fq: params.fq + ' AND ' + HUB_FILTER]
         }
 
         return params
@@ -359,9 +389,9 @@ class MetadataService {
      * @param pageIndex
      * @return
      */
-    String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0') {
+    String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0', Boolean showHubData = false) {
         String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
-            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, pageIndex)
+            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, pageIndex, showHubData)
             return it
         }.toString()
         log.debug "REST URL generated = ${url}"
@@ -381,7 +411,7 @@ class MetadataService {
      * @param pageIndex
      * @return
      */
-    private Map buildSearchOccurrencesWsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = "0") {
+    private Map buildSearchOccurrencesWsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = "0", Boolean showHubData = false) {
         Map params =  [
                 q : buildRegionFacet(regionFid, regionType, regionName, regionPid),
                 facets: 'names_and_lsid',
@@ -400,6 +430,14 @@ class MetadataService {
 
         if (isValidTimeRange(from, to)) {
             params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
+        }
+
+        if(ENABLE_QUERY_CONTEXT){
+            params << [qc: QUERY_CONTEXT]
+        }
+
+        if(showHubData && ENABLE_HUB_DATA){
+            params << [fq: params.fq + ' AND ' + HUB_FILTER]
         }
 
         return params

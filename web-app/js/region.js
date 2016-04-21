@@ -114,7 +114,10 @@ var RegionWidget = function (config) {
         from: '',
         to: '',
         tab: '',
-        q: ''
+        q: '',
+        qc: '',
+        hubFilter:'',
+        showHubData:false
     };
 
     var urls = {};
@@ -134,8 +137,10 @@ var RegionWidget = function (config) {
         state.from = state.from ? state.from : defaultFromYear;
         state.to = state.to ? state.to : defaultToYear;
         state.tab = state.tab ? state.tab : defaultTab;
-
+        state.qc = config.qc || '';
         state.q = config.q;
+        state.showHubData = config.showHubData || false;
+        state.hubFilter = config.hubFilter || '';
 
         // Check previous existing state
         updateState($.bbq.getState());
@@ -198,6 +203,16 @@ var RegionWidget = function (config) {
                     url += '&fq=species_group:"' + state.group + '"';
                 }
             }
+
+            if(state.qc){
+                //when using qc, biocache search fails. AtlasOfLivingAustralia/biocache-hubs#176
+                url += '&fq=' +state.qc
+            }
+
+            if(state.showHubData){
+                url += "&fq=" + state.hubFilter
+            }
+
             document.location.href = url;
         });
     };
@@ -590,6 +605,8 @@ var TaxonomyWidget = function(config){
 
         taxonomyChartOptions = {
             query: query,
+            qc: currentState.qc,
+            currentState: currentState,
             subquery: region.buildTimeFacet(),
             rank: "kingdom",
             width: 550,
@@ -854,6 +871,14 @@ var RegionMap = function (config) {
 
         searchParam += fqParam;
 
+        if(currentState.qc){
+            searchParam += "&qc=" + currentState.qc
+        }
+
+        if(currentState.showHubData){
+            searchParam += "&fq=" + currentState.hubFilter
+        }
+
         var pairs = searchParam.substring(1).split('&');
         for (var j = 0; j < pairs.length; j++) {
             customParams.push(pairs[j]);
@@ -885,7 +910,7 @@ var RegionMap = function (config) {
         ];
 
         if (query.fq) {
-            prms.push("&fq=" + query.fq);
+            prms.push("fq=" + query.fq);
         }
 
         var fqParam = "";
@@ -911,6 +936,14 @@ var RegionMap = function (config) {
 
         if (fqParam != "") {
             prms.push(fqParam);
+        }
+
+        if(currentState.qc){
+            prms.push("qc=" + currentState.qc)
+        }
+
+        if(currentState.showHubData){
+            prms.push("fq=" + currentState.hubFilter)
         }
 
         overlays[1] = new WMSTileLayer("Occurrences (by reflect service)", url, prms, wmsTileLoaded, 0.8);
