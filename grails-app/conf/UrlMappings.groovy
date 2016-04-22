@@ -2,6 +2,8 @@ class UrlMappings {
 
 	static mappings = {
 
+        "/logout/logout" (controller: "logout", action: 'logout')
+
         "/feature/$pid" (controller: 'regions', action: 'region')
 
         "/$regionType/$regionName" (controller: 'regions', action: 'region') {

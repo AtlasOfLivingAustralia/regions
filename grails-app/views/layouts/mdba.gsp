@@ -1,5 +1,6 @@
 <g:set var="orgNameLong" value="${grailsApplication.config.skin.orgNameLong}"/>
 <g:set var="orgNameShort" value="${grailsApplication.config.skin.orgNameShort}"/>
+<g:set var="authService" bean="authService"/>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,60 +11,6 @@
 
     <title><g:layoutTitle /></title>
     <r:require modules="bootstrap,mdba" />
-    %{--<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic,300,300italic' rel='stylesheet' type='text/css'>--}%
-    %{--<link href='http://livedata.mdba.gov.au/sites/all/themes/watersource_foundation/fonts/mdba-fonts/Common_fonts.css' rel='stylesheet' type='text/css'>--}%
-    <style type="text/css">
-
-    </style>
-    %{--<r:script disposition='head'>--}%
-        %{--// initialise plugins--}%
-        %{--jQuery(function(){--}%
-            %{--// autocomplete on navbar search input--}%
-            %{--jQuery("form#search-form-2011 input#search-2011, form#search-inpage input#search, input#search-2013").autocomplete('http://bie.ala.org.au/search/auto.jsonp', {--}%
-                %{--extraParams: {limit: 100},--}%
-                %{--dataType: 'jsonp',--}%
-                %{--parse: function(data) {--}%
-                    %{--var rows = new Array();--}%
-                    %{--data = data.autoCompleteList;--}%
-                    %{--for(var i=0; i<data.length; i++) {--}%
-                        %{--rows[i] = {--}%
-                            %{--data:data[i],--}%
-                            %{--value: data[i].matchedNames[0],--}%
-                            %{--result: data[i].matchedNames[0]--}%
-                        %{--};--}%
-                    %{--}--}%
-                    %{--return rows;--}%
-                %{--},--}%
-                %{--matchSubset: false,--}%
-                %{--formatItem: function(row, i, n) {--}%
-                    %{--return row.matchedNames[0];--}%
-                %{--},--}%
-                %{--cacheLength: 10,--}%
-                %{--minChars: 3,--}%
-                %{--scroll: false,--}%
-                %{--max: 10,--}%
-                %{--selectFirst: false--}%
-            %{--});--}%
-
-            %{--// Mobile/desktop toggle--}%
-            %{--// TODO: set a cookie so user's choice is remembered across pages--}%
-            %{--var responsiveCssFile = $("#responsiveCss").attr("href"); // remember set href--}%
-            %{--$(".toggleResponsive").click(function(e) {--}%
-                %{--e.preventDefault();--}%
-                %{--$(this).find("i").toggleClass("icon-resize-small icon-resize-full");--}%
-                %{--var currentHref = $("#responsiveCss").attr("href");--}%
-                %{--if (currentHref) {--}%
-                    %{--$("#responsiveCss").attr("href", ""); // set to desktop (fixed)--}%
-                    %{--$(this).find("span").html("Mobile");--}%
-                %{--} else {--}%
-                    %{--$("#responsiveCss").attr("href", responsiveCssFile); // set to mobile (responsive)--}%
-                    %{--$(this).find("span").html("Desktop");--}%
-                %{--}--}%
-            %{--});--}%
-
-            %{--$('.helphover').popover({animation: true, trigger:'hover'});--}%
-        %{--});--}%
-    %{--</r:script>--}%
     <r:layoutResources/>
     <g:layoutHead />
 </head>
@@ -95,14 +42,18 @@
                         <li><a href="${grailsApplication.config.skin.homeURL}/search">Search</a></li>
                         <li><a href="${grailsApplication.config.skin.homeURL}/about">About</a></li>
                         <li><a href="${grailsApplication.config.skin.homeURL}/help">Help</a></li>
+                        <g:if test="${!authService.getUserId()}">
+                            <li>
+                                <a href="${grailsApplication.config.casServerLoginUrl}?service=${grailsApplication.config.serverName}${request.forwardURI}">Login</a>
+                            </li>
+                        </g:if>
+                        <g:if test="${!!authService.getUserId()}">
+                            <li>
+                                <a href="${grailsApplication.config.grails.serverURL}/logout/logout?casUrl=${grailsApplication.config.casServerUrlPrefix}/logout&appUrl=${grailsApplication.config.serverName}${request.forwardURI}">Logout</a>
+                            </li>
+                        </g:if>
                     </ul>
                 </div><!--/.nav-collapse -->
-                %{--<div class="controls" style="padding-top: 18px">--}%
-                    %{--<div class="input-append">--}%
-                        %{--<input type="text" name="taxa" id="taxa" class="input-large">--}%
-                        %{--<button id="locationSearch" type="submit" class="btn"><g:message code="home.index.simsplesearch.button" default="Search"/></button>--}%
-                    %{--</div>--}%
-                %{--</div>--}%
             </div>
         </div><!--/.container-fluid -->
     </div><!--/.navbar-inner -->
