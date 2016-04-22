@@ -74,6 +74,17 @@ class RegionsController {
         render result as JSON
     }
 
+    def region = {
+        loadRegion(params)
+    }
+
+    def habitat = {
+        def model = loadRegion(params)
+        model.enableRegionOverlay = false
+        model.isHabitat = true
+        render(view: 'region', model: model)
+    }
+
     /**
      * Show the descriptive page for a region.
      *
@@ -81,7 +92,8 @@ class RegionsController {
      * @param regionName the name of the object in the layer eg Tasmania
      * @param pid the id of the object - optional
      */
-    def region = {
+    def loadRegion(params) {
+
         def region = [:]
         def menu = [:]
 
@@ -90,9 +102,8 @@ class RegionsController {
             region.name = metadata.name
             region.pid = metadata.pid
             region.type = "layer"
-            region.bbox = [minLat: -42, minLng: 113, maxLat: -14, maxLng: 153]  //need to parse WKT
+            region.bbox = metadataService.parseBbox(metadata.bbox)
             menu.fid = metadata.fid
-
         } else {
             // This decoding process is required because some region names contain a lot of unsafe characters
             region.name = URLDecoder.decode(params.regionName.replace("%253B", "%3B"), 'UTF-8')
@@ -109,7 +120,6 @@ class RegionsController {
         region.gid = 0  // in case none other specified
 
         //get the menu item for the regionType
-
         metadataService.getMenu().each { v ->
             if (v.label.equals(region.type)) {
                 menu = v
@@ -198,14 +208,13 @@ class RegionsController {
                 }
             }
         }
-
-        // Documents will render under the map on the layer page. They were previously used by the GER region page, currently unused.
-        def docs = [:]
-        // render
         [
-                region: region, emblems: emblemGuids, subRegions: subRegions,
-                documents: docs, useReflect: params.reflect == 'false' ? false : true,
-                alertsUrl: metadataService.buildAlertsUrl(region)
+            region: region,
+            emblems: emblemGuids,
+            subRegions: subRegions,
+            documents: [:],
+            useReflect: params.reflect == 'false' ? false : true,
+            alertsUrl: metadataService.buildAlertsUrl(region)
         ]
     }
 
@@ -252,7 +261,5 @@ class RegionsController {
         finally {
             stream?.close()
         }
-
     }
-
 }

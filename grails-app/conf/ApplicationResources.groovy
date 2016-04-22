@@ -15,6 +15,11 @@ modules = {
         resource url: '/css/regions.css', attrs:[media:'all']
     }
 
+    leaflet {
+        resource url:[dir:'js/leaflet', file:'leaflet.css'], attrs: [ media: 'all' ]
+        resource url:[dir:'js/leaflet', file:'leaflet.js']
+    }
+
     jquery {
         resource url: '/vendor/jquery/jquery-1.11.2.js'
     }
