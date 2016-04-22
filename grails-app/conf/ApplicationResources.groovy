@@ -68,5 +68,10 @@ modules = {
 
         resource url: [dir:'css', file:'mdba-styles.css']
     }
+
+    bootstrapSwitch{
+        resource url: [dir:'/vendor/bootstrap-switch', file:'bootstrap-switch.css']
+        resource url: [dir:'/vendor/bootstrap-switch', file:'bootstrap-switch.min.js']
+    }
 }
 

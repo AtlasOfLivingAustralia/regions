@@ -321,6 +321,8 @@ var taxonomyChart = {
             this.threshold = chartOptions.threshold;
         }
 
+        var state = this.chartOptions.currentState;
+
         var url = biocacheServicesUrl + "/breakdown.json?q=" + this.query;
 
         // add url params to set state
@@ -329,6 +331,14 @@ var taxonomyChart = {
         }
         else {
             url += "&max=" + (this.threshold ? this.threshold : '55');
+        }
+
+        if(state.qc){
+            url += "&qc=" + state.qc;
+        }
+
+        if(state.showHubData){
+            url += "&fq=" + state.hubFilter;
         }
 
         $.ajax({
@@ -351,6 +361,12 @@ var taxonomyChart = {
                 if (data != undefined && data.taxa.length > 0) {
                     // draw the chart
                     thisChart.draw(data);
+                } else {
+                    // show no data
+                    thisChart.draw({
+                        taxa: [],
+                        rank: ''
+                    })
                 }
             }
         });
@@ -496,9 +512,19 @@ var taxonomyChart = {
     showRecords: function () {
         // show occurrence records
         var fq = "";
+        var state = this.chartOptions.currentState;
         if (this.rank != undefined && this.name != undefined) {
             fq = "&fq=" + this.rank + ":" + this.name;
         }
+
+        if(state.showHubData){
+            fq += "&fq=" + state.hubFilter
+        }
+
+        if(state.qc){
+            fq += "&fq=" + state.qc
+        }
+
         document.location = urlConcat(biocacheWebappUrl, "/occurrences/search?q=") +
                 this.query + fq;
     },
@@ -618,6 +644,7 @@ function initTaxonTree(treeOptions) {
 * Go to occurrence records for selected node
 \************************************************************/
 function showRecords(node, query) {
+    debugger;
   var rank = node.attr('rank');
   if (rank == 'kingdoms') return;
   var name = node.attr('id');

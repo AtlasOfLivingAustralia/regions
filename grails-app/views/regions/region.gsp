@@ -3,10 +3,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="layout" content="${grailsApplication.config.layout.skin?:'main'}"/>
     <title>${region.name} | ${grailsApplication.config.orgNameLong}</title>
-    <r:require modules="region"/>
+    <r:require modules="region, bootstrapSwitch"/>
 </head>
 <body class="nav-locations regions">
-
+<g:set var="enableQueryContext" value="${grailsApplication.config.biocache.enableQueryContext?.toBoolean()}"></g:set>
+<g:set var="enableHubData" value="${grailsApplication.config.hub.enableHubData?.toBoolean()}"></g:set>
+<g:set var="hubState" value="${true}"></g:set>
 <div class="row">
     <div class="span12">
         <ol class="breadcrumb pull-left">
@@ -20,10 +22,14 @@
             </g:if>
             <li class="active">${region.name}</li>
         </ol>
-        <a id="alertsButton" class="btn btn-ala pull-right" href="${alertsUrl}">
-            Alerts
-            <i class="icon-bell icon-white"></i>
-        </a>
+        <div class="pull-right">
+            <div class="row">
+                <a id="alertsButton" class="btn btn-ala pull-right" href="${alertsUrl}">
+                    Alerts
+                    <i class="icon-bell icon-white"></i>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -39,8 +45,8 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="span12">
+<div class="row-fluid">
+    <div class="span8">
         <g:if test="${region.description || region.notes}">
             <section class="section">
                 <h2>Description</h2>
@@ -49,8 +55,15 @@
             </section>
         </g:if>
 
-        <h2 id="occurrenceRecords">Occurrence records <span id="totalRecords"></span></h2>
+        <h2 id="occurrenceRecords" class="">Occurrence records <span id="totalRecords"></span></h2>
     </div>
+    <g:if test="${enableHubData}">
+        <div class="switch-padding span4">
+            <span class="pull-right">
+                Toggle: All / MDBA records <input type="checkbox" name="hub-toggle" ${hubState?"":"checked"}>
+            </span>
+        </div>
+    </g:if>
 </div>
 
 <div class="row">
@@ -61,20 +74,27 @@
         </ul>
         <div class="tab-content">
             <div class="tab-pane active" id="speciesTabContent">
-                <table class="table table-condensed table-hover" id="groups">
+                %{--<table class="table table-condensed table-hover" id="groups">--}%
+                <table id="groups"
+                       tagName="tbody"
+                       class="table table-condensed table-hover"
+                       aa-href="${g.createLink(controller: 'region', action: 'showGroups', params: [regionFid: region.fid,regionType: region.type, regionName: region.name, regionPid: region.pid])}"
+                       aa-js-before="setHubConfig();"
+                       aa-js-after="regionWidget.groupsLoaded();"
+                       aa-refresh-zones="groupsZone"
+                       aa-queue="abort">
                     <thead>
                         <tr>
                             <th class="text-center">Group</th>
                         </tr>
                     </thead>
-                    <aa:zone id="groupsZone" tag="tbody" href="${g.createLink(controller: 'region', action: 'showGroups', params: [regionFid: region.fid,regionType: region.type, regionName: region.name, regionPid: region.pid])}"
-                             jsAfter="regionWidget.groupsLoaded();">
+                    <tbody id="groupsZone" tagName="tbody">
                         <tr class="spinner">
                             <td class="spinner text-center">
                                 <i class="fa fa-cog fa-spin fa-2x"></i>
                             </td>
                         </tr>
-                    </aa:zone>
+                    </tbody>
                 </table>
                 <table class="table table-condensed table-hover" id="species">
                     <thead>
@@ -230,6 +250,31 @@
 
     $(function() {
 
+    $(document).on("click", "[aa-refresh-zones]", function(event) {
+        event.stopPropagation()
+        return false;
+    });
+
+        <g:if test="${enableHubData}">
+        $("[name='hub-toggle']").bootstrapSwitch({
+                size: "small",
+                onText: "All",
+                onColor: "primary",
+                offText: "MDBA",
+                offColor: "success",
+                onSwitchChange: function(event, state) {
+                    console.log("switch toggled", state);
+                    if (!state) {
+                        // MDBA visible
+                        regionWidget.getCurrentState().showHubData = true
+                    } else {
+                        regionWidget.getCurrentState().showHubData = false
+                    }
+                    refreshSpeciesGroup();
+                    taxonomyChart.load()
+                }
+        });
+        </g:if>
 
         regionWidget = new RegionWidget({
             regionName: '${region.name}',
@@ -250,6 +295,13 @@
             },
             username: '${rg.loggedInUsername()}',
             q: '${region.q}'
+            <g:if test="${enableQueryContext}">
+                ,qc:"${URLEncoder.encode(grailsApplication.config.biocache.queryContext, "UTF-8")}"
+            </g:if>
+            <g:if test="${enableHubData}">
+                ,hubFilter:"${URLEncoder.encode(grailsApplication.config.hub.hubFilter , "UTF-8")}"
+                ,showHubData: ${hubState}
+            </g:if>
         });
 
         regionWidget.setMap(new RegionMap({
@@ -265,7 +317,20 @@
             regionWidget.setTaxonomyWidget(new TaxonomyWidget());
         });
 
+        refreshSpeciesGroup();
     });
+
+    function setHubConfig(){
+        <g:if test="${enableHubData}">
+            AjaxAnywhere.dynamicParams = {
+                showHubData:!$('[name="hub-toggle"]').is(":checked")
+            }
+        </g:if>
+    }
+
+    function refreshSpeciesGroup(){
+        $('#groups').click()
+    }
 
 </r:script>
 </body>
