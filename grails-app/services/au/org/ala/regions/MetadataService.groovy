@@ -151,7 +151,7 @@ class MetadataService {
      */
     Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
         String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
-            query = [
+            Map params = [
                     q: buildRegionFacet(regionFid, regionType, regionName, regionPid),
                     facets: 'species_subgroup',
                     flimit: '-1',
@@ -159,13 +159,14 @@ class MetadataService {
             ]
 
             if(ENABLE_QUERY_CONTEXT){
-                query << [qc: QUERY_CONTEXT]
+                params << [qc: QUERY_CONTEXT]
             }
 
             if(showHubData && ENABLE_HUB_DATA){
-                query << [fq: HUB_FILTER]
+                params << [fq: HUB_FILTER]
             }
 
+            query = params
             return it
         }.toString()
 
@@ -214,13 +215,25 @@ class MetadataService {
      */
     String buildAlertsUrl(Map region) {
         URLDecoder.decode(new URIBuilder("${ALERTS_URL}/webservice/createBiocacheNewRecordsAlert").with {
-            query = [
+            Map params = [
                     webserviceQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name, region.pid)}",
                     uiQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name, region.pid)}",
                     queryDisplayName: region.name,
                     baseUrlForWS: "${BIOCACHE_SERVICE_URL}",
                     baseUrlForUI: "${BIOCACHE_URL}&resourceName=Atlas"
             ]
+
+            if(ENABLE_QUERY_CONTEXT){
+                params.webserviceQuery += "&qc=" + QUERY_CONTEXT
+                params.uiQuery += "&qc=" + QUERY_CONTEXT
+            }
+
+            if(ENABLE_HUB_DATA){
+                params.webserviceQuery += "&fq=" + HUB_FILTER
+                params.uiQuery += "&fq=" + HUB_FILTER
+            }
+
+            query = params
             return it
         }.toString(), 'UTF-8')
     }

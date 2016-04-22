@@ -902,6 +902,7 @@ var RegionMap = function (config) {
             "BGCOLOR=0xFFFFFF",
             'q=' + query.q,
             "fq=geospatial_kosher:true",
+            "fq=rank:(species OR subspecies)",
             'CQL_FILTER=',
             "symsize=3",
             "ENV=color:3366CC;name:circle;size:3;opacity:" + getOccurrenceOpacity(),
@@ -917,25 +918,21 @@ var RegionMap = function (config) {
         if ($("#taxonomyTab").hasClass('active')) {
             // show records based on taxonomy chart
             if (taxonomyChart.rank && taxonomyChart.name) {
-                fqParam = "fq=" + taxonomyChart.rank + ":" + taxonomyChart.name;
+                prms.push("fq=" + encodeURI(taxonomyChart.rank + ":" + taxonomyChart.name));
             }
         }
         else {
             // show records based on taxa box
             if (currentState.guid) {
-                fqParam = "fq=taxon_concept_lsid:" + currentState.guid;
+                prms.push("fq=taxon_concept_lsid:" + encodeURI(currentState.guid));
             }
             else if (currentState.group != "ALL_SPECIES") {
                 if (currentState.subgroup) {
-                    fqParam = "&fq=species_subgroup:" + currentState.subgroup;
+                    prms.push("fq=species_subgroup:" + encodeURI('"' + currentState.subgroup + '"'));
                 } else {
-                    fqParam = "&fq=species_group:" + currentState.group;
+                    prms.push("fq=species_group:" + encodeURI('"' + currentState.group + '"'));
                 }
             }
-        }
-
-        if (fqParam != "") {
-            prms.push(fqParam);
         }
 
         if(currentState.qc){
