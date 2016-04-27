@@ -39,7 +39,7 @@
                 <div class="nav-collapse collapse pull-right">
                     <ul class="nav">
                         <li><a href="${grailsApplication.config.skin.homeURL}/index">Home</a></li>
-                        <li><a href="${grailsApplication.config.skin.homeURL}/search">Search</a></li>
+                        <li><a href="${grailsApplication.config.skin.homeURL}/occurrences/search?fq=data_hub_uid:dh10#tab_mapView">Search</a></li>
                         <li><a href="${grailsApplication.config.skin.homeURL}/about">About</a></li>
                         <li><a href="${grailsApplication.config.skin.homeURL}/help">Help</a></li>
                         <g:if test="${!authService.getUserId()}">

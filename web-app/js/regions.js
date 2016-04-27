@@ -244,9 +244,15 @@ RegionSet.prototype = {
         }
     },
     /* Draw the layer for this set (or sub-set) */
-    drawLayer: function () {
+    drawLayer: function (colour, order) {
+        debugger;
         var redraw = false,
-            layerParams;
+            layerParams,
+            sld_body='<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld"><NamedLayer><Name>ALA:LAYERNAME</Name><UserStyle><FeatureTypeStyle><Rule><Title>Polygon</Title><PolygonSymbolizer><Fill><CssParameter name="fill">COLOUR</CssParameter></Fill><Stroke><CssParameter name="stroke">#000000</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>';
+
+        colour = colour || '#FFFFFF';
+        order = order == undefined? 1 : order;
+
         if (this.other) {
             this.drawOtherLayers();
         }
@@ -257,16 +263,22 @@ RegionSet.prototype = {
             else {
                 redraw = (this.wms.opacity !== getLayerOpacity());
             }
+
+
             if (redraw) {
+                var sld = sld_body.replace('LAYERNAME', this.layerName).replace('COLOUR',colour);
                 layerParams = [
                     "FORMAT=image/png8",
                     "LAYERS=ALA:" + this.layerName,
-                    "STYLES=polygon"
+                    "STYLES=polygon",
+                    "sld_body="+encodeURIComponent(sld)
                 ];
+
                 this.wms = new WMSTileLayer(
                         this.layerName, config.spatialCacheUrl, layerParams, map.wmsTileLoaded, getLayerOpacity());
             }
-            map.setLayerOverlay(this.wms);
+
+            map.setLayerOverlay(this.wms, order);
         }
     },
     /* Draw the currently selected 'other' region as a layer */
@@ -455,12 +467,17 @@ map = {
         this.gmap = new google.maps.Map(document.getElementById(this.containerId), options);
         this.gmap.fitBounds(this.initialBounds);
         this.gmap.enableKeyDragZoom();
+        if(config.showQueryContextLayer){
+            var queryContextRegionSet = new RegionSet(config.queryContextLayer.name,config.queryContextLayer.shortName, config.queryContextLayer.fid, config.queryContextLayer.bieContext, config.queryContextLayer.order, config.queryContextLayer.displayName);
+            queryContextRegionSet.drawLayer(config.queryContextLayerColour, config.queryContextLayerOrder)
+        }
 
         google.maps.event.addListener(this.gmap, 'click', this.clickHandler);
     },
     /* Set the layer overlay */
-    setLayerOverlay: function (wms) {
-        this.gmap.overlayMapTypes.setAt(0, wms);
+    setLayerOverlay: function (wms, order) {
+        order = order == undefined ? 1:order;
+        this.gmap.overlayMapTypes.setAt(order, wms);
     },
     /* Clear the layer overlay */
     removeLayerOverlay: function () {
@@ -468,12 +485,12 @@ map = {
     },
     /* Set the region overlay */
     setRegionOverlay: function (wms) {
-        this.gmap.overlayMapTypes.setAt(1, wms);
+        this.gmap.overlayMapTypes.setAt(2, wms);
         this.clickedRegion = null;
     },
     /* Clear the region overlay */
     removeRegionOverlay: function () {
-        this.gmap.overlayMapTypes.setAt(1, null);
+        this.gmap.overlayMapTypes.setAt(2, null);
     },
     /* Reset the map to the default bounds */
     resetViewport: function () {
@@ -592,6 +609,10 @@ function init (options) {
     config.spatialServiceUrl = options.spatialService;
     config.spatialWmsUrl = options.spatialWms;
     config.spatialCacheUrl = options.spatialCache;
+    config.showQueryContextLayer = options.showQueryContextLayer;
+    config.queryContextLayer = options.queryContextLayer;
+    config.queryContextLayerColour = options.queryContextLayerColour || "#8b0000";
+    config.queryContextLayerOrder = options.queryContextLayerOrder || 0;
 
     /*****************************************\
     | Create the region types from metadata

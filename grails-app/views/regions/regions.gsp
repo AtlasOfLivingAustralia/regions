@@ -93,14 +93,22 @@
             server: '${grailsApplication.config.grails.serverURL}',
             spatialService: "${grailsApplication.config.layersService.baseURL}/",
             spatialWms: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
-            spatialCache: "${grailsApplication.config.geoserver.baseURL}/gwc/service/wms?",
+            spatialCache: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
             accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
             mapBounds: JSON.parse('${grailsApplication.config.map.bounds?:[]}'),
             mapHeight: '${grailsApplication.config.map.height}',
             mapContainer: 'map_canvas',
             defaultRegionType: "${grailsApplication.config.default.regionType}",
             defaultRegion: "${grailsApplication.config.default.region}",
-
+            showQueryContextLayer: ${grailsApplication.config.layers.showQueryContext},
+            queryContextLayer: {
+                name:"${grailsApplication.config.layers.queryContextName}",
+                shortName:"${grailsApplication.config.layers.queryContextShortName}",
+                fid:"${grailsApplication.config.layers.queryContextFid}",
+                bieContext:"${grailsApplication.config.layers.queryContextBieContext}",
+                order:${grailsApplication.config.layers.queryContextOrder},
+                displayName:"${grailsApplication.config.layers.queryContextDisplayName}"
+            }
         });
     })
 </r:script>

@@ -181,3 +181,17 @@ hub.hubFilter=""
 biocache.enableQueryContext=false
 // add query context eg. 'cl2110:"Murray-Darling Basin Boundary"'
 biocache.queryContext=""
+
+// show only regions that intersect with an ALA OBJECT
+layers.enableObjectIntersection=false
+layers.intersectObject=""
+
+// configuration to show a default layer on the map. This layer is on top of the layers selected from accordion.
+// helpful for regions app implementation for a hub.
+layers.showQueryContext=false
+layers.queryContextName=''
+layers.queryContextShortName=''
+layers.queryContextDisplayName=''
+layers.queryContextFid=''
+layers.queryContextBieContext=''
+layers.queryContextOrder=''

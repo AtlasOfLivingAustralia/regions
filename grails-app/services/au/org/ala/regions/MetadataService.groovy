@@ -62,8 +62,9 @@ class MetadataService {
     final static String PAGE_SIZE = "50"
     final static Map userAgent = ['User-Agent': 'whatever']
 
-    String BIE_URL, BIE_SERVICE_URL, BIOCACHE_URL, BIOCACHE_SERVICE_URL, ALERTS_URL, DEFAULT_IMG_URL, QUERY_CONTEXT, HUB_FILTER
-    Boolean ENABLE_HUB_DATA = false, ENABLE_QUERY_CONTEXT = false
+    String BIE_URL, BIE_SERVICE_URL, BIOCACHE_URL, BIOCACHE_SERVICE_URL, ALERTS_URL, DEFAULT_IMG_URL, QUERY_CONTEXT,
+            HUB_FILTER, INTERSECT_OBJECT
+    Boolean ENABLE_HUB_DATA, ENABLE_QUERY_CONTEXT, ENABLE_OBJECT_INTERSECTION
     String CONFIG_DIR
 
     @PostConstruct
@@ -75,10 +76,12 @@ class MetadataService {
         DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
         ALERTS_URL = grailsApplication.config.alerts.baseURL
         CONFIG_DIR = grailsApplication.config.config_dir
-        ENABLE_HUB_DATA = grailsApplication.config.hub.enableHubData?.toBoolean()
+        ENABLE_HUB_DATA = grailsApplication.config.hub.enableHubData?.toBoolean()?:false
         HUB_FILTER = grailsApplication.config.hub.hubFilter
-        ENABLE_QUERY_CONTEXT = grailsApplication.config.biocache.enableQueryContext?.toBoolean()
+        ENABLE_QUERY_CONTEXT = grailsApplication.config.biocache.enableQueryContext?.toBoolean()?:false
         QUERY_CONTEXT = grailsApplication.config.biocache.queryContext
+        ENABLE_OBJECT_INTERSECTION = grailsApplication.config.layers.enableObjectIntersection?.toBoolean()?:false
+        INTERSECT_OBJECT = grailsApplication.config.layers.intersectObject
     }
 
     /**
@@ -553,27 +556,52 @@ class MetadataService {
             log.debug("clearing cache for ${fid}")
             regionCacheLastRefreshed[fid] = new Date()
             //println "new cache date is ${regionCacheLastRefreshed[fid]}"
-            def url = grailsApplication.config.layersService.baseURL + '/field/' + fid
-            def conn = new URL(url).openConnection()
-            try {
-                conn.setConnectTimeout(10000)
-                conn.setReadTimeout(50000)
-                def json = conn.content.text
-                def result = JSON.parse(json)
-                result.objects.each {
-                    regionCache[fid].put it.name,
-                            [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
+            if(ENABLE_OBJECT_INTERSECTION){
+                def url = grailsApplication.config.layersService.baseURL + '/intersect/object/' + fid + '/' + INTERSECT_OBJECT
+                def conn = new URL(url).openConnection()
+                try {
+                    conn.setConnectTimeout(10000)
+                    conn.setReadTimeout(50000)
+                    def json = conn.content.text
+                    def result = JSON.parse(json)
+                    result.each {
+                        regionCache[fid].put it.name,
+                                [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
+                    }
+                } catch (SocketTimeoutException e) {
+                    def message = "Timed out looking up pid. URL= ${url}."
+                    log.warn message
+                    println message
+                    return [error: true, errorMessage: message]
+                } catch (Exception e) {
+                    def message = "Failed to lookup pid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+                    log.warn message
+                    println message
+                    return [error: true, errorMessage: message]
                 }
-            } catch (SocketTimeoutException e) {
-                def message = "Timed out looking up pid. URL= ${url}."
-                log.warn message
-                println message
-                return [error: true, errorMessage: message]
-            } catch (Exception e) {
-                def message = "Failed to lookup pid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
-                log.warn message
-                println message
-                return [error: true, errorMessage: message]
+            } else {
+                def url = grailsApplication.config.layersService.baseURL + '/field/' + fid
+                def conn = new URL(url).openConnection()
+                try {
+                    conn.setConnectTimeout(10000)
+                    conn.setReadTimeout(50000)
+                    def json = conn.content.text
+                    def result = JSON.parse(json)
+                    result.objects.each {
+                        regionCache[fid].put it.name,
+                                [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
+                    }
+                } catch (SocketTimeoutException e) {
+                    def message = "Timed out looking up pid. URL= ${url}."
+                    log.warn message
+                    println message
+                    return [error: true, errorMessage: message]
+                } catch (Exception e) {
+                    def message = "Failed to lookup pid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+                    log.warn message
+                    println message
+                    return [error: true, errorMessage: message]
+                }
             }
         }
         return regionCache[fid]
