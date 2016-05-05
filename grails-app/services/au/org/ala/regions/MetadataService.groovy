@@ -200,7 +200,7 @@ class MetadataService {
         def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex, showHubData)).get([headers: userAgent]).data
         return [
                 totalRecords: response.totalRecords,
-                records: response.facetResults[0]?.fieldResult.collect {result ->
+                records: response.facetResults[0]?.fieldResult.findAll{ it.label.split('\\|').size() >= 2 }.collect {result ->
                     List info = Arrays.asList(result.label.split('\\|'))
                     return [
                             name: info.get(0),
