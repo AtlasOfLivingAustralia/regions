@@ -106,7 +106,7 @@
                 shortName:"${grailsApplication.config.layers.queryContextShortName}",
                 fid:"${grailsApplication.config.layers.queryContextFid}",
                 bieContext:"${grailsApplication.config.layers.queryContextBieContext}",
-                order:${grailsApplication.config.layers.queryContextOrder},
+                order:"${grailsApplication.config.layers.queryContextOrder}",
                 displayName:"${grailsApplication.config.layers.queryContextDisplayName}"
             }
         });
