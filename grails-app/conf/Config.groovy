@@ -4,7 +4,7 @@ import org.apache.log4j.Level
  *  CONFIG MANAGEMENT
  \******************************************************************************/
 def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
-config_dir = "/data/${appName}/config"
+config_dir = "/data/${appName}/config/"
 default_config = "/data/${appName}/config/${appName}-config.properties"
 if(!grails.config.locations || !(grails.config.locations instanceof List)) {
     grails.config.locations = []
@@ -123,16 +123,6 @@ grails.hibernate.cache.queries = false
 grails.hibernate.pass.readonly = false
 // configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
 grails.hibernate.osiv.readonly = false
-
-
-//the allowed hosts for proxy calls
-allowedHostsList = []
-if(allowedHosts){
-    allowedHostsList = allowedHosts.split(",")
-} else {
-    allowedHostsList = ['v2.suite.opengeo.org','spatial.ala.org.au']
-}
-
 
 def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
 def appName = grails.util.Metadata.current.'app.name'

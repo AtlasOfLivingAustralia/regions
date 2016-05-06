@@ -2,6 +2,11 @@ package au.org.ala.regions
 
 class ProxyController {
 
+
+    def DEFAULT_ALLOWED_HOSTS = ['v2.suite.opengeo.org','spatial.ala.org.au']
+
+    def allowedHosts = null
+
     def badRequest = {text ->
         render(status:400, text: text)
     }
@@ -24,6 +29,17 @@ class ProxyController {
         render(status:502, text: "This proxy does not allow you to access that location (${host}).")
     }
 
+    private def getAllowedHosts(){
+        if(allowedHosts == null){
+            if(grailsApplication.config.allowedHosts){
+                allowedHosts = grailsApplication.config.allowedHosts.split(",")
+            } else {
+                allowedHosts = DEFAULT_ALLOWED_HOSTS
+            }
+        }
+        allowedHosts
+    }
+
     /**
      * This is a simple mindless proxy to subvert origin access control.
      *
@@ -42,7 +58,7 @@ class ProxyController {
         def host = url.tokenize('/')[1]
         //println "Host = ${host}"
 
-        if (!(host in grailsApplication.config.allowedHostsList)) {
+        if (!(host in getAllowedHosts())) {
             badGateway host
             return
         }
