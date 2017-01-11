@@ -1,8 +1,14 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="${grailsApplication.config.layout.skin?:'main'}"/>
+    <meta name="layout" content="${grailsApplication.config.skin.layout?:'main'}"/>
     <title>${region.name} | ${grailsApplication.config.orgNameLong}</title>
+    <g:if test="${grailsApplication.config.google.apikey}">
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=${grailsApplication.config.google.apikey}" type="text/javascript"></script>
+    </g:if>
+    <g:else>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    </g:else>
     <r:require modules="region, bootstrapSwitch"/>
 </head>
 <body class="nav-locations regions">

@@ -45,14 +45,8 @@ modules = {
     }
 
     'map' {
-        dependsOn 'google-maps-api'
-
         resource url: '/js/keydragzoom.js'
         resource url: '/js/wms.js'
-    }
-
-    'google-maps-api' {
-        resource  url: 'https://maps.google.com/maps/api/js?sensor=false', attrs: [type: "js"], disposition: 'head'
     }
 
     charts {

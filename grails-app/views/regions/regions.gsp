@@ -3,9 +3,15 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="${grailsApplication.config.layout.skin?:'main'}"/>
+    <meta name="layout" content="${grailsApplication.config.skin.layout?:'main'}"/>
     <title>Regions | ${grailsApplication.config.orgNameLong}</title>
     <script src="${g.createLink(controller: 'data',action: 'regionsMetadataJavascript')}"></script>
+    <g:if test="${grailsApplication.config.google.apikey}">
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=${grailsApplication.config.google.apikey}" type="text/javascript"></script>
+    </g:if>
+    <g:else>
+        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    </g:else>
     <r:require modules="regions"/>
 
 </head>
