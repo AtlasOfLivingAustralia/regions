@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="${grailsApplication.config.layout.skin?:'main'}"/>
+    <meta name="layout" content="${grailsApplication.config.skin.layout?:'main'}"/>
     <title>Habitats | ${grailsApplication.config.orgNameLong}</title>
     <r:require modules="regions,leaflet"/>
     <style type="text/css">
