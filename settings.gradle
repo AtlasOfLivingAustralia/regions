@@ -1,6 +1,5 @@
 rootProject.name='regions'
 
-include 'ala-bootstrap3'
-
-project(':ala-bootstrap3').projectDir = new File('/data/src/ala-bootstrap3')
+//include 'ala-bootstrap3'
+//project(':ala-bootstrap3').projectDir = new File('/data/src/ala-bootstrap3')
 
