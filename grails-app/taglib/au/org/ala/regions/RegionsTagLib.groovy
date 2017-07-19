@@ -90,7 +90,12 @@ class RegionsTagLib {
      * @attr to REQUIRED
      */
     def speciesRecordListUrl = {attrs ->
-        out << metadataService.buildSpeciesRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.regionPid, attrs.from, attrs.to, attrs.showHubData)
+        out << metadataService.buildSpeciesRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.regionPid, attrs.group, attrs.subgroup, attrs.from, attrs.to, attrs.showHubData, attrs.fq)
+    }
+
+    def downloadRecordListUrl = { attrs ->
+        out << metadataService.buildDownloadRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.regionPid, attrs.group, attrs.subgroup, attrs.from, attrs.to, attrs.showHubData,
+                "${request.getHeader('referer')}#group=${attrs.group}&subgroup=${attrs.subgroup}&from=${attrs.from}&to=${attrs.to}", attrs.fq)
     }
 
     /**
@@ -102,7 +107,6 @@ class RegionsTagLib {
      * Updated to use properties provided by build-info plugin
      */
     def addApplicationMetaTags = { attrs ->
-        // def metaList = ['svn.revision', 'svn.url', 'java.version', 'java.name', 'build.hostname', 'app.version', 'app.build']
         def metaList = ['app.version', 'app.grails.version', 'build.date', 'scm.version', 'environment.BUILD_NUMBER', 'environment.BUILD_ID', 'environment.BUILD_TAG', 'environment.GIT_BRANCH', 'environment.GIT_COMMIT']
         def mb = new MarkupBuilder(out)
 

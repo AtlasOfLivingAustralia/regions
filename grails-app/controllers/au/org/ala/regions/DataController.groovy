@@ -1,25 +1,25 @@
 package au.org.ala.regions
 
+import grails.converters.JSON
 import groovy.xml.StreamingMarkupBuilder
-import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class DataController {
 
     def metadataService
-    
-    def index = { }
-    
-    def regionsMetadata = {
+
+    def index() {}
+
+    def regionsMetadata() {
         response.contentType = 'application/json'
-        render metadataService.getRegionsMetadataAsJson()
+        render metadataService.regionsMetadata as JSON
     }
 
-    def regionsMetadataJavascript = {
+    def regionsMetadataJavascript() {
         response.contentType = 'application/json'
         render metadataService.getRegionsMetadataAsJavascript()
     }
 
-    def sitemap = {
+    def sitemap() {
         def xml = new StreamingMarkupBuilder()
         xml.encoding = "UTF-8"
         response.contentType = 'text/xml'
@@ -32,7 +32,6 @@ class DataController {
                     priority(1.0)
                 }
                 metadataService.getRegionTypes().each { regionType ->
-                    println regionType
                     if (regionType == 'other') {
                         metadataService.getOtherRegions().each { other, otherValue ->
                             url {

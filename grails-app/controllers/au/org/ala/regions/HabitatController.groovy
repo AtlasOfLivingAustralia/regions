@@ -1,19 +1,18 @@
 package au.org.ala.regions
 
 import groovy.json.JsonSlurper
-import groovyx.net.http.*
-import static groovyx.net.http.ContentType.*
-import static groovyx.net.http.Method.*
+import groovyx.net.http.HTTPBuilder
+
+import static groovyx.net.http.ContentType.URLENC
+import static groovyx.net.http.Method.POST
 
 
 class HabitatController {
 
-    def grailsApplication
-
     def metadataService
 
-    def index = {
-        [config : metadataService.getHabitatConfig()]
+    def index() {
+        [config: metadataService.getHabitatConfig()]
     }
 
     /**
@@ -21,11 +20,11 @@ class HabitatController {
      *
      * @return
      */
-    def viewRecords(){
+    def viewRecords() {
 
         def habitatID = params.habitatID
 
-        def habitatsUrl = new URL(grailsApplication.config.bieService.baseURL +  "/habitat/ids/" + habitatID)
+        def habitatsUrl = new URL(grailsApplication.config.bieService.baseURL + "/habitat/ids/" + habitatID)
         def js = new JsonSlurper()
         def habitats = js.parseText(habitatsUrl.text)
 
@@ -34,26 +33,26 @@ class HabitatController {
 
         //retrieve child IDs and construct a query
         habitats.searchResults.eachWithIndex { habitat, idx ->
-            if(idx > 0){
-                fqParam = fqParam + " OR "
-                title = title + ", "
+            if (idx > 0) {
+                fqParam += " OR "
+                title += ", "
             }
 
-            fqParam = fqParam + grailsApplication.config.habitat.layerId + ":\"" + habitat + "\""
-            title = title + habitat
+            fqParam += "${grailsApplication.config.habitat.layerId}:\"${habitat}\""
+            title += habitat
         }
 
         fqParam = fqParam + ")"
 
-        def http = new HTTPBuilder( grailsApplication.config.biocacheService.baseURL + '/webportal/params' )
-        http.request( POST, URLENC ) { req ->
+        def http = new HTTPBuilder(grailsApplication.config.biocacheService.baseURL + '/mapping/params')
+        http.request(POST, URLENC) { req ->
             body = [
-                q: fqParam,
-                title: title
+                    q    : fqParam,
+                    title: title
             ]
             response.success = { resp, json ->
                 def qid = json.keySet().first()
-                redirect(url: grailsApplication.config.biocache.baseURL  + "/occurrences/search?q=qid:" + qid)
+                redirect(url: grailsApplication.config.biocache.baseURL + "/occurrences/search?q=qid:" + qid)
             }
         }
     }

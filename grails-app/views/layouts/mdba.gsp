@@ -17,10 +17,10 @@
 <body class="${pageProperty(name:'body.class')?:'nav-collections'}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}"  data-offset="${pageProperty(name:'body.data-offset')}" data-target="${pageProperty(name:'body.data-target')}" data-spy="${pageProperty(name:'body.data-spy')}">
 
 <g:set var="fluidLayout" value="${grailsApplication.config.skin.fluidLayout?.toBoolean()}"/>
-<div class="navbar navbar-inverse navbar-static-top">
+<div class="navbar-nav navbar-inverse navbar-static-top">
     <div class="navbar-inner contain-to-grid">
         <div class="${fluidLayout?'container-fluid':'container'}">
-            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <button type="button" class="btn navbar-btn" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -36,7 +36,7 @@
                 <div class="hidden-desktop">ALA</div></div>
             </a>
             <div class="pull-right">
-                <div class="nav-collapse collapse pull-right">
+                <div class="navbar-collapse collapse pull-right">
                     <ul class="nav">
                         <li><a href="${grailsApplication.config.skin.homeURL}/index">Home</a></li>
                         <li><a href="${grailsApplication.config.skin.homeURL}/occurrences/search?fq=data_hub_uid:dh10#tab_mapView">Search</a></li>
@@ -68,14 +68,14 @@
 <div id="footer">
    <div class="${fluidLayout?'container-fluid':'container'}">
        <div class="row  navbar-inverse">
-           <div class="span6">
+           <div class="col-md-1">
                <ul class="nav">
                    <li><a href="${grailsApplication.config.skin.homeURL}/contact">Contact us </a></li>
                    <li><a href="${grailsApplication.config.skin.homeURL}/access">Accessibility </a></li>
                    <li><a href="${grailsApplication.config.skin.homeURL}/disclaim">Disclaimer</a></li>
                </ul>
            </div><!--/.spanX -->
-           <div class="span6 smlinks text-right">
+           <div class="col-md-1 smlinks text-right">
                <div id="smlinks">
                    <a href="https://twitter.com/MD_Basin_Auth">
                        <span class="fa-stack fa-lg">

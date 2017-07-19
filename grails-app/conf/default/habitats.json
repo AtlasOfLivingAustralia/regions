@@ -1,0 +1,283 @@
+{
+  "layerName": "dlcmv1",
+  "description": "The National Dynamic Land Cover Dataset",
+  "metadataLink": "http://spatial.ala.org.au/layers/more/dlcmv1",
+  "tree": {
+    "918:1": {
+      "guid": "918:1",
+      "pid": "918:1",
+      "name": "Primarily Non-Vegetated",
+      "rasterID": "918:1",
+      "children": {
+        "918:1": {
+          "guid": "918:1",
+          "pid": "918:1",
+          "name": "Artificial Surfaces & Associated Areas Non Built-Up Extraction Sites",
+          "rasterID": "918:1"
+        },
+        "918:2": {
+          "guid": "918:2",
+          "pid": "918:2",
+          "name": "Bare Areas",
+          "rasterID": "918:2"
+        },
+        "918:3": {
+          "guid": "918:3",
+          "pid": "918:3",
+          "name": "Waterbodies Water",
+          "rasterID": "918:3"
+        },
+        "918:4": {
+          "guid": "918:4",
+          "pid": "918:4",
+          "name": "Waterbodies Water Brine",
+          "rasterID": "918:4"
+        }
+      }
+    },
+    "918:5": {
+      "guid": "918:5",
+      "pid": "918:5",
+      "name": "Primarily Vegetated",
+      "rasterID": "918:5",
+      "children": {
+        "918:5": {
+          "guid": "918:5",
+          "pid": "918:5",
+          "name": "Cultivated & Managed Lands",
+          "rasterID": "918:5",
+          "children": {
+            "918:5": {
+              "guid": "918:5",
+              "pid": "918:5",
+              "name": "Herbaceous Graminoids Irrigated",
+              "rasterID": "918:5"
+            },
+            "918:6": {
+              "guid": "918:6",
+              "pid": "918:6",
+              "name": "Herbaceous Graminoids Irrigated Pasture",
+              "rasterID": "918:6"
+            },
+            "918:7": {
+              "guid": "918:7",
+              "pid": "918:7",
+              "name": "Herbaceous Graminoids Irrigated Sugar",
+              "rasterID": "918:7"
+            },
+            "918:8": {
+              "guid": "918:8",
+              "pid": "918:8",
+              "name": "Herbaceous Graminoids Rainfed",
+              "rasterID": "918:8"
+            },
+            "918:9": {
+              "guid": "918:9",
+              "pid": "918:9",
+              "name": "Herbaceous Graminoids Rainfed Pasture",
+              "rasterID": "918:9"
+            },
+            "918:10": {
+              "guid": "918:10",
+              "pid": "918:10",
+              "name": "Herbaceous Graminoids Rainfed Sugar",
+              "rasterID": "918:10"
+            }
+          }
+        },
+        "918:11": {
+          "guid": "918:11",
+          "pid": "918:11",
+          "name": "Natural & Semi-Natural Aquatic Vegetation",
+          "rasterID": "918:11"
+        },
+        "918:12": {
+          "guid": "918:12",
+          "pid": "918:12",
+          "name": "Natural & Semi-Natural Terrestrial Vegetation",
+          "rasterID": "918:12",
+          "children": {
+            "918:12": {
+              "guid": "918:12",
+              "pid": "918:12",
+              "name": "Herbaceous Forbs",
+              "rasterID": "918:12",
+              "children": {
+                "918:12": {
+                  "guid": "918:12",
+                  "pid": "918:12",
+                  "name": "Open",
+                  "rasterID": "918:12"
+                },
+                "918:13": {
+                  "guid": "918:13",
+                  "pid": "918:13",
+                  "name": "Sparse",
+                  "rasterID": "918:13"
+                }
+              }
+            },
+            "918:14": {
+              "guid": "918:14",
+              "pid": "918:14",
+              "name": "Herbaceous Garminoids",
+              "rasterID": "918:14",
+              "children": {
+                "918:14": {
+                  "guid": "918:14",
+                  "pid": "918:14",
+                  "name": "Closed Tussock Grasses",
+                  "rasterID": "918:14"
+                },
+                "918:15": {
+                  "guid": "918:15",
+                  "pid": "918:15",
+                  "name": "Open Alpine",
+                  "rasterID": "918:15"
+                },
+                "918:16": {
+                  "guid": "918:16",
+                  "pid": "918:16",
+                  "name": "Open Hummock Grasses",
+                  "rasterID": "918:16"
+                },
+                "918:17": {
+                  "guid": "918:17",
+                  "pid": "918:17",
+                  "name": "Open Sedges",
+                  "rasterID": "918:17"
+                },
+                "918:18": {
+                  "guid": "918:18",
+                  "pid": "918:18",
+                  "name": "Open Tussock Grasses",
+                  "rasterID": "918:18"
+                },
+                "918:19": {
+                  "guid": "918:19",
+                  "pid": "918:19",
+                  "name": "Scattered",
+                  "rasterID": "918:19"
+                },
+                "918:20": {
+                  "guid": "918:20",
+                  "pid": "918:20",
+                  "name": "Scattered Tussock Grasses",
+                  "rasterID": "918:20"
+                },
+                "918:21": {
+                  "guid": "918:21",
+                  "pid": "918:21",
+                  "name": "Sparse",
+                  "rasterID": "918:21"
+                },
+                "918:22": {
+                  "guid": "918:22",
+                  "pid": "918:22",
+                  "name": "Sparse Hummock Grasses",
+                  "rasterID": "918:22"
+                },
+                "918:23": {
+                  "guid": "918:23",
+                  "pid": "918:23",
+                  "name": "Sparse Tussock Grasses",
+                  "rasterID": "918:23"
+                }
+              }
+            }
+          }
+        },
+        "918:24": {
+          "guid": "918:24",
+          "pid": "918:24",
+          "name": "Natural & Semi-Natural Terrestrial Vegetation",
+          "rasterID": "918:24",
+          "children": {
+            "918:24": {
+              "guid": "918:24",
+              "pid": "918:24",
+              "name": "Woody Shrubs",
+              "rasterID": "918:24",
+              "children": {
+                "918:24": {
+                  "guid": "918:24",
+                  "pid": "918:24",
+                  "name": "Closed",
+                  "rasterID": "918:24"
+                },
+                "918:25": {
+                  "guid": "918:25",
+                  "pid": "918:25",
+                  "name": "Open",
+                  "rasterID": "918:25"
+                },
+                "918:26": {
+                  "guid": "918:26",
+                  "pid": "918:26",
+                  "name": "Open Chenopods",
+                  "rasterID": "918:26"
+                },
+                "918:27": {
+                  "guid": "918:27",
+                  "pid": "918:27",
+                  "name": "Scattered",
+                  "rasterID": "918:27"
+                },
+                "918:28": {
+                  "guid": "918:28",
+                  "pid": "918:28",
+                  "name": "Scattered Chenopods",
+                  "rasterID": "918:28"
+                },
+                "918:29": {
+                  "guid": "918:29",
+                  "pid": "918:29",
+                  "name": "Sparse",
+                  "rasterID": "918:29"
+                },
+                "918:30": {
+                  "guid": "918:30",
+                  "pid": "918:30",
+                  "name": "Sparse Chenopods",
+                  "rasterID": "918:30"
+                }
+              }
+            },
+            "918:31": {
+              "guid": "918:31",
+              "pid": "918:31",
+              "name": "Woody Trees",
+              "rasterID": "918:31",
+              "children": {
+                "918:31": {
+                  "guid": "918:31",
+                  "pid": "918:31",
+                  "name": "Closed",
+                  "rasterID": "918:31"
+                },
+                "918:32": {
+                  "guid": "918:32",
+                  "pid": "918:32",
+                  "name": "Open",
+                  "rasterID": "918:32"
+                },
+                "918:33": {
+                  "guid": "918:33",
+                  "pid": "918:33",
+                  "name": "Scattered",
+                  "rasterID": "918:33"
+                },
+                "918:34": {
+                  "guid": "918:34",
+                  "pid": "918:34",
+                  "name": "Sparse",
+                  "rasterID": "918:34"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

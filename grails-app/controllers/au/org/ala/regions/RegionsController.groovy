@@ -1,9 +1,7 @@
 package au.org.ala.regions
 
 import grails.converters.JSON
-import grails.util.GrailsUtil
 import org.apache.commons.lang.StringEscapeUtils
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 
 import java.util.regex.Pattern
 
@@ -11,38 +9,11 @@ class RegionsController {
 
     def metadataService
 
-    static defaultAction = 'regions'
-
-    /**
-     * Do logouts through this app so we can invalidate the session.
-     *
-     * @param casUrl the url for logging out of cas
-     * @param appUrl the url to redirect back to after the logout
-     */
-    def logout = {
-        session.invalidate()
-        redirect(url: "${params.casUrl}?url=${params.appUrl}")
-    }
-
-    def clearCache = {
-        metadataService.clearCaches()
-        render "<div>All caches cleared.</div>"
-    }
-
-    def clearTemplateCache = {
-        hf.clearCache()
-        render "<div>Template cache cleared.</div>"
-    }
-
     /**
      * Display the top-level regions page.
      */
-    def regions = {
+    def regions() {
         [ "menu": metadataService.getMenu()]
-    }
-
-    def documents = {
-        render "Not implemented yet"
     }
 
     /**
@@ -56,7 +27,7 @@ class RegionsController {
      * names is an alphabetically sorted list of the names of the regions
      *  objects is a map of objects holding the properties of the region, keyed by name
      */
-    def regionList = {
+    def regionList() {
 
         // get the list
         def map = metadataService.getMenuItems(params.type)
@@ -74,11 +45,11 @@ class RegionsController {
         render result as JSON
     }
 
-    def region = {
+    def region() {
         loadRegion(params)
     }
 
-    def habitat = {
+    def habitat() {
         def model = loadRegion(params)
         model.enableRegionOverlay = false
         model.isHabitat = true
@@ -184,18 +155,15 @@ class RegionsController {
                         if (name == null) {
                             def message = "Failed to get layer name for fid=" + r.fid
                             log.warn message
-                            println message
                         } else {
                             subRegions.put(r.label, [list: list, name: name])
                         }
                     }
                 }
             }
-
-            region.q = URLEncoder.encode(metadataService.buildRegionFacet(region.fid, region.type, region.name, region.pid), "UTF-8")
-        } else {
-            region.q = URLEncoder.encode(metadataService.buildRegionFacet(region.fid, region.type, region.name, region.pid), "UTF-8")
         }
+
+        region.q = URLEncoder.encode(metadataService.buildRegionFacet(region.fid, region.type, region.name, region.pid), "UTF-8")
 
         if (region.type == 'states') {
             // lookup state emblems
@@ -209,57 +177,11 @@ class RegionsController {
             }
         }
         [
-            region: region,
-            emblems: emblemGuids,
-            subRegions: subRegions,
-            documents: [:],
-            useReflect: params.reflect == 'false' ? false : true,
-            alertsUrl: metadataService.buildAlertsUrl(region)
+                region    : region,
+                emblems   : emblemGuids,
+                subRegions: subRegions,
+                useReflect: params.reflect != 'false',
+                alertsUrl : metadataService.buildAlertsUrl(region)
         ]
-    }
-
-    def reloadConfig = {
-        // clear cached external config
-        clearCache()
-
-        // reload system config
-        def resolver = new PathMatchingResourcePatternResolver()
-        def resource = resolver.getResource(grailsApplication.config.reloadable.cfgs[0])
-        def stream
-
-        try {
-            stream = resource.getInputStream()
-            ConfigSlurper configSlurper = new ConfigSlurper(GrailsUtil.getEnvironment())
-            if (resource.filename.endsWith('.groovy')) {
-                def newConfig = configSlurper.parse(stream.text)
-                grailsApplication.getConfig().merge(newConfig)
-            } else if (resource.filename.endsWith('.properties')) {
-                def props = new Properties()
-                props.load(stream)
-                def newConfig = configSlurper.parse(props)
-                grailsApplication.getConfig().merge(newConfig)
-            }
-            String res = "<ul>"
-            grailsApplication.config.each { key, value ->
-                if (value instanceof Map) {
-                    res += "<p>" + key + "</p>"
-                    res += "<ul>"
-                    value.each { k1, v1 ->
-                        res += "<li>" + k1 + " = " + v1 + "</li>"
-                    }
-                    res += "</ul>"
-                } else {
-                    res += "<li>${key} = ${value}</li>"
-                }
-            }
-            render res + "</ul>"
-        }
-        catch (GroovyRuntimeException gre) {
-            println "Unable to reload configuration. Please correct problem and try again: " + gre.getMessage()
-            render "Unable to reload configuration - " + gre.getMessage()
-        }
-        finally {
-            stream?.close()
-        }
     }
 }

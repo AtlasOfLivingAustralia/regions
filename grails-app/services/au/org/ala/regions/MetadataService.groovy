@@ -1,12 +1,8 @@
 package au.org.ala.regions
 
-import au.org.ala.regions.binding.DownloadParams
-import au.org.ala.web.AuthService
 import grails.converters.JSON
-import grails.util.Holders
+import grails.plugin.cache.Cacheable
 import grails.util.Metadata
-import groovy.json.JsonSlurper
-import groovyx.net.http.RESTClient
 import groovyx.net.http.URIBuilder
 import org.apache.commons.lang.StringEscapeUtils
 
@@ -14,56 +10,17 @@ import javax.annotation.PostConstruct
 
 class MetadataService {
 
-    static transactional = true
-
-    /**
-     * Cache for metadata about 'objects' in 'fields' (eg individual states within the 'states' field).
-     * This is populated by spatial services calls.
-     */
-    static regionCache = [:]
-    static regionCacheLastRefreshed = [:]
-
-    /**
-     * Cache for metadata about region types (eg fid, layer name).
-     * This is populated from external 'static' config.
-     */
-    static regionsMetadataCache = null
-
-    static logReasonCache = loadLoggerReasons()
-
-    /* cache management */
-    def clearCaches = {
-        regionsMetadataCache = null
-        regionCache = [:]
-
-        logReasonCache=loadLoggerReasons()
-        layersServiceFields = [:]
-        layersServiceLayers = [:]
-        menu = null
-    }
+    static transactional = false
 
     def grailsApplication
-
-    def layersServiceLayers = [:]
-    def layersServiceFields = [:]
-
-    AuthService authService
-
-    static final Map DOWNLOAD_OPTIONS = [
-            0: 'Download All Records',
-            1: 'Download Species Checklist',
-            2: 'Download Species FieldGuide'
-    ]
-
 
     final static String WS_DATE_FROM_PREFIX = "-01-01T00:00:00Z"
     final static String WS_DATE_TO_PREFIX = "-12-31T23:59:59Z"
     final static String WS_DATE_FROM_DEFAULT = "1850"
     final static String PAGE_SIZE = "50"
-    final static Map userAgent = ['User-Agent': 'whatever']
 
     String BIE_URL, BIE_SERVICE_URL, BIOCACHE_URL, BIOCACHE_SERVICE_URL, ALERTS_URL, DEFAULT_IMG_URL, QUERY_CONTEXT,
-            HUB_FILTER, INTERSECT_OBJECT
+           HUB_FILTER, INTERSECT_OBJECT
     Boolean ENABLE_HUB_DATA, ENABLE_QUERY_CONTEXT, ENABLE_OBJECT_INTERSECTION
     String CONFIG_DIR
 
@@ -76,18 +33,25 @@ class MetadataService {
         DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
         ALERTS_URL = grailsApplication.config.alerts.baseURL
         CONFIG_DIR = grailsApplication.config.config_dir
-        ENABLE_HUB_DATA = grailsApplication.config.hub.enableHubData?.toBoolean()?:false
+        ENABLE_HUB_DATA = grailsApplication.config.hub.enableHubData?.toBoolean() ?: false
         HUB_FILTER = grailsApplication.config.hub.hubFilter
-        ENABLE_QUERY_CONTEXT = grailsApplication.config.biocache.enableQueryContext?.toBoolean()?:false
+        ENABLE_QUERY_CONTEXT = grailsApplication.config.biocache.enableQueryContext?.toBoolean() ?: false
         QUERY_CONTEXT = grailsApplication.config.biocache.queryContext
-        ENABLE_OBJECT_INTERSECTION = grailsApplication.config.layers.enableObjectIntersection?.toBoolean()?:false
+        ENABLE_OBJECT_INTERSECTION = grailsApplication.config.layers.enableObjectIntersection?.toBoolean() ?: false
         INTERSECT_OBJECT = grailsApplication.config.layers.intersectObject
+
+        //add biocache.filter to HUB_FILTER
+        if (ENABLE_HUB_DATA) {
+            HUB_FILTER += grailsApplication.config.biocache.filter
+        } else {
+            HUB_FILTER = grailsApplication.config.biocache.filter
+        }
     }
 
     /**
      *
      * @param regionName
-     * @return List<Map< with format: [[imgUrl: ...,<br/>
+     * @return List < Map < with format: [ [ imgUrl: . . . , < br / >
      * scientificName: ...,<br/>
      * commonName: ..., <br/>
      * speciesUrl: ..., <br/>
@@ -99,7 +63,7 @@ class MetadataService {
         // lookup state emblems
         def emblems = getStateEmblems()[regionName]
         if (emblems) {
-            ['animal','plant','marine','bird'].each {
+            ['animal', 'plant', 'marine', 'bird'].each {
                 if (emblems[it]) {
                     emblemGuids[it] = emblems."${it}".guid
                 }
@@ -108,19 +72,21 @@ class MetadataService {
 
         List<Map> emblemMetadata = []
 
-        emblemGuids.sort({it.key}).each {key, guid ->
-            String emblemInfoUrl = "${BIE_SERVICE_URL}/species/moreInfo/${guid}.json"
-            def emblemInfo = new RESTClient(emblemInfoUrl).get([headers: userAgent]).data
-            emblemMetadata << [
-                "imgUrl":  emblemInfo?.images && emblemInfo?.images[0]?.thumbnail ? emblemInfo?.images[0]?.thumbnail : DEFAULT_IMG_URL,
-                "scientificName": emblemInfo?.taxonConcept?.nameString,
-                "commonName": emblemInfo?.commonNames && emblemInfo?.commonNames?.size() > 0 ? emblemInfo?.commonNames[0]?.nameString : "",
-                "speciesUrl": "${BIE_URL}/species/${guid}",
-                "emblemType": "${key.capitalize()} emblem"
-            ]
+        emblemGuids.sort({ it.key }).each { key, guid ->
+            String url = "${BIE_SERVICE_URL}/species/${guid}.json"
+            def emblemInfo = getJSON(url)
+            if (!(emblemInfo instanceof Map && emblemInfo?.error)) {
+                emblemMetadata << [
+                        "imgUrl"        : emblemInfo?.imageIdentifier ? "${grailsApplication.config.images.baseURL}/image/proxyImageThumbnail?imageId=${emblemInfo.imageIdentifier}" : DEFAULT_IMG_URL,
+                        "scientificName": emblemInfo?.taxonConcept?.nameString,
+                        "commonName"    : emblemInfo?.commonNames && emblemInfo?.commonNames?.size() > 0 ? emblemInfo?.commonNames[0]?.nameString : "",
+                        "speciesUrl"    : "${BIE_URL}/species/${guid}",
+                        "emblemType"    : "${key.capitalize()} emblem"
+                ]
+            }
         }
 
-        return emblemMetadata
+        emblemMetadata
     }
 
     /**
@@ -131,15 +97,38 @@ class MetadataService {
      * @return
      */
     List getGroups(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
-        def responseGroups = new RESTClient("${BIOCACHE_SERVICE_URL}/explore/hierarchy").get([headers: userAgent]).data
-        Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid, showHubData)
-
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
-        responseGroups.each {group ->
-            groups << [name: group.speciesGroup, commonName: group.speciesGroup]
-            group.taxa.each {subgroup ->
-                if (subgroupsWithRecords[subgroup.common]) {
-                    groups << [name: subgroup.name, commonName: subgroup.common, parent: group.speciesGroup]
+
+        def responseGroups = getJSON("${BIOCACHE_SERVICE_URL}/explore/hierarchy")
+        if (!(responseGroups instanceof Map && responseGroups?.error)) {
+            Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid, showHubData)
+
+            // subgroup.name is valid for species_subgroup:subgroup.name biocache-service queries
+            // group.speciesGroup is not valid for searching.
+            responseGroups.each { group ->
+                def groupfq = ''
+                group.taxa.each { subgroup ->
+                    if (subgroupsWithRecords[subgroup.common]) {
+                        if (groupfq.length() == 0) {
+                            groupfq += "species_subgroup:(\"${subgroup.common}\""
+                        } else {
+                            groupfq += " OR \"${subgroup.name}\""
+                        }
+                    }
+                }
+                if (groupfq) {
+                    groupfq += ')'
+                } else {
+                    // exclude all results when there are no subgroups with records
+                    groupfq = '-*:*'
+                }
+
+                groups << [name: group.speciesGroup, commonName: group.speciesGroup, fq: groupfq]
+                group.taxa.each { subgroup ->
+                    if (subgroupsWithRecords[subgroup.common]) {
+                        groups << [name: subgroup.name, commonName: subgroup.common, parent: group.speciesGroup,
+                                   fq  : "species_subgroup:\"${subgroup.common}\""]
+                    }
                 }
             }
         }
@@ -155,35 +144,26 @@ class MetadataService {
      */
     Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
         String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
-            Map params = [
-                    q: buildRegionFacet(regionFid, regionType, regionName, regionPid),
-                    facets: 'species_subgroup',
-                    flimit: '-1',
+            query = [
+                    facets  : 'species_subgroup',
+                    flimit  : '-1',
                     pageSize: 0
-            ]
+            ] + buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, null, null, null, null, showHubData)
 
-            if(ENABLE_QUERY_CONTEXT){
-                params << [qc: QUERY_CONTEXT]
-            }
-
-            if(showHubData && ENABLE_HUB_DATA){
-                params << [fq: HUB_FILTER]
-            }
-
-            query = params
-            return it
+            it
         }.toString()
 
         log.debug("URL to retrieve subgroups with records = $url")
 
-        def response = new RESTClient(url).get([headers: userAgent]).data
-
         Map subgroups = [:]
-        response?.facetResults[0]?.fieldResult.each {subgroup ->
-            subgroups << [(subgroup.label): subgroup.count]
+        def response = getJSON(url)
+        if (!(response instanceof Map && response?.error)) {
+            response?.facetResults[0]?.fieldResult.each { subgroup ->
+                subgroups << [(subgroup.label): subgroup.count]
+            }
         }
 
-        return subgroups
+        subgroups
     }
     /**
      *
@@ -196,20 +176,43 @@ class MetadataService {
      * @param to
      * @return
      */
-    def getSpecies(String regionFid, String regionType, String regionName, String regionPid, String groupName, Boolean isSubgroup = false, Boolean showHubData, String from = null, String to = null, String pageIndex = '0') {
-        def response = new RESTClient(buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName == 'ALL_SPECIES' ? null : groupName, isSubgroup, from, to, pageIndex, showHubData)).get([headers: userAgent]).data
-        return [
-                totalRecords: response.totalRecords,
-                records: response.facetResults[0]?.fieldResult.findAll{ it.label.split('\\|').size() >= 2 }.collect {result ->
-                    List info = Arrays.asList(result.label.split('\\|'))
-                    return [
-                            name: info.get(0),
-                            guid: info.get(1),
-                            commonName: info.size() == 5 ? info.get(2) : '',
-                            count: result.count
-                    ]
-                }
-        ]
+    def getSpecies(String regionFid, String regionType, String regionName, String regionPid, String groupName, String subgroup, Boolean showHubData, String from = null, String to = null, String pageIndex = '0', String filter = null) {
+        def params = buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName, subgroup, from, to, pageIndex, showHubData, filter)
+        def response = getJSON(params)
+
+        //species count
+        String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrence/facets").with {
+            query = [
+                    facets: 'names_and_lsid',
+                    flimit: '0'
+            ] + buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, subgroup, from, to, showHubData, filter)
+            it
+        }.toString()
+        def speciesCountResult = getJSON(url)
+        def speciesCount = 0
+        if (speciesCountResult && speciesCountResult instanceof List && speciesCountResult.size() > 0) {
+            speciesCount = speciesCountResult[0]?.count
+        }
+
+        if (response instanceof Map && response?.error) {
+            [totalRecords: 0, speciesCount: 0, records: []]
+        } else {
+            [
+                    totalRecords: response.totalRecords,
+                    speciesCount: speciesCount,
+                    records     : response.facetResults[0]?.fieldResult.findAll {
+                        it.label.split('\\|').size() >= 2
+                    }.collect { result ->
+                        List info = Arrays.asList(result.label.split('\\|'))
+                        [
+                                name      : info.get(0),
+                                guid      : info.get(1),
+                                commonName: info.size() == 5 ? info.get(2) : '',
+                                count     : result.count
+                        ]
+                    }
+            ]
+        }
     }
 
     /**
@@ -219,26 +222,17 @@ class MetadataService {
      */
     String buildAlertsUrl(Map region) {
         URLDecoder.decode(new URIBuilder("${ALERTS_URL}/webservice/createBiocacheNewRecordsAlert").with {
-            Map params = [
-                    webserviceQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name, region.pid)}",
-                    uiQuery: "/occurrences/search?q=${buildRegionFacet(region.fid, region.type, region.name, region.pid)}",
+            String searchTerms = paramsToString(buildCommonDownloadRecordsParams(region.fid, region.type, region.name, region.pid))
+
+            query = [
+                    webserviceQuery : "/occurrences/search?${searchTerms}",
+                    uiQuery         : "/occurrences/search?${searchTerms}",
                     queryDisplayName: region.name,
-                    baseUrlForWS: "${BIOCACHE_SERVICE_URL}",
-                    baseUrlForUI: "${BIOCACHE_URL}&resourceName=Atlas"
+                    baseUrlForWS    : "${BIOCACHE_SERVICE_URL}",
+                    baseUrlForUI    : "${BIOCACHE_URL}&resourceName=Atlas"
             ]
 
-            if(ENABLE_QUERY_CONTEXT){
-                params.webserviceQuery += "&qc=" + QUERY_CONTEXT
-                params.uiQuery += "&qc=" + QUERY_CONTEXT
-            }
-
-            if(ENABLE_HUB_DATA){
-                params.webserviceQuery += "&fq=" + HUB_FILTER
-                params.uiQuery += "&fq=" + HUB_FILTER
-            }
-
-            query = params
-            return it
+            it
         }.toString(), 'UTF-8')
     }
 
@@ -252,108 +246,22 @@ class MetadataService {
      * @param to
      * @return
      */
-    String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String from, String to, Boolean showHubData) {
-        StringBuilder sb = new StringBuilder("${BIOCACHE_URL}/occurrences/search?q=lsid:\"${guid}\"" +
-                "&fq=${buildRegionFacet(regionFid, regionType, regionName, regionPid)}")
-        if (isValidTimeRange(from, to)) {
-            " AND ${buildTimeFacet(from, to)}"
+    String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String groupName, String isSubgroup, String from, String to, Boolean showHubData, String filter) {
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData, filter)
+        if (guid) {
+            params.fq << "lsid:\"${guid}\""
         }
 
-        if(ENABLE_QUERY_CONTEXT){
-            // when using qc, biocache search fails. AtlasOfLivingAustralia/biocache-hubs#176
-            sb.append("&fq=${URLEncoder.encode(QUERY_CONTEXT, 'UTF-8')}")
-        }
-
-        if(showHubData && ENABLE_HUB_DATA){
-            sb.append("&fq=${URLEncoder.encode(HUB_FILTER, 'UTF-8')}")
-        }
-
-        return sb.toString()
+        "${BIOCACHE_URL}/occurrences/search?${paramsToString(params)}"
     }
 
-    /**
-     *
-     * @param downloadParams
-     * @return
-     */
-    String buildDownloadRecordsUrl(DownloadParams downloadParams,String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null) {
-        String url
-        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to)
-        String wsUrl
-        switch (downloadParams.downloadOption) {
-            case '0':
-                // Download All Records
-                wsUrl = "${BIOCACHE_SERVICE_URL}/occurrences/index/download"
-                params << [
-                        email: downloadParams.email,
-                        reasonTypeId: downloadParams.downloadReason,
-                        file: downloadParams.fileName
-                ]
-                break
-            case '1':
-                // Download Species Checklist
-                wsUrl = "${BIOCACHE_SERVICE_URL}/occurrences/facets/download"
-                params << [
-                        facets: "species_guid",
-                        lookup: true,
-                        file: downloadParams.fileName
-                ]
-                break
-
-            case '2':
-                // Download Species FieldGuide
-                wsUrl = "${BIOCACHE_URL}/occurrences/fieldguide/download"
-                params << [
-                        facets: "species_guid"
-                ]
-                break
+    String buildDownloadRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String groupName, String isSubgroup, String from, String to, Boolean showHubData, String source = null, String filter = null) {
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData, filter)
+        if (guid) {
+            params.fq << "lsid:\"${guid}\""
         }
 
-        url = new URIBuilder(wsUrl).with {
-            query = params
-            return it
-        }.toString()
-        log.debug "Download Records (${downloadParams.downloadOption}) - REST URL generated = ${url}"
-        return url
-    }
-
-    /**
-     *
-     * @return
-     */
-    String buildDownloadRecordsUrlPrefix(int option, String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, Boolean showHubData = false) {
-        String url
-        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData)
-        String wsUrl
-        switch (option) {
-            case '0':
-                // Download All Records
-                wsUrl = "${BIOCACHE_SERVICE_URL}/occurrences/index/download"
-                break
-            case '1':
-                // Download Species Checklist
-                wsUrl = "${BIOCACHE_SERVICE_URL}/occurrences/facets/download"
-                params << [
-                        facets: "species_guid",
-                        lookup: true
-                ]
-                break
-
-            case '2':
-                // Download Species FieldGuide
-                wsUrl = "${BIOCACHE_URL}/occurrences/fieldguide/download"
-                params << [
-                        facets: "species_guid"
-                ]
-                break
-        }
-
-        url = new URIBuilder(wsUrl).with {
-            query = params
-            return it
-        }.toString()
-        log.debug "Download Records prefix (${option}) - REST URL generated = ${url}"
-        return url
+        "${BIOCACHE_URL}/download?searchParams=${URLEncoder.encode(paramsToString(params), "UTF-8")}&targetUri=${source}"
     }
 
     /**
@@ -367,31 +275,56 @@ class MetadataService {
      * @param to
      * @return
      */
-    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, Boolean showHubData = false) {
+    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, String subgroup = null, String from = null, String to = null, Boolean showHubData = false, String filter = null) {
         Map params = [
-                q : buildRegionFacet(regionFid, regionType, regionName, regionPid),
-                fq: 'rank:(species OR subspecies)',
+                q: buildRegionFacet(regionFid, regionType, regionName, regionPid)
         ]
 
-        if (groupName && isSubgroup) {
-            params << [fq: params.fq + ' AND ' + "species_subgroup:\"${groupName}\""]
-        } else if (groupName && groupName != 'ALL_SPECIES') {
-            params << [fq: params.fq + ' AND ' + "species_group:\"${groupName}\""]
+        def fq = []
+
+        if (filter) {
+            fq << filter
         }
 
         if (isValidTimeRange(from, to)) {
-            params << [fq: params.fq + ' AND ' + params.fq + ' AND ' + buildTimeFacet(from, to)]
+            fq << buildTimeFacet(from, to)
         }
 
-        if(ENABLE_QUERY_CONTEXT){
+        if (ENABLE_QUERY_CONTEXT) {
             params << [qc: QUERY_CONTEXT]
         }
 
-        if(showHubData && ENABLE_HUB_DATA){
-            params << [fq: params.fq + ' AND ' + HUB_FILTER]
+        if (HUB_FILTER) {
+            fq.addAll(HUB_FILTER.split("&fq=").findAll { (it) }.collect { URLDecoder.decode(it, "UTF-8") })
+        }
+
+        if (fq) {
+            params << [fq: fq]
         }
 
         return params
+    }
+
+    String paramsToString(Map params) {
+        StringBuilder sb = new StringBuilder()
+        params.each { k, v ->
+            if (v instanceof List) {
+                v.each {
+                    if (sb.length() > 0) {
+                        sb.append('&')
+                    }
+                    sb.append(k).append('=').append(it)
+                }
+            } else {
+                if (sb.length() > 0) {
+                    sb.append('&')
+                }
+                sb.append(k).append('=').append(v)
+            }
+
+        }
+
+        sb.toString()
     }
 
     /**
@@ -406,15 +339,15 @@ class MetadataService {
      * @param pageIndex
      * @return
      */
-    String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = '0', Boolean showHubData = false) {
+    String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String regionPid, String groupName, String subgroup, String from = null, String to = null, String pageIndex = '0', Boolean showHubData = false, String filter = null) {
         String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
-            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, pageIndex, showHubData)
-            return it
+            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, regionPid, groupName, subgroup, from, to, pageIndex, showHubData, filter)
+            it
         }.toString()
         log.debug "REST URL generated = ${url}"
-        return url
-    }
 
+        url
+    }
 
     /**
      *
@@ -428,40 +361,22 @@ class MetadataService {
      * @param pageIndex
      * @return
      */
-    private Map buildSearchOccurrencesWsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, Boolean isSubgroup = false, String from = null, String to = null, String pageIndex = "0", Boolean showHubData = false) {
-        Map params =  [
-                q : buildRegionFacet(regionFid, regionType, regionName, regionPid),
-                facets: 'names_and_lsid',
-                fsort: 'taxon_name',
-                pageSize : 0,
-                flimit: PAGE_SIZE,
-                foffset: Integer.parseInt(pageIndex) * Integer.parseInt(PAGE_SIZE),
-                fq: 'rank:(species OR subspecies)'
+    private Map buildSearchOccurrencesWsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, String subgroup, String from = null, String to = null, String pageIndex = "0", Boolean showHubData = false, String filter = null) {
+        Map params = [
+                facets  : 'names_and_lsid',
+                fsort   : 'taxon_name',
+                pageSize: 0,
+                flimit  : PAGE_SIZE,
+                foffset : Integer.parseInt(pageIndex) * Integer.parseInt(PAGE_SIZE)
         ]
 
-        if (groupName && isSubgroup) {
-            params << [fq: params.fq + ' AND ' + "species_subgroup:\"${groupName}\""]
-        } else if (groupName) {
-            params << [fq: params.fq + ' AND ' + "species_group:\"${groupName}\""]
-        }
-
-        if (isValidTimeRange(from, to)) {
-            params << [fq: params.fq + ' AND ' + buildTimeFacet(from, to)]
-        }
-
-        if(ENABLE_QUERY_CONTEXT){
-            params << [qc: QUERY_CONTEXT]
-        }
-
-        if(showHubData && ENABLE_HUB_DATA){
-            params << [fq: params.fq + ' AND ' + HUB_FILTER]
-        }
+        params << buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, subgroup, from, to, showHubData, filter)
 
         return params
     }
 
-    private boolean isValidTimeRange(String from, String to) {
-        return from && to && (from != WS_DATE_FROM_DEFAULT|| to != Calendar.getInstance().get(Calendar.YEAR).toString())
+    boolean isValidTimeRange(String from, String to) {
+        return from && to && (from != WS_DATE_FROM_DEFAULT || to != Calendar.getInstance().get(Calendar.YEAR))
     }
 
     /**
@@ -471,7 +386,7 @@ class MetadataService {
      * @param regionName
      * @return
      */
-    public String buildRegionFacet(String regionFid, String regionType, String regionName, String regionPid) {
+    String buildRegionFacet(String regionFid, String regionType, String regionName, String regionPid) {
         //unescape regionName for q term creation
         def name = StringEscapeUtils.unescapeHtml(regionName)
 
@@ -484,34 +399,10 @@ class MetadataService {
      * @param to
      * @return
      */
-    public String buildTimeFacet(String from, String to) {
+    String buildTimeFacet(String from, String to) {
         from = from.equals(WS_DATE_FROM_DEFAULT) ? "*" : from + WS_DATE_FROM_PREFIX
-        to = to.equals(Calendar.getInstance().get(Calendar.YEAR).toString()) ? "*" : to + WS_DATE_TO_PREFIX
+        to = to.equals(Calendar.getInstance().get(Calendar.YEAR)) ? "*" : to + WS_DATE_TO_PREFIX
         "occurrence_year:[${from} TO ${to}]"
-    }
-
-    static def loadLoggerReasons(){
-        println("Refreshing the download reasons")
-        String url = "${Holders.config.logger.baseURL}/service/logger/reasons"
-        def conn = new URL(url).openConnection()
-        def map = [:]
-        try{
-            conn.setConnectTimeout(10000)
-            conn.setReadTimeout(50000)
-            def json = conn.content.text
-            def result = JSON.parse(json)
-            println("JSON :: " + json)
-            println(result)
-            result.each{
-                map[it.id] = it.name
-            }
-            println("log reason map::" + map)
-        } catch (Exception e){
-            //load the default
-            println("Using the default list...")
-            return defaultLoggerReasons
-        }
-        return map
     }
 
     /**
@@ -522,23 +413,20 @@ class MetadataService {
      *
      * @param type type of region
      * @param name optional name of the region (the 'object')
-     * @return name, area, pid and bbox as a map for the named region or a map of all objects if no name supplied
+     * @return name , area, pid and bbox as a map for the named region or a map of all objects if no name supplied
      */
     def regionMetadata(type, name) {
         def fid = fidFor(type)
-        //println "MS: ${type} - ${fid}"
         def regionMd = getRegionMetadata(fid)
         if (name) {
             // if a specific region is named, then return that
-            return regionMd[name]
-        }
-        else if (regionMd.values().size == 1){
+            regionMd[name]
+        } else if (regionMd.values().size == 1) {
             // if there is only one object in the field, return it
-            return regionMd.values().iterator().next()
-        }
-        else {
+            regionMd.values().iterator().next()
+        } else {
             // return all objects in the field
-            return regionMd
+            regionMd
         }
     }
 
@@ -549,62 +437,44 @@ class MetadataService {
      * @param fid
      * @return
      */
+    @Cacheable(value = 'metadata', key = { fid })
     def getRegionMetadata(fid) {
-        //println "checking cache for ${fid}: cache date is ${regionCacheLastRefreshed[fid]}; current date is ${new Date()}"
-        if (!regionCache[fid] || new Date().after(regionCacheLastRefreshed[fid] + 2)) {
-            regionCache[fid] = new TreeMap() // clear any stale content
-            log.debug("clearing cache for ${fid}")
-            regionCacheLastRefreshed[fid] = new Date()
-            //println "new cache date is ${regionCacheLastRefreshed[fid]}"
-            if(ENABLE_OBJECT_INTERSECTION){
-                def url = grailsApplication.config.layersService.baseURL + '/intersect/object/' + fid + '/' + INTERSECT_OBJECT
-                def conn = new URL(url).openConnection()
-                try {
-                    conn.setConnectTimeout(10000)
-                    conn.setReadTimeout(50000)
-                    def json = conn.content.text
-                    def result = JSON.parse(json)
-                    result.each {
-                        regionCache[fid].put it.name,
-                                [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
-                    }
-                } catch (SocketTimeoutException e) {
-                    def message = "Timed out looking up pid. URL= ${url}."
-                    log.warn message
-                    println message
-                    return [error: true, errorMessage: message]
-                } catch (Exception e) {
-                    def message = "Failed to lookup pid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
-                    log.warn message
-                    println message
-                    return [error: true, errorMessage: message]
-                }
-            } else {
-                def url = grailsApplication.config.layersService.baseURL + '/field/' + fid
-                def conn = new URL(url).openConnection()
-                try {
-                    conn.setConnectTimeout(10000)
-                    conn.setReadTimeout(50000)
-                    def json = conn.content.text
-                    def result = JSON.parse(json)
-                    result.objects.each {
-                        regionCache[fid].put it.name,
-                                [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
-                    }
-                } catch (SocketTimeoutException e) {
-                    def message = "Timed out looking up pid. URL= ${url}."
-                    log.warn message
-                    println message
-                    return [error: true, errorMessage: message]
-                } catch (Exception e) {
-                    def message = "Failed to lookup pid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
-                    log.warn message
-                    println message
-                    return [error: true, errorMessage: message]
-                }
+
+        def metadata = new TreeMap()
+
+        log.debug("setting cached value ${fid}")
+
+        def url = grailsApplication.config.layersService.baseURL + (ENABLE_OBJECT_INTERSECTION ?
+                '/intersect/object/' + fid + '/' + INTERSECT_OBJECT : '/field/' + fid)
+
+        def result = getJSON(url)
+
+        if (result instanceof Map && result?.error) {
+            result
+        } else {
+            if (result?.objects) {
+                result = result.objects
             }
+            result.each {
+                metadata.put it.name, [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
+            }
+
+            metadata
         }
-        return regionCache[fid]
+    }
+
+    def getJSON(url) {
+        try {
+            JSON.parse(new URL(url).text)
+        } catch (SocketTimeoutException e) {
+            def message = "Timed out looking up URL= ${url}."
+            log.warn message
+            [error: true, errorMessage: message]
+        } catch (Exception e) {
+            def message = "Failed to lookup. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+            log.warn message
+            [error: true, errorMessage: message]
+        }
     }
 
     /**
@@ -613,7 +483,7 @@ class MetadataService {
      * @return
      */
     def fidFor(regionType) {
-        return getRegionsMetadata()[regionType].fid
+        getRegionsMetadata()[regionType]?.fid
     }
 
     /**
@@ -626,7 +496,7 @@ class MetadataService {
      */
     Map lookupBoundingBox(regionType, regionName) {
         def bbox = regionMetadata(regionType, regionName)?.bbox
-        return bbox ?: [minLat: -42, minLng: 113, maxLat: -14, maxLng: 153]
+        bbox ?: [minLat: -42, minLng: 113, maxLat: -14, maxLng: 153]
     }
 
     /**
@@ -634,7 +504,7 @@ class MetadataService {
      * @return
      */
     def getRegionTypes() {
-        return getRegionsMetadata().collect {k,v -> v.name}
+        getRegionsMetadata().collect { k, v -> v.name }
     }
 
     /**
@@ -645,101 +515,62 @@ class MetadataService {
      * else the default set.
      * @return
      */
+    @Cacheable(value = 'metadata', key = { 'getRegionsMetadata' })
     def getRegionsMetadata() {
-        // use cache if loaded
-        if (regionsMetadataCache != null) {
-            return regionsMetadataCache
-        }
 
         //update
         def md = [:]
         int i = 0
-        getMenu().each{ v ->
+        getMenu().each { v ->
             md.put(v.label, [
-                    name: v.label,
-                    layerName: v.layerName,
-                    fid: v.fid,
+                    name      : v.label,
+                    layerName : v.layerName,
+                    fid       : v.fid,
                     bieContext: "not in use",
-                    order: i
+                    order     : i
             ])
 
             i++
         }
-        regionsMetadataCache = md
-        return regionsMetadataCache
+
+        md
     }
 
-    def getObjectByPid(pid){
-        def url = grailsApplication.config.layersService.baseURL + '/object/' + pid
-        def js = new JsonSlurper()
-        js.parseText(new URL(url).text)
+    @Cacheable(value = 'metadata', key = { pid })
+    def getObjectByPid(pid) {
+        getJSON(grailsApplication.config.layersService.baseURL + '/object/' + pid)
     }
 
-    def getLayersServiceLayers() {
-        if (layersServiceLayers.size() > 0) {
-            return layersServiceLayers
-        }
+    @Cacheable(value = 'metadata', key = { 'getLayersServiceLayers' })
+    Map getLayersServiceLayers() {
+        getLayersServiceList('/layers')
+    }
 
-        def results = [:]
-        def url = grailsApplication.config.layersService.baseURL + '/layers'
-        def conn = new URL(url).openConnection()
+    @Cacheable(value = 'metadata', key = { 'getLayersServiceFields' })
+    Map getLayersServiceFields() {
+        getLayersServiceList('/fields')
+    }
+
+    Map getLayersServiceList(path) {
+        def url = grailsApplication.config.layersService.baseURL + path
+
+        def map = [:]
+
         try {
-            conn.setConnectTimeout(10000)
-            conn.setReadTimeout(50000)
-            def json = conn.content.text
-            def result = JSON.parse(json)
-            def map = [:]
-            result.each { v ->
-                map.put String.valueOf(v.id), v
+            def result = getJSON(url)
+            if (result instanceof Map && result?.error) {
+                map = (Map) result
+            } else {
+                result.each { v ->
+                    map.put String.valueOf(v.id), v
+                }
             }
-            layersServiceLayers = map
-        } catch (SocketTimeoutException e) {
-            log.warn "Timed out looking up fid. URL= ${url}."
-            println "Timed out looking up fid. URL= ${url}."
         } catch (Exception e) {
-            log.warn "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
-            println "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+            log.warn "Failed to lookup. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+            map = [error: true, message: "failed to parse ${url}"]
         }
 
-        return layersServiceLayers
-    }
-
-
-    def getLayersServiceFields() {
-        if (layersServiceFields.size() > 0) {
-            return layersServiceFields
-        }
-
-        def results = [:]
-        def url = grailsApplication.config.layersService.baseURL + '/fields'
-        def conn = new URL(url).openConnection()
-        try {
-            conn.setConnectTimeout(10000)
-            conn.setReadTimeout(50000)
-            def json = conn.content.text
-            def result = JSON.parse(json)
-            def map = [:]
-            result.each { v ->
-                map.put v.id, v
-            }
-            layersServiceFields = map
-        } catch (SocketTimeoutException e) {
-            log.warn "Timed out looking up fid. URL= ${url}."
-            println "Timed out looking up fid. URL= ${url}."
-        } catch (Exception e) {
-            log.warn "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
-            println "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
-        }
-
-        return layersServiceFields
-    }
-
-    /**
-     * Returns the metadata for region types as json.
-     * @return
-     */
-    def getRegionsMetadataAsJson() {
-        return getRegionsMetadata() as JSON
+        map
     }
 
     /**
@@ -747,12 +578,17 @@ class MetadataService {
      * @return
      */
     def getRegionsMetadataAsJavascript() {
-        return "var REGIONS = {metadata: " + getRegionsMetadataAsJson() + "}"
+        return "var REGIONS = {metadata: " + (regionsMetadata as JSON) + "}"
     }
 
+    @Cacheable(value = "metadata", key = { '"getStateEmblems"' })
     def getStateEmblems() {
-        if(new File(CONFIG_DIR + "/state-emblems.json").exists()){
-            JSON.parse(new FileInputStream(CONFIG_DIR + "/state-emblems.json"), "UTF-8")
+        def file = new File(CONFIG_DIR + "/state-emblems.json")
+        if (!file.exists()) {
+            file = new File(this.class.classLoader.getResource('default/state-emblems.json').toURI())
+        }
+        if (file.exists()) {
+            JSON.parse(file.text)
         } else {
             []
         }
@@ -762,29 +598,29 @@ class MetadataService {
      * Get a list of the objects in a layer and the available metadata.
      *
      * @param fid id of the 'field' (type of region)
-     * @return name, area, pid and bbox as a map for all objects
+     * @return name , area, pid and bbox as a map for all objects
      */
-   def getObjectsForALayer(fid) {
-        def results = [:]
+    @Cacheable(value = 'metadata', key = { "objects_${fid}" })
+    def getObjectsForALayer(fid) {
+        def map = [:]
         def url = grailsApplication.config.layersService.baseURL + '/field/' + fid
-        def conn = new URL(url).openConnection()
+
         try {
-            conn.setConnectTimeout(10000)
-            conn.setReadTimeout(50000)
-            def json = conn.content.text
-            def result = JSON.parse(json)
-            result.objects.each {
-                results.put it.name,
-                        [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
+            def result = getJSON(url)
+            if (result instanceof Map && result?.error) {
+                map = result
+            } else {
+                result.objects.each {
+                    map.put it.name,
+                            [name: it.name, pid: it.pid, bbox: parseBbox(it.bbox), area_km: it.area_km]
+                }
             }
-        } catch (SocketTimeoutException e) {
-            log.warn "Timed out looking up fid. URL= ${url}."
-            println "Timed out looking up fid. URL= ${url}."
         } catch (Exception e) {
-            log.warn "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
-            println "Failed to lookup fid. ${e.getClass()} ${e.getMessage()} URL= ${url}."
+            log.warn "Failed to lookup ${e.getClass()} ${e.getMessage()} URL= ${url}."
+            map = [error: true, message: "failed to parse ${url}"]
         }
-        return results
+
+        map
     }
 
     /**
@@ -795,7 +631,6 @@ class MetadataService {
      * @return
      */
     def parseBbox(String bbox) {
-        //println "bbox = ${bbox}"
         if (!bbox) return [:]
 
         def coords = bbox[9..-3]
@@ -813,66 +648,65 @@ class MetadataService {
      */
     def lookupPid(regionType, regionName) {
         if (regionType == 'layer') {
-            return ""
+            ''
+        } else {
+            regionMetadata(regionType, regionName)?.pid
         }
-        return regionMetadata(regionType, regionName)?.pid
     }
 
-    static defaultLoggerReasons =[
-            0: "conservation management/planning",
-            1: "biosecurity management",
-            2: "environmental impact, site assessment",
-            3: "education",
-            4: "scientific research",
-            5: "collection management",
-            6: "other",
-            7: "ecological research",
-            8: "systematic research",
-            9: "other scientific research",
+    static defaultLoggerReasons = [
+            0 : "conservation management/planning",
+            1 : "biosecurity management",
+            2 : "environmental impact, site assessment",
+            3 : "education",
+            4 : "scientific research",
+            5 : "collection management",
+            6 : "other",
+            7 : "ecological research",
+            8 : "systematic research",
+            9 : "other scientific research",
             10: "testing"
     ]
 
     def getLayerNameForFid(String fid) {
-        def layerName = null
-        def layer = getLayerForFid(fid)
-        if (layer != null) {
-            layerName = layer.name
-        }
-        layerName
+        getLayerForFid(fid)?.name
     }
 
     def getLayerForFid(String fid) {
-        def layer = null
-        def lsf = getLayersServiceFields().get(fid)
-        if (lsf != null) {
-            layer = getLayersServiceLayers().get(lsf.spid)
+        def lsf = layersServiceFields.get(fid)
+        if (lsf?.spid) {
+            layersServiceLayers.get(lsf.spid)
+        } else {
+            null
         }
-        layer
     }
 
-    def menu
+    @Cacheable(value = 'metadata', key = { 'getMenu' })
     def getMenu() {
-        if (menu == null) {
-            // use external file if available
-            def md = new File(CONFIG_DIR + "/menu-config.json")?.text
-            if (!md) {
-                //use default resource
-                md = new File(this.class.classLoader.getResource('default/menu-config.json').toURI())?.text
-            }
-            if (md) {
-                menu = JSON.parse(md)
 
-                menu.each { v ->
-                    def layerName = getLayerNameForFid(v.fid)
+        def menu = []
 
-                    if (layerName == null) {
+        // use external file if available
+        def f = new File(CONFIG_DIR + "/menu-config.json")
+        def md = f.exists() ? f.text : ''
+        if (!md) {
+            //use default resource
+            md = new File(this.class.classLoader.getResource('default/menu-config.json').toURI())?.text
+        }
+        if (md) {
+            menu = JSON.parse(md)
+
+            menu.each { v ->
+                def layerName = getLayerNameForFid(v.fid)
+
+                if (!layerName) {
+                    if (v.fid) {
                         log.warn "Failed to find layer name for fid= ${v.fid}"
-                        println "Failed to find layer name for fid= ${v.fid}"
-                        layerName = v.label.replace(" ", "")
                     }
-
-                    v.layerName = layerName
+                    layerName = v.label.replace(" ", "")
                 }
+
+                v.layerName = layerName
             }
         }
 
@@ -890,7 +724,7 @@ class MetadataService {
                 if (v.fid) {
                     def objects = getRegionMetadata(v.fid)
                     if (v.exclude) {
-                        objects.each{ k, o ->
+                        objects.each { k, o ->
                             if (!v.exclude.contains(k)) {
                                 map.put(k, o)
                             }
@@ -906,13 +740,13 @@ class MetadataService {
                             if (layer == null) {
                                 def message = "Failed to find layer for fid=" + v2.fid
                                 log.warn message
-                                println message
                             } else {
                                 map.put(v2.label, [
-                                        name : v2.label, layerName: layer.name, id: layer.id, fid: v2.fid,
-                                        bbox : parseBbox(layer.bbox),
+                                        name  : v2.label, layerName: layer.name, id: layer.id, fid: v2.fid,
+                                        bbox  : [minLat: layer.minlatitude, minLng: layer.minlongitude,
+                                                 maxLat: layer.maxlatitude, maxLng: layer.maxlongitude],
                                         source: null,
-                                        notes: "todo: notes"
+                                        notes : "todo: notes"
                                 ])
                             }
                         }
@@ -924,11 +758,18 @@ class MetadataService {
         map
     }
 
-    def getHabitatConfig(){
+    @Cacheable(value = 'metadata', key = { 'getHabitatConfig' })
+    def getHabitatConfig() {
         def appName = Metadata.current.'app.name'
-        def json = new File("/data/${appName}/config/habitats.json").text
-        def js = new JsonSlurper()
-        def config = js.parseText(json)
-        config
+        def file = new File("/data/${appName}/config/habitats.json")
+        if (!file.exists()) {
+            file = new File(this.class.classLoader.getResource('default/habitats.json').toURI())
+        }
+        if (file.exists()) {
+            JSON.parse(file.text)
+        } else {
+            file =
+                    null
+        }
     }
 }

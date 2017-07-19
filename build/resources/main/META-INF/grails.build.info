@@ -1,0 +1,6 @@
+#Wed, 19 Jul 2017 16:26:41 +1000
+
+info.app.version=0.1
+info.app.name=regions
+grails.env=development
+info.app.grailsVersion=3.2.11

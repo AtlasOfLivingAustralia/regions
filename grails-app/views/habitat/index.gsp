@@ -1,14 +1,40 @@
-<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>
+%{--<%@ page import="org.codehaus.groovy.grails.commons.ConfigurationHolder" %>--}%
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="layout" content="${grailsApplication.config.layout.skin?:'main'}"/>
+    <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="layout" content="${grailsApplication.config.layout.skin ?: 'main'}"/>
     <title>Habitats | ${grailsApplication.config.orgNameLong}</title>
-    <r:require modules="regions,leaflet"/>
+
+    <asset:javascript src="application"/>
+    <asset:stylesheet src="application"/>
+    %{--<asset:javascript src="regions_app" asset-defer="true" />--}%
+    %{--<asset:javascript src="region_page" asset-defer="true" />--}%
+
+    <asset:javascript src="leaflet"/>
+    <asset:stylesheet src="leaflet"/>
+
     <style type="text/css">
-    .habitatNode  { cursor: pointer; cursor: hand; }
-    .selectedNode {  font-weight: bold; }
+    .habitatNode {
+        cursor: pointer;
+    }
+
+    .fa {
+        padding-right: 10px;
+    }
+
+    .fa-circle {
+        font-size: 8px;
+        position: relative;
+        top: -2px;
+    }
+
+    .selectedNode {
+        font-weight: bold;
+    }
+
     i.legendColour {
         -webkit-background-clip: border-box;
         -webkit-background-origin: padding-box;
@@ -23,33 +49,30 @@
         line-height: 12px;
         width: 14px;
         margin-bottom: -5px;
-        margin-left:2px;
-        margin-right:2px;
-        opacity:1;
-        filter:alpha(opacity=100);
+        margin-left: 2px;
+        margin-right: 2px;
+        opacity: 1;
+        filter: alpha(opacity=100);
     }
-    .leaflet-control-layers-overlays label span { font-size: 12px; }
+
+    .leaflet-control-layers-overlays label span {
+        font-size: 12px;
+    }
     </style>
 </head>
-<body class="nav-locations">
-<div class="row-fluid">
-    <div class="span12">
-        <ul class="breadcrumb">
-            <rg:breadcrumbTrail/>
-            <li class="active">Habitats</li>
-        </ul>
-    </div>
-</div>
 
-<div class="row-fluid" style="margin-top:10px;">
-    <div class="span4">
-        <h1>Select a habitat to explore</h1>
+<body class="nav-locations">
+
+<div class="row" style="margin-top:10px;">
+    <div class="col-md-4">
+        <h2>Select a habitat to explore</h2>
         <ul id="habitatTree"></ul>
 
         <hab:habitatTree />
 
         <div class="well" style="margin-top:20px;">
             <h4>About these habitats</h4>
+
             <p>
                 ${config.description}
                 <br/>
@@ -58,31 +81,33 @@
         </div>
 
     </div>
-    <div class="span8" id="rightPanel">
+
+    <div class="col-md-8" id="rightPanel">
         <div class="actions pull-right">
-            <a id="viewRecordsLink" class='btn hide' href='#'><i class="icon icon-list"></i> View records</a>
+            <a id="viewRecordsLink" class='btn hide' href='#'><i class="fa fa-share-square-o"></i> View Records</a>
         </div>
         <span id="click-info"><i class="fa fa-info-circle"></i> Select a habitat from the tree to view on map.</span>
-        <a id="selected-habitat" class='btn hide' href='#'> View habitat</a>
+        <a id="selected-habitat" class='btn hide' href='#'>View habitat</a>
+
         <div id="map-canvas" style="width:100%; height:600px; margin-top:10px;">
         </div>
     </div>
 </div>
 
-<r:script>
+<asset:script type="text/javascript">
+
     var REGION_CONF = {
         server: '${grailsApplication.config.grails.serverURL}',
         spatialService: "${grailsApplication.config.layersService.baseURL}/",
         spatialWms: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
         spatialCache: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
         accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
-        mapBounds: JSON.parse('${grailsApplication.config.map.bounds?:[]}'),
+        mapBounds: JSON.parse('${grailsApplication.config.map.bounds ?: []}'),
         mapHeight: '${grailsApplication.config.map.height}',
-        mapContainer: 'map_canvas'
+        mapContainer: 'map_canvas',
+        biocacheUrl: '${grailsApplication.config.biocache.baseURL}',
+        layerField: 'cl1918'
     };
-</r:script>
-
-<r:script>
 
     var colours = [
         "0xFF0000","0x0000FF",
@@ -93,12 +118,12 @@
         "0xFF00FF","0x808000"
     ]
 
-    var recordsUrl = "${createLink(controller:'habitat', action:'viewRecords')}/";
-    var regionUrl = "${createLink(mapping: 'habitatByFeature')}";
+     var recordsUrl = "${createLink(controller: 'habitat', action: 'viewRecords')}/";
+     var regionUrl = "${createLink(controller: 'habitat', action: 'index')}";
 
     var HABITAT_MAP = { map: null, activeLayers: {}, habitatTree: null, layerControl: null };
 
-    var mapBounds = JSON.parse('${grailsApplication.config.map.bounds?:[]}');
+    var mapBounds = JSON.parse('${grailsApplication.config.map.bounds ?: [-44, 112, -9, 154]}');
     var mapHeight = '${grailsApplication.config.map.height}';
     HABITAT_MAP.map = L.map('map-canvas');
     HABITAT_MAP.map .fitBounds([
@@ -130,7 +155,9 @@
 
         console.log('Pushing selected habitat: ' + selectedHabitatName + " with ID " + $habitatNode.data('id'))
 
-        numericIDs.push({ id: $habitatNode.data('rasterid'), name: $habitatNode.data('name') });
+        if ($habitatNode.data('rasterid')) {
+            numericIDs.push({ id: $habitatNode.data('rasterid'), name: $habitatNode.data('name') });
+        }
 
         var $childNodes = $habitatNode.find('li.habitatNode');
 
@@ -142,12 +169,82 @@
             var habitatName = $(value).data('name');
 
             console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
-            if(!isNaN(numericID)){
+            if(numericID){
                 numericIDs.push({id: numericID, name: habitatName})
             }
         });
 
         return numericIDs;
+    }
+
+    function getSearchValue(habitatNode){
+
+        //get child IDs ?
+        var searchValue = '';
+
+        var $habitatNode = $(habitatNode);
+
+        var selectedHabitatName = $habitatNode.data('name');
+
+        console.log('Pushing selected habitat: ' + selectedHabitatName + " with ID " + $habitatNode.data('id'))
+
+        var prefix = $habitatNode.data('name')
+
+        var $childNodes = $habitatNode.find('li.habitatNode');
+
+        console.log('Child nodes: ' + $childNodes.length);
+
+        if($childNodes.length > 0) {
+            $.each($childNodes, function( index, value ) {
+                searchValue = newSearchValue(searchValue, value)
+            });
+        } else {
+            searchValue = newSearchValue(searchValue, $habitatNode)
+        }
+
+        return searchValue;
+    }
+
+    function newSearchValue(searchValue, value) {
+        var numericID = $(value).data('rasterid');
+        var habitatName = $(value).data('name');
+
+        console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
+        if(numericID){
+
+            var parent = $(value).parent().parent();
+            while ($(parent).data('name')) {
+                habitatName = $(parent).data('name') + ' ' + habitatName
+                parent = $(parent).parent().parent();
+            }
+
+            if (searchValue.length == 0) {
+                searchValue = '"' + habitatName + '"'
+            } else {
+                searchValue += ' OR "' + habitatName + '"'
+            }
+
+        }
+
+        return searchValue
+    }
+
+    function getName(habitatNode){
+
+            var numericID = $(habitatNode).data('rasterid');
+            var habitatName = $(habitatNode).data('name');
+
+            console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
+            if(numericID){
+
+                var parent = $(habitatNode).parent().parent();
+                while ($(parent).data('name')) {
+                    habitatName = $(parent).data('name') + ' ' + habitatName
+                    parent = $(parent).parent().parent()
+                }
+
+                return habitatName
+            }
     }
 
     function resetMap(){
@@ -158,7 +255,7 @@
         });
 
         HABITAT_MAP.activeLayers = [L.tileLayer.wms(REGION_CONF.spatialWms, {
-            layers: 'ALA:eunis_land_cover_scotland',
+            layers: 'ALA:${config.layerName}',
             format: 'image/png',
             transparent: true,
             version: '1.1.0',
@@ -177,41 +274,64 @@
      * @returns {string}
      */
     function getSLD(numericHabitatID, colour){
+        var colourMap = []
+        $.getJSON(REGION_CONF.spatialService + '/object/' + numericHabitatID, function( data ) {
+            //return decodeURIComponent(sld.replace("color%3D%220xff0000", "color%3D%22" + colour)).replace(/.*sld_body=(.*)/,'$1').replace('+', ' ')
 
+            var sld = data.wmsurl
+            sld = sld.replace(/color%3D%220xff0000/g, "color%3D%22" + colour)
+
+            $.each(sld.replace(/.*%3CColorMap%3E(.*?)%3C%2FColorMap%3E.*/g, '$1').split('%3CColorMapEntry+'), function(i, v) {
+                var quantity = Number(v.replace(/.*quantity%3D%22([\-0-9]*).*/, '$1'))
+                var opacity = Number(v.replace(/.*opacity%3D%22([0-9\.]*).*/, '$1'))
+
+                if (v.length > 0) {
+                    colourMap.push({ quantity: quantity, inArea: opacity > 0, data: v })
+                }
+            });
+
+            colourMap
+          });
+
+        return colourMap
+    }
+
+//   $( "<ul/>", {
+//     "class": "my-new-list",
+//     html: items.join( "" )
+//   }).appendTo( "body" );
+// });
+
+    function fillSld(sldItems) {
        var sld_head =  '<?xml version="1.0" encoding="UTF-8"?>'+
             '<StyledLayerDescriptor xmlns="http://www.opengis.net/sld">'+
-                '<NamedLayer>'+
-                    '<Name>ALA:${config.layerName}</Name>'+
-                    '<UserStyle>'+
-                        '<FeatureTypeStyle>'+
-                            '<Rule>'+
-                                '<RasterSymbolizer>'+
-                                '<Geometry />'+
-                                    '<ColorMap>';
-        var sld = sld_head;
-        sld = sld + addColorFrag(numericHabitatID, colour);
-        var sld_tail =  '</ColorMap>'+
-                                '</RasterSymbolizer>'+
-                            '</Rule>'+
-                        '</FeatureTypeStyle>'+
-                    '</UserStyle>'+
-                '</NamedLayer>'+
-            '</StyledLayerDescriptor>';
-
+'<NamedLayer>'+
+'<Name>ALA:${config.layerName}</Name>'+
+'<UserStyle>'+
+'<FeatureTypeStyle>'+
+'<Rule>'+
+'<RasterSymbolizer>'+
+'<Geometry/><ColorMap>';
+var sld = sld_head;
+sld = sld + decodeURIComponent('%3CColorMapEntry+' + sldItems.join('%3CColorMapEntry+')).replace(/\+/g, ' ')
+var sld_tail = '</ColorMap></RasterSymbolizer>'+
+'</Rule>'+
+'</FeatureTypeStyle>'+
+'</UserStyle>'+
+'</NamedLayer>'+
+'</StyledLayerDescriptor>';
        sld = sld + sld_tail;
        return sld;
     }
 
     HABITAT_MAP.layerControl = L.control.layers({},null,{collapsed:true});
     HABITAT_MAP.layerControl.addTo(HABITAT_MAP.map);
-</r:script>
 
-
-<r:script>
 
     $(function(){
 
         $( ".habitatNode" ).click(function(event) {
+            event.stopPropagation();
 
             var $this = $(this);
 
@@ -219,23 +339,34 @@
 
             $this.addClass('selectedNode');
 
-            if($this.hasClass('habitatRootNode')){
+            // if($this.hasClass('habitatRootNode')){
                 //hide any visible subtrees
                 $('.subTree').hide();
-            }
+                $('.fa-chevron-right').show();
+                $('.fa-chevron-down').hide();
+            // }
 
             //show subtrees
-            $this.find('.subTree').show();
+            $this.children('.subTree').show();
+            $this.children('.fa-chevron-right').hide();
+            $this.children('.fa-chevron-down').show();
+            var parent = $this.parent('.subTree').parent();
+            while(parent.children('.subTree').length > 0) {
+                parent.children('.subTree').show();
+                parent.children('.fa-chevron-right').hide();
+                parent.children('.fa-chevron-down').show();
+                parent = parent.parent('.subTree').parent();
+            }
 
-            $('#viewRecordsLink').attr('href', recordsUrl + $this.data('id'));
-            $('#viewRecordsLink').show();
+            $('#viewRecordsLink').removeClass('hide');
 
             $('#click-info').hide();
 
             //set title
-            $('#selected-habitat').html($this.data("name"))
-            $('#selected-habitat').attr('href', regionUrl + '/' +  $this.data("pid"));
+            $('#selected-habitat').html(getName(this))
+            $('#selected-habitat').attr('href','');
             $('#selected-habitat').show();
+            $('#selected-habitat').removeClass('hide')
 
             $.each(HABITAT_MAP.activeLayers, function(index, layer){
                 HABITAT_MAP.map.removeLayer(layer);
@@ -244,37 +375,94 @@
 
             HABITAT_MAP.activeLayers = [];
 
+            $.ajaxSetup({ async: false });
+
             //get the child IDs
-            var numericIDs = getNumericIDs(this);
-
-            //add a layer for each
-            for(var i = 0; i < numericIDs.length; i++){
-
-                var selectedColour = colours[i % colours.length];
-
-                var newLayer = L.tileLayer.wms(REGION_CONF.spatialWms, {
-                    layers: 'ALA:${config.layerName}',
-                    format: 'image/png',
-                    transparent: true,
-                    version: '1.1.0',
-                    attribution: "myattribution",
-                    sld_body: getSLD(numericIDs[i].id, selectedColour)
-                });
-
-                HABITAT_MAP.activeLayers.push(newLayer);
-                HABITAT_MAP.layerControl.addOverlay(newLayer,
-                    '<i class="legendColour" style="background-color:#' + selectedColour.substring(2) + ';"></i>&nbsp;' + numericIDs[i].name);
-                newLayer.addTo(HABITAT_MAP.map);
+            if ($(this).children('.subTree')[0]) {
+                $.each($(this).children('.subTree')[0].children, function (idx, v) {
+                    addLayer(v, colours[idx % colours.length]);
+                })
+            } else {
+                addLayer(this, colours[0]);
             }
 
             //open layer control to show the various layers
             $(".leaflet-control-layers").addClass("leaflet-control-layers-expanded");
 
-            event.stopPropagation();
-        });
-    });
+            $("#viewRecordsLink").attr('href', REGION_CONF.biocacheUrl + '/occurrences/search?q=' + encodeURIComponent(REGION_CONF.layerField + ':(' + getSearchValue($this) + ')'));
 
-</r:script>
+            $.ajaxSetup({ async: false });
+        });
+    })
+
+    function addLayer(v, selectedColour) {
+        var numericIDs = getNumericIDs(v);
+        var group = []
+        var sldItems = []
+
+        //add a layer for each
+        for(var i = 0; i < numericIDs.length; i++){
+            var name = numericIDs[i].name;
+
+            $.each(getSLD(numericIDs[i].id, selectedColour), function(i, v) {
+                sldItems.push(v);
+            });
+        }
+
+        sldItems.sort(function(a, b) {
+            if (isNaN(a.quantity) && isNaN(b.quantity)) {
+                return 0;
+            } else if (isNaN(a.quantity)) {
+                return -1;
+            } else if (isNaN(b.quantity)) {
+                return 0;
+            } else if (a.quantity < b.quantity) {
+                return -1
+            } else if (a.quantity > b.quantity) {
+                return 1;
+            } else if (a.isArea) {
+                return -1;
+            } else if (b.isArea) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        var uniqueSldItems = []
+        for (var j = 0;j<sldItems.length; j++) {
+            if (j == 0 || sldItems[j].quantity != sldItems[j-1].quantity) {
+                uniqueSldItems.push(sldItems[j].data);
+            }
+        }
+
+        var completeSld = fillSld(uniqueSldItems)
+
+        // $.getJSON(REGION_CONF.spatialService + '/object/' + numericIDs[i].id, function( data ) {
+        //     var sld = decodeURIComponent(data.wmsurl.replace(/color%3D%220xff0000/g, "color%3D%22" + selectedColour)).replace(/.*sld_body=(.*)/,'$1').replace(/\+/g, ' ')
+
+            var newLayer = L.tileLayer.wms(REGION_CONF.spatialWms, {
+                    layers: 'ALA:${config.layerName}',
+                    format: 'image/png',
+                    transparent: true,
+                    version: '1.1.0',
+                    attribution: "myattribution",
+                    sld_body: completeSld
+                });
+
+                group.push(newLayer)
+
+            // });
+        // }
+
+        var groupLayer = L.layerGroup(group);
+        HABITAT_MAP.activeLayers.push(groupLayer);
+        HABITAT_MAP.layerControl.addOverlay(groupLayer,
+            '<i class="legendColour" style="background-color:#' + selectedColour.substring(2) + ';"></i>&nbsp;' + $(v).attr('data-name'));
+        groupLayer.addTo(HABITAT_MAP.map);
+    }
+</asset:script>
+
 </body>
 
 </html>

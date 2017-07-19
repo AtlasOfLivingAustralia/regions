@@ -1,0 +1,9 @@
+//= require jquery/jquery-1.11.2
+//= require jquery-migrate-1.2.1.min
+//= require jquery.autocomplete
+//= require jquery-bbq/jquery.ba-bbq-1.2.1
+//= require jquery-jsonp/jquery.jsonp-2.1.4.min
+//= require jquery-ui/jquery-ui-1.11.2-no-autocomplete
+//= require jquery-ui-slider-pips/jquery-ui-slider-pips
+//= require jquery-aa/aa.js
+//= require jquery-aa/jquery-ajaxq-0.0.2.js
