@@ -2,7 +2,24 @@ import grails.util.Metadata
 
 grails.project.groupId = 'au.org.ala.regions'
 
-grails.serverURL = 'http://local.ala.org.au'
+grails.serverURL = 'http://local.ala.org.au:8080'
+
+ENV_NAME = "EXPERT_CONFIG"
+appName = 'regions'
+grails.config.locations = ["file:/data/${appName}/config/${appName}-config.properties",
+                           "file:/data/${appName}/config/${appName}-config.yml",
+                           "file:/data/${appName}/config/${appName}-config.groovy"]
+if (System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
+    println "[EXPERT] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
+    grails.config.locations = ["file:" + System.getenv(ENV_NAME)]
+} else if (System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
+    println "[EXPERT] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
+    grails.config.locations = ["file:" + System.getProperty(ENV_NAME)]
+} else {
+    println "[EXPERT] Including default configuration files, if they exist: " + grails.config.locations
+}
+
+grails.cors.enabled = true
 
 ignoreCookie = 'true'
 security {

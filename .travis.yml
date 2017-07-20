@@ -1,29 +1,21 @@
 language: groovy
 jdk:
-- oraclejdk7
+- oraclejdk8
 sudo: false
 branches:
   only:
   - master
-  - mdba
   - grails3
-
-before_install:
-- wget -q https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/ala_common.sh
-- chmod +x ala_common.sh
-- source ./ala_common.sh
-
-- ala_travis_grails_setup_env
-
-script:
-- ala_travis_grails_build
-
-# Build versions of regions with a different app.name.  This is so they can be deployed to the same server without config directories overlapping.
-- sed -i 's/app.name.*/app.name=regions-mdba/' ./application.properties
-- ala_travis_grails_build
-
-- sed -i 's/app.name.*/app.name=regions-ger/' ./application.properties
-- ala_travis_grails_build
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+  - $HOME/.m2
+  - $HOME/.gradle/caches/
+  - $HOME/.gradle/wrapper/
+after_success:
+  - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 
 env:
   global:
