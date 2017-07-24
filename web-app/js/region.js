@@ -122,6 +122,8 @@ var RegionWidget = function (config) {
 
     var urls = {};
 
+    var redirectDownloads = false;
+
     /**
      * Constructor
      * @param config
@@ -141,6 +143,8 @@ var RegionWidget = function (config) {
         state.q = config.q;
         state.showHubData = config.showHubData || false;
         state.hubFilter = config.hubFilter || '';
+
+        state.redirectDownloads = config.redirectDownloads;
 
         // Check previous existing state
         updateState($.bbq.getState());
@@ -167,6 +171,10 @@ var RegionWidget = function (config) {
 
         initializeViewRecordsButton();
 
+        if(state.redirectDownloads) {
+            initializeDownloadRecordsButton();
+        }
+
         // Initialize `nload records dialog
         $('#downloadRecordsModal').modal({show: false});
     };
@@ -185,7 +193,7 @@ var RegionWidget = function (config) {
     };
 
     /**
-     *
+     * Add a click event to view records button.
      */
     var initializeViewRecordsButton = function() {
         $('#viewRecords').click(function(event) {
@@ -206,7 +214,7 @@ var RegionWidget = function (config) {
 
             if(state.qc){
                 //when using qc, biocache search fails. AtlasOfLivingAustralia/biocache-hubs#176
-                url += '&fq=' +state.qc
+                url += '&fq=' + state.qc
             }
 
             if(state.showHubData){
@@ -214,6 +222,46 @@ var RegionWidget = function (config) {
             }
 
             document.location.href = url;
+        });
+    };
+
+    /**
+     * Add a click event to download button.
+     */
+    var initializeDownloadRecordsButton = function() {
+        $('#downloadRecords').click(function(event) {
+            event.preventDefault();
+
+            console.log("state.q = " + state.q);
+            console.log("state.q (decoded) = " + decodeURI(state.q));
+            console.log("state.q (decoded decoded) = " + decodeURI(decodeURI(state.q)));
+
+            var baseUrl = urls.biocacheWebappUrl + "/download?searchParams=";
+            var targetUri = "&targetUri=" + encodeURI(urls.regionsApp);
+
+            // check what group is active
+            var url = "%3Fq%3D" + encodeURI(state.q) + encodeURI('&fq=rank:(species OR subspecies)');
+            if (!regionWidget.isDefaultFromYear() || !regionWidget.isDefaultToYear()) {
+                url += encodeURI('&fq=' + region.buildTimeFacet());
+            }
+            if (state.group != 'ALL_SPECIES') {
+                if (state.subgroup) {
+                    url += encodeURI('&fq=species_subgroup:"' + state.subgroup + '"');
+                } else {
+                    url += encodeURI('&fq=species_group:"' + state.group + '"');
+                }
+            }
+
+            if(state.qc){
+                //when using qc, biocache search fails. AtlasOfLivingAustralia/biocache-hubs#176
+                url += encodeURI('&fq=') + state.qc
+            }
+
+            if(state.showHubData){
+                url += encodeURI('&fq=') + state.hubFilter
+            }
+
+            document.location.href = baseUrl + url + targetUri ;
         });
     };
 

@@ -185,3 +185,6 @@ layers.queryContextDisplayName=''
 layers.queryContextFid=''
 layers.queryContextBieContext=''
 layers.queryContextOrder=''
+
+// do a redirect for downloads - to make use of the biocache downloads plugin for offline downloads
+redirectDownloads = false

@@ -36,10 +36,8 @@ grails.project.dependency.resolution = {
         build ":rest-client-builder:2.0.3"
 
         compile ":ajaxanywhere:1.0-SNAPSHOT"
+        runtime (":ala-bootstrap2:2.4.5")
 
-        runtime (":ala-bootstrap2:2.4.5") {
-            exclude "jquery"
-        }
         if (Environment.current == Environment.PRODUCTION) {
             runtime ":zipped-resources:1.0.1"
             runtime ":cached-resources:1.1"

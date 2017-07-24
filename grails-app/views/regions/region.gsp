@@ -123,12 +123,16 @@
                     </aa:zone>
                 </table>
                 <div class="text-center" id="exploreButtons">
-                    <a href="" id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View Records</a>
-
-                    <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog')}"
-                       aa-refresh-zones="dialogZone" aa-js-before="regionWidget.showDownloadDialog();" class="btn">
-                        <i class="fa fa-download"></i> Download Records
-                    </a>
+                    <a href="" id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View records</a>
+                    <g:if test="true">
+                        <a href="" id="downloadRecords" class="btn"><i class="fa fa-download"></i> Download records</a>
+                    </g:if>
+                    <g:else>
+                        <a href="${g.createLink(controller: 'region', action: 'showDownloadDialog')}"
+                           aa-refresh-zones="dialogZone" aa-js-before="regionWidget.showDownloadDialog();" class="btn">
+                            <i class="fa fa-download"></i> Download Records
+                        </a>
+                    </g:else>
                 </div>
             </div>
             <div class="tab-pane" id="taxonomyTabContent">
@@ -305,7 +309,8 @@
                 spatialServiceUrl: "${grailsApplication.config.layersService.baseURL}/",
             },
             username: '${rg.loggedInUsername()}',
-            q: '${region.q}'
+            q: '${region.q}',
+            redirectDownloads: ${grailsApplication.config.redirectDownloads.toBoolean()}
             <g:if test="${enableQueryContext}">
                 ,qc:"${URLEncoder.encode(grailsApplication.config.biocache.queryContext, "UTF-8")}"
             </g:if>
