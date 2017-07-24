@@ -1,6 +1,6 @@
 import grails.util.Metadata
 
-grails.project.groupId = 'au.org.ala.regions'
+grails.project.groupId = 'au.org.ala'
 
 grails.serverURL = 'http://local.ala.org.au:8080'
 
@@ -133,7 +133,6 @@ grails.cache.config = {
         maxElementsOnDisk 0
     }
 }
-
 
 headerAndFooter.excludeApplicationJs = true
 orgNameLong = 'Atlas of Living Australia'
