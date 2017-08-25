@@ -539,8 +539,14 @@
             var s = this.getBounds().getSouthWest();
             var ne = map.transform4326to3857(n.lng(), n.lat());
             var sw = map.transform4326to3857(s.lng(), s.lat());
-            var url = map.config.spatialWmsUrl + "/ALA/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS=" + selectedRegionType.layerName + "&STYLES&LAYERS=ALA%3A" + selectedRegionType.layerName + "&INFO_FORMAT=text%2Fhtml&FEATURE_COUNT=1&X=" + event.pixel.x + "&Y=" + event.pixel.y + "&SRS=EPSG%3A900913&WIDTH=" + $('#' + map.containerId).width() + "&HEIGHT=" + $('#' + map.containerId).height() + "&BBOX=" + sw[0] + "%2C" + sw[1] + "%2C" + ne[0] + "%2C" + ne[1];
-            console.log(url)
+            var url = map.config.spatialWmsUrl
+                + "/ALA/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS="
+                + selectedRegionType.layerName + "&STYLES&LAYERS=ALA%3A" + selectedRegionType.layerName
+                + "&INFO_FORMAT=text%2Fhtml&FEATURE_COUNT=1&X=" + Math.floor(event.pixel.x)
+                + "&Y=" + Math.floor(event.pixel.y) + "&SRS=EPSG%3A900913&WIDTH=" + $('#' + map.containerId).width()
+                + "&HEIGHT=" + $('#' + map.containerId).height() + "&BBOX=" + sw[0]
+                + "%2C" + sw[1] + "%2C" + ne[0] + "%2C" + ne[1];
+            //console.log(url)
             $.ajax({
                 url: url,
                 dataType: 'text',
