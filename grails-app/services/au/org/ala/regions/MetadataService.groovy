@@ -247,7 +247,7 @@ class MetadataService {
      * @return
      */
     String buildSpeciesRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String groupName, String isSubgroup, String from, String to, Boolean showHubData, String filter) {
-        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData, filter)
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData, filter, false)
         if (guid) {
             params.fq << "lsid:\"${guid}\""
         }
@@ -256,12 +256,12 @@ class MetadataService {
     }
 
     String buildDownloadRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String groupName, String isSubgroup, String from, String to, Boolean showHubData, String source = null, String filter = null) {
-        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData, filter)
+        Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData, filter, true)
         if (guid) {
             params.fq << "lsid:\"${guid}\""
         }
 
-        "${BIOCACHE_URL}/download?searchParams=${URLEncoder.encode(paramsToString(params), "UTF-8")}&targetUri=${source}"
+        "${BIOCACHE_URL}/download?searchParams=${URLEncoder.encode("?"+paramsToString(params), "UTF-8")}&targetUri=${source}"
     }
 
     /**
@@ -275,9 +275,9 @@ class MetadataService {
      * @param to
      * @return
      */
-    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, String subgroup = null, String from = null, String to = null, Boolean showHubData = false, String filter = null) {
+    private Map buildCommonDownloadRecordsParams(String regionFid, String regionType, String regionName, String regionPid, String groupName = null, String subgroup = null, String from = null, String to = null, Boolean showHubData = false, String filter = null, Boolean encodeParams = false) {
         Map params = [
-                q: buildRegionFacet(regionFid, regionType, regionName, regionPid)
+                q: buildRegionFacet(regionFid, regionType, regionName, regionPid, encodeParams)
         ]
 
         def fq = []
@@ -386,12 +386,18 @@ class MetadataService {
      * @param regionName
      * @return
      */
-    String buildRegionFacet(String regionFid, String regionType, String regionName, String regionPid) {
-        //unescape regionName for q term creation
+    String buildRegionFacet(String regionFid, String regionType, String regionName, String regionPid, Boolean encodeValues = false) {
+        // unescape regionName for q term creation
         def name = StringEscapeUtils.unescapeHtml(regionName)
+        def qParam = regionPid == null || regionPid.isEmpty() ? "-${regionFid}:n/a AND ${regionFid}:*" : "${regionFid}:\"${name}\""
 
-        regionPid == null || regionPid.isEmpty() ? "-${regionFid}:n/a AND ${regionFid}:*" : "${regionFid}:\"${name}\""
+        if (qParam && encodeValues) {
+            qParam = "${qParam.encodeAsURL()}"
+        }
+
+        qParam
     }
+
 
     /**
      *
