@@ -102,10 +102,10 @@
         spatialWms: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
         spatialCache: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
         accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
-        mapBounds: JSON.parse('${grailsApplication.config.map.bounds ?: []}'),
+        mapBounds: JSON.parse('${grailsApplication.config.getProperty('map.bounds') ?: [-44, 112, -9, 154]}'),
         mapHeight: '${grailsApplication.config.map.height}',
         mapContainer: 'map_canvas',
-        biocacheUrl: '${grailsApplication.config.biocache.baseURL}',
+        biocacheUrl: '${grailsApplication.config.getProperty('biocache.baseURL')}',
         layerField: 'cl1918'
     };
 
@@ -123,8 +123,8 @@
 
     var HABITAT_MAP = { map: null, activeLayers: {}, habitatTree: null, layerControl: null };
 
-    var mapBounds = JSON.parse('${grailsApplication.config.map.bounds ?: []}');
-    var mapHeight = '${grailsApplication.config.map.height}';
+    var mapBounds = REGION_CONF.mapBounds;
+    var mapHeight = REGION_CONF.mapHeight;
     HABITAT_MAP.map = L.map('map-canvas');
     HABITAT_MAP.map .fitBounds([
         [mapBounds[0], mapBounds[1]],
