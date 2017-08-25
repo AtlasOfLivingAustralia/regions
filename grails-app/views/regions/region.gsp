@@ -50,7 +50,7 @@
         };
     </asset:script>
 
-    <meta name="layout" content="${grailsApplication.config.layout.skin ?: 'main'}"/>
+    <meta name="layout" content="${grailsApplication.config.skin.layout ?: 'main'}"/>
     <title>${region.name} | ${grailsApplication.config.orgNameLong}</title>
     <script src="${g.createLink(controller: 'data', action: 'regionsMetadataJavascript')}"></script>
 

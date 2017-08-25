@@ -5,7 +5,7 @@
     <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="layout" content="${grailsApplication.config.layout.skin ?: 'main'}"/>
+    <meta name="layout" content="${grailsApplication.config.skin.layout ?: 'main'}"/>
     <title>Habitats | ${grailsApplication.config.orgNameLong}</title>
 
     <asset:javascript src="application"/>
@@ -123,7 +123,7 @@
 
     var HABITAT_MAP = { map: null, activeLayers: {}, habitatTree: null, layerControl: null };
 
-    var mapBounds = JSON.parse('${grailsApplication.config.map.bounds ?: [-44, 112, -9, 154]}');
+    var mapBounds = JSON.parse('${grailsApplication.config.map.bounds ?: []}');
     var mapHeight = '${grailsApplication.config.map.height}';
     HABITAT_MAP.map = L.map('map-canvas');
     HABITAT_MAP.map .fitBounds([

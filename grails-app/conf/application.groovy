@@ -2,7 +2,7 @@ import grails.util.Metadata
 
 grails.project.groupId = 'au.org.ala'
 
-grails.serverURL = 'http://local.ala.org.au:8080'
+grails.serverURL = 'http://dev.ala.org.au:8080'
 
 ENV_NAME = "EXPERT_CONFIG"
 appName = 'regions'
@@ -74,6 +74,8 @@ layers.queryContextFid = ''
 layers.queryContextBieContext = ''
 layers.queryContextOrder = ''
 
+redirectDownloads = false
+
 //
 // Application defaults
 //
@@ -92,7 +94,7 @@ bieService.baseURL = 'http://bie.ala.org.au/ws'
 geoserver.baseURL = 'http://spatial.ala.org.au/geoserver'
 biocacheService.baseURL = 'http://biocache.ala.org.au/ws'
 
-layout.skin = 'main'
+skin.layout = 'main'
 accordion.panel.maxHeight = ''
 map.height = ''
 map.bounds = '[]'
@@ -141,4 +143,4 @@ breadcrumbParent = 'https://www.ala.org.au/explore-by-location/,Explore'
 //google.apikey=
 
 habitat.layerID = '918'
-map.bounds = '[-44, 112, -9, 154]'
+//map.bounds = '[-44, 112, -9, 154]'
