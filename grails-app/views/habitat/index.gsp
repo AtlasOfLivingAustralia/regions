@@ -3,9 +3,9 @@
 <html>
 <head>
     <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
-
+    <meta name="breadcrumb" content="Habitats"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="layout" content="${grailsApplication.config.skin.layout ?: 'main'}"/>
+    <meta name="layout" content="${grailsApplication.config.getProperty('skin.layout') ?: 'main'}"/>
     <title>Habitats | ${grailsApplication.config.orgNameLong}</title>
 
     <asset:javascript src="application"/>

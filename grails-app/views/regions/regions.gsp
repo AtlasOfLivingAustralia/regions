@@ -6,7 +6,7 @@
     <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
     <meta name="breadcrumb" content="Regions"/>
 
-    <meta name="layout" content="${grailsApplication.config.skin.layout ?: 'main'}" , breadcrumbParent=""/>
+    <meta name="layout" content="${grailsApplication.config.getProperty('skin.layout') ?: 'main'}"/>
 
     <title>Regions | ${grailsApplication.config.orgNameLong ?: 'Atlas of Living Australia'}</title>
 
