@@ -102,7 +102,7 @@
         spatialWms: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
         spatialCache: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
         accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
-        mapBounds: JSON.parse('${grailsApplication.config.getProperty('map.bounds') ?: [-44, 112, -9, 154]}'),
+        mapBounds: JSON.parse('${grailsApplication.config.getProperty('map.bounds')?.size() > 2 ? grailsApplication.config.getProperty('map.bounds') : "[-44, 112, -9, 154]"}'), // Note: map.bounds is a string NOT a List
         mapHeight: '${grailsApplication.config.map.height}',
         mapContainer: 'map_canvas',
         biocacheUrl: '${grailsApplication.config.getProperty('biocache.baseURL')}',
@@ -153,7 +153,7 @@
 
         var selectedHabitatName = $habitatNode.data('name');
 
-        console.log('Pushing selected habitat: ' + selectedHabitatName + " with ID " + $habitatNode.data('id'))
+        //console.log('Pushing selected habitat: ' + selectedHabitatName + " with ID " + $habitatNode.data('id'))
 
         if ($habitatNode.data('rasterid')) {
             numericIDs.push({ id: $habitatNode.data('rasterid'), name: $habitatNode.data('name') });
@@ -161,14 +161,14 @@
 
         var $childNodes = $habitatNode.find('li.habitatNode');
 
-        console.log('Child nodes: ' + $childNodes.length);
+        //console.log('Child nodes: ' + $childNodes.length);
 
         $.each($childNodes, function( index, value ) {
 
             var numericID = $(value).data('rasterid');
             var habitatName = $(value).data('name');
 
-            console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
+            //console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
             if(numericID){
                 numericIDs.push({id: numericID, name: habitatName})
             }
@@ -186,13 +186,13 @@
 
         var selectedHabitatName = $habitatNode.data('name');
 
-        console.log('Pushing selected habitat: ' + selectedHabitatName + " with ID " + $habitatNode.data('id'))
+        //console.log('Pushing selected habitat: ' + selectedHabitatName + " with ID " + $habitatNode.data('id'))
 
         var prefix = $habitatNode.data('name')
 
         var $childNodes = $habitatNode.find('li.habitatNode');
 
-        console.log('Child nodes: ' + $childNodes.length);
+        //console.log('Child nodes: ' + $childNodes.length);
 
         if($childNodes.length > 0) {
             $.each($childNodes, function( index, value ) {
@@ -209,7 +209,7 @@
         var numericID = $(value).data('rasterid');
         var habitatName = $(value).data('name');
 
-        console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
+        //console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
         if(numericID){
 
             var parent = $(value).parent().parent();
@@ -234,7 +234,7 @@
             var numericID = $(habitatNode).data('rasterid');
             var habitatName = $(habitatNode).data('name');
 
-            console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
+            //console.log('Found numeric ID: ' + numericID + " for name " + habitatName);
             if(numericID){
 
                 var parent = $(habitatNode).parent().parent();

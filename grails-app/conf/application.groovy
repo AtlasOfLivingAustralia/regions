@@ -97,7 +97,7 @@ biocacheService.baseURL = 'http://biocache.ala.org.au/ws'
 skin.layout = 'main'
 accordion.panel.maxHeight = ''
 map.height = ''
-map.bounds = '[]'
+map.bounds = '[]' // note this is a string
 
 //headerAndFooter.baseURL='https://www2.ala.org.au/commonui-bs3'
 headerAndFooter.baseURL = 'https://wpprod2017.ala.org.au/commonui-bs3-v2/commonui-bs3'
