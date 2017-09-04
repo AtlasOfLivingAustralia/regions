@@ -261,7 +261,7 @@ class MetadataService {
             params.fq << "lsid:\"${guid}\""
         }
 
-        "${BIOCACHE_URL}/download?searchParams=${URLEncoder.encode("?"+paramsToString(params), "UTF-8")}&targetUri=${source}"
+        "${BIOCACHE_URL}/download?searchParams=${URLEncoder.encode("?"+paramsToString(params, true), "UTF-8")}&targetUri=${source}"
     }
 
     /**
@@ -305,7 +305,7 @@ class MetadataService {
         return params
     }
 
-    String paramsToString(Map params) {
+    String paramsToString(Map params, encodeValue = false) {
         StringBuilder sb = new StringBuilder()
         params.each { k, v ->
             if (v instanceof List) {
@@ -313,13 +313,13 @@ class MetadataService {
                     if (sb.length() > 0) {
                         sb.append('&')
                     }
-                    sb.append(k).append('=').append(it)
+                    sb.append(k).append('=').append((encodeValue) ? "${it.encodeAsURL()}"  : it)
                 }
             } else {
                 if (sb.length() > 0) {
                     sb.append('&')
                 }
-                sb.append(k).append('=').append(v)
+                sb.append(k).append('=').append((encodeValue) ? "${v.encodeAsURL()}"  : v)
             }
 
         }
