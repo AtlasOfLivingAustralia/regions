@@ -100,7 +100,7 @@ map.height = ''
 map.bounds = '[]' // note this is a string
 
 //headerAndFooter.baseURL='https://www2.ala.org.au/commonui-bs3'
-headerAndFooter.baseURL = 'https://wpprod2017.ala.org.au/commonui-bs3-v2/commonui-bs3'
+headerAndFooter.baseURL = 'https://www.ala.org.au/commonui-bs3-v2/commonui-bs3'
 
 biocache.filter = "&fq=rank:(species%20OR%20subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
 
