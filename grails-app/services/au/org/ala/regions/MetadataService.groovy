@@ -112,7 +112,7 @@ class MetadataService {
                         if (groupfq.length() == 0) {
                             groupfq += "species_subgroup:(\"${subgroup.common}\""
                         } else {
-                            groupfq += " OR \"${subgroup.name}\""
+                            groupfq += " OR \"${subgroup.common}\""
                         }
                     }
                 }
