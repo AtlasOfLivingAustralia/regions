@@ -44,6 +44,9 @@
         // restrict accordion regions to those which intersect bounds (optional)
         mapBounds,
 
+        // infoWindow popup
+        infoWindow  = new google.maps.InfoWindow({content: "nothing selected"}),
+
         // the currently selected region - will be null if no region is selected else an instance of Region
         selectedRegion = null;
 
@@ -104,8 +107,12 @@
      * Sets the specified text to the map title.
      * @param text
      */
-    function showInfo(text) {
-        $('#click-info').html(text);
+    function showInfo(label, zoom, latlng) {
+        $('#click-info').html(label + zoom);
+        var popup = "<span class='infoPopup'>" + label + "</span>";
+        infoWindow.setContent(popup);
+        infoWindow.setPosition(latlng);// new google.maps.LatLng(-34, 151)
+        infoWindow.open(map.gmap);
     }
 
     /*** RegionSet represents a set of regions such as all states ********************************************************/
@@ -425,12 +432,22 @@
                     if (subregion) {
                         extra = "<span class='btn' id='extra'>(" + subregion + ")</span>";
                     }
-                    showInfo("<a class='btn btn-ala' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
-                        this.name + "</a>" + "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra);
-                } else {
-                    showInfo("<a class='btn btn-ala' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
-                        this.name + "</a>" + "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>");
                 }
+
+                var label = "<a class='btn btn-ala' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                    this.name + "</a>" ;
+                var zoom = "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra;
+                var latlng = map.gmap.getCenter()
+                var bbox = selectedRegionType.getRegion(this.name).bbox;
+                if (bbox !== undefined) {
+                    var gBbox = new google.maps.LatLngBounds(
+                        new google.maps.LatLng(bbox.minLat, bbox.minLng),
+                        new google.maps.LatLng(bbox.maxLat, bbox.maxLng));
+
+                    latlng = gBbox.getCenter();
+                }
+
+                showInfo(label, zoom, latlng);
             }
         }
     };
@@ -480,6 +497,7 @@
 
             google.maps.event.addListener(this.gmap, 'click', this.clickHandler);
             this.config = config;
+
         },
         /* Set the layer overlay */
         setLayerOverlay: function (wms, order) {
@@ -516,9 +534,14 @@
             // lookup the bbox from the regions cache
             var bbox = selectedRegionType.getRegion(regionName).bbox;
             if (bbox !== undefined) {
-                this.gmap.fitBounds(new google.maps.LatLngBounds(
+                var gBbox = new google.maps.LatLngBounds(
                     new google.maps.LatLng(bbox.minLat, bbox.minLng),
-                    new google.maps.LatLng(bbox.maxLat, bbox.maxLng)));
+                    new google.maps.LatLng(bbox.maxLat, bbox.maxLng));
+                this.gmap.fitBounds(gBbox);
+
+                if (infoWindow.getMap()) {
+                    infoWindow.setPosition(gBbox.getCenter());
+                }
             }
         },
         transform4326to3857: function (lon, lat) {
@@ -674,6 +697,7 @@
         $('#accordion').accordion({
             activate: function (event, ui) {
                 layers[$(ui.newPanel).attr('layer')].set();
+                infoWindow.close();
             },
             active: selectedRegionType.order
         });

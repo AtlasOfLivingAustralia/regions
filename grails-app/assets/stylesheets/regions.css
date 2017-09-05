@@ -516,3 +516,11 @@ div #maploading > div > i {
 #subRegions {
     margin-top: 50px;
 }
+
+.infoPopup .btn-ala {
+    padding: 5px 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-radius: 0;
+    /*border: none;*/
+}
