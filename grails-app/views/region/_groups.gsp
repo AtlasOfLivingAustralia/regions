@@ -8,7 +8,7 @@
                 class="group-row link" href="${g.createLink(controller: 'region', action: 'showSpecies')}"
                 ${group.parent ? "parent=${group.parent.replaceAll(/[^A-Za-z\\d_]/, "")}-row style=display:none" : ""}
                 aa-refresh-zones="speciesZone"
-                aa-js-before="regionWidget.selectGroupHandler('${group.commonName}', ${group.parent ? true : false}, '${group.fq}');"
+                aa-js-before="regionWidget.selectGroupHandler('${group.commonName.encodeAsJs()}', ${group.parent ? true : false}, '${group.fq.encodeAsJs()}');"
                 aa-js-after="regionWidget.speciesLoaded();"
                 aa-queue="abort">
                 <td class="level${group.parent ? '1' : '0'}">

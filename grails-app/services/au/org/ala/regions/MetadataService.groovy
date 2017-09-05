@@ -110,9 +110,9 @@ class MetadataService {
                 group.taxa.each { subgroup ->
                     if (subgroupsWithRecords[subgroup.common]) {
                         if (groupfq.length() == 0) {
-                            groupfq += "species_subgroup:(\"${subgroup.common}\""
+                            groupfq += "species_subgroup:(\"${subgroup.common.encodeAsJs()}\""
                         } else {
-                            groupfq += " OR \"${subgroup.common}\""
+                            groupfq += " OR \"${subgroup.common.encodeAsJs()}\""
                         }
                     }
                 }
