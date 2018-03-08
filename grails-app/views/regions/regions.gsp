@@ -2,16 +2,13 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-
     <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
-    <meta name="breadcrumb" content="Regions"/>
-
+    <meta name="breadcrumb" content="${g.message(code:'regions.title')}"/>
     <meta name="layout" content="${grailsApplication.config.getProperty('skin.layout') ?: 'main'}"/>
 
-    <title>Regions | ${grailsApplication.config.orgNameLong ?: 'Atlas of Living Australia'}</title>
+    <title><g:message code="regions.title"/> | ${grailsApplication.config.orgNameLong ?: 'Atlas of Living Australia'}</title>
 
     <script src="${g.createLink(controller: 'data', action: 'regionsMetadataJavascript')}"></script>
-
     <script src="https://maps.google.com/maps/api/js?key=${grailsApplication.config.google.apikey}"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
 
@@ -25,36 +22,39 @@
         <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
         </g:if>
-
-        <h1>Select a region to explore</h1>
-
-        <p>Select the type of region on the left. Click a name or click on the map to select a region.
-        Use map controls or shift-drag with your mouse to zoom the map.<br/>
-            Click the region button
-            to explore occurrence records, images and documents associated with the region.
+        <h1><g:message code="select.region.title"/></h1>
+        <p>
+            <g:message code="select.region.help1"/>
+            <br/>
+            <g:message code="select.region.help2"/>
         </p>
-
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-4">
         <p style="font-size:15px;margin-left:15px;padding-bottom:0;"><i
-                class="fa fa-info-circle"></i> Click on a region name to select an area.</p>
-
+                class="fa fa-info-circle"></i>
+            <g:message code="select.region.help3"/>
+        </p>
         <div id="accordion">
             <g:each in="${menu}" var="item">
                 <h2><a href="#">${item.label}</a></h2>
-
-                <div id="${item.layerName}" layer="${item.label}"><span class="loading">Loading..</span>
+                <div id="${item.layerName}" layer="${item.label}"><span class="loading">
+                    <g:message code="loading"/>
+                </span>
                 </div>
             </g:each>
         </div>
     </div>
 
     <div class="col-md-8" id="rightPanel">
-        <span id="click-info"><i class="fa fa-info-circle"></i> Click on the map to select an area.</span>
-        <span class="btn" id="reset-map"><i class="fa fa-refresh"></i> Reset map</span>
+        <span id="click-info"><i class="fa fa-info-circle"></i>
+            <g:message code="select.region.help4"/>
+        </span>
+        <span class="btn" id="reset-map"><i class="fa fa-refresh"></i>
+            <g:message code="reset.map"/>
+        </span>
 
         <div id="map">
             <div id="map-container">
@@ -73,7 +73,8 @@
                     <div class="tish">
                         <label class="checkbox" for="toggleLayer">
                             <input type="checkbox" name="layer" id="toggleLayer" value="1" checked/>
-                            All regions</label></div>
+                            <g:message code="all.regions"/>
+                        </label></div>
 
                     <div id="layerOpacity"></div>
                 </div>
@@ -82,7 +83,8 @@
                     <div class="tish">
                         <label class="checkbox" for="toggleRegion">
                             <input type="checkbox" name="region" id="toggleRegion" value="1" checked disabled/>
-                            Selected region</label></div>
+                            <g:message code="selected.region"/>
+                        </label></div>
 
                     <div id="regionOpacity"></div>
                 </div>

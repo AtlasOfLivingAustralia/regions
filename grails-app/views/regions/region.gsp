@@ -71,10 +71,12 @@
     <div class="col-md-12">
         <div class="pull-right">
             <div class="row">
+                <g:if test="${alertsUrl}">
                 <a id="alertsButton" class="btn btn-ala pull-right" href="${alertsUrl}">
-                    Alerts
+                    <g:message code="alerts.btn" />
                     <i class="icon-bell icon-white"></i>
                 </a>
+                </g:if>
             </div>
         </div>
     </div>
@@ -99,20 +101,21 @@
             <section class="section">
                 <h2>Description</h2>
                 <g:if test="${region.description}"><p>${raw(region.description)}</p></g:if>
-                <g:if test="${region.notes}"><h3>Notes on the map layer</h3>
+                <g:if test="${region.notes}"><h3><g:message code="notes.on.maplayer" /></h3>
 
                     <p>${region.notes}</p></g:if>
             </section>
         </g:if>
 
-        <h3 id="occurrenceRecords" class="">Occurrence records <span id="totalRecords"></span></h3>
+        <h3 id="occurrenceRecords" class="occurrenceRecordCount"><g:message code="occurrence.records.count" /> <span id="totalRecords"></span></h3>
 
-        <h3 id="speciesCountLabel" class="">Number of species <span id="speciesCount"></span></h3>
+        <h3 id="speciesCountLabel" class="speciesRecordCount"><g:message code="species.count"/> <span id="speciesCount"></span></h3>
     </div>
     <g:if test="${enableHubData}">
         <div class="switch-padding col-md-4">
             <span class="pull-right">
-                Toggle: All / MDBA records <input type="checkbox" name="hub-toggle" ${hubState ? "" : "checked"}>
+                <g:message code="hub.toggle" />
+                <input type="checkbox" name="hub-toggle" ${hubState ? "" : "checked"}>
             </span>
         </div>
     </g:if>
@@ -121,9 +124,11 @@
 <div class="row">
     <div class="col-md-6">
         <ul class="nav nav-tabs" id="explorerTabs">
-            <li class="active"><a id="speciesTab" href="#speciesTabContent" data-toggle="tab">Explore by species <i
+            <li class="active"><a id="speciesTab" href="#speciesTabContent" data-toggle="tab">
+                <g:message code="explore.by.species"/> <i
                     class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
-            <li><a id="taxonomyTab" href="#taxonomyTabContent" data-toggle="tab">Explore by taxonomy <i
+            <li><a id="taxonomyTab" href="#taxonomyTabContent" data-toggle="tab">
+                <g:message code="explore.by.taxonomy"/> <i
                     class="fa fa-cog fa-spin fa-lg hidden"></i></a></li>
         </ul>
 
@@ -139,7 +144,7 @@
                        aa-queue="abort">
                     <thead>
                     <tr>
-                        <th class="text-center">Group</th>
+                        <th class="text-center"><g:message code="explore.by.group"/></th>
                     </tr>
                     </thead>
                     <tbody id="groupsZone" tagName="tbody">
@@ -153,8 +158,8 @@
                 <table class="table table-condensed table-hover" id="species">
                     <thead>
                     <tr>
-                        <th colspan="2" class="text-center">Species</th>
-                        <th class="text-right">Records</th>
+                        <th colspan="2" class="text-center"><g:message code="species"/></th>
+                        <th class="text-right"><g:message code="records"/></th>
                     </tr>
                     </thead>
                     <aa:zone id="speciesZone" tag="tbody" jsAfter="regionWidget.speciesLoaded();">
@@ -183,20 +188,20 @@
 
         <ul class="nav nav-tabs" id="controlsMapTab">
             <li class="active">
-                <a href="#">Time Controls and Map <i class="fa fa-info-circle fa-lg link" id="timeControlsInfo"
-                                                     data-content="Drag handles to restrict date or play by decade."
+                <a href="#"><g:message code="player.title"/> <i class="fa fa-info-circle fa-lg link" id="timeControlsInfo"
+                                                     data-content="${g.message(code:'player.help1')}"
                                                      data-placement="right" data-toggle="popover"
-                                                     data-original-title="How to use time controls"></i></a>
+                                                     data-original-title="${g.message(code:'player.help2')}"></i></a>
             </li>
         </ul>
 
         <div id="timeControls" class="text-center">
             <div id="timeButtons">
-                <span class="timeControl link" id="playButton" title="Play timeline by decade"
+                <span class="timeControl link" id="playButton" title="${g.message(code:'player.help3')}"
                       alt="Play timeline by decade"></span>
-                <span class="timeControl link" id="pauseButton" title="Pause play" alt="Pause play"></span>
-                <span class="timeControl link" id="stopButton" title="Stop" alt="Stop"></span>
-                <span class="timeControl link" id="resetButton" title="Reset" alt="Reset"></span>
+                <span class="timeControl link" id="pauseButton" title="${g.message(code:'player.play')}" alt="${g.message(code:'player.play')}"></span>
+                <span class="timeControl link" id="stopButton" title="${g.message(code:'player.stop')}" alt="${g.message(code:'player.stop')}"></span>
+                <span class="timeControl link" id="resetButton" title="${g.message(code:'player.reset')}" alt="${g.message(code:'player.reset')}"></span>
             </div>
 
             <div id="timeSlider">
@@ -219,19 +224,22 @@
             <div class="accordion-group">
                 <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse" href="#opacityControlsContent">
-                        <i class="fa fa-chevron-right"></i>Map opacity controls
+                        <i class="fa fa-chevron-right"></i>
+                        <g:message code="opacity.title"/>
                     </a>
                 </div>
 
                 <div id="opacityControlsContent" class="accordion-body collapse">
                     <div class="accordion-inner">
                         <label class="checkbox">
-                            <input type="checkbox" name="occurrences" id="toggleOccurrences" checked> Occurrences
+                            <input type="checkbox" name="occurrences" id="toggleOccurrences" checked>
+                            <g:message code="opacity.occurrences"/>
                         </label>
 
                         <div id="occurrencesOpacity"></div>
                         <label class="checkbox">
-                            <input type="checkbox" name="region" id="toggleRegion" checked> Region
+                            <input type="checkbox" name="region" id="toggleRegion" checked>
+                            <g:message code="opacity.regions"/>
                         </label>
 
                         <div id="regionOpacity"></div>
@@ -245,7 +253,7 @@
 <g:if test="${subRegions.size() > 0}">
     <div class="row">
         <div class="col-md-12" id="subRegions">
-            <h2>Regions within ${region.name}</h2>
+            <h2><g:message code="subregions.within"/> ${region.name}</h2>
             <g:each in="${subRegions}" var="item">
                 <h3>${item.key}</h3>
                 <ul>
