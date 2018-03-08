@@ -198,7 +198,7 @@
         <div id="timeControls" class="text-center">
             <div id="timeButtons">
                 <span class="timeControl link" id="playButton" title="${g.message(code:'player.help3')}"
-                      alt="Play timeline by decade"></span>
+                      alt="${g.message(code:'player.help3')}"></span>
                 <span class="timeControl link" id="pauseButton" title="${g.message(code:'player.play')}" alt="${g.message(code:'player.play')}"></span>
                 <span class="timeControl link" id="stopButton" title="${g.message(code:'player.stop')}" alt="${g.message(code:'player.stop')}"></span>
                 <span class="timeControl link" id="resetButton" title="${g.message(code:'player.reset')}" alt="${g.message(code:'player.reset')}"></span>

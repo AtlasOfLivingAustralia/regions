@@ -52,7 +52,7 @@
         <span id="click-info"><i class="fa fa-info-circle"></i>
             <g:message code="select.region.help4"/>
         </span>
-        <span class="btn" id="reset-map"><i class="fa fa-refresh"></i>
+        <span class="btn btn-default" id="reset-map"><i class="fa fa-refresh"></i>
             <g:message code="reset.map"/>
         </span>
 

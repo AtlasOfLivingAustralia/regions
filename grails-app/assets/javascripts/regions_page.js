@@ -430,13 +430,13 @@
             } else {
                 if (this.other) {
                     if (subregion) {
-                        extra = "<span class='btn' id='extra'>(" + subregion + ")</span>";
+                        extra = "<span class='btn btn-default' id='extra'>(" + subregion + ")</span>";
                     }
                 }
 
-                var label = "<a class='btn btn-ala' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                var label = "<a class='btn btn-default' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
                     this.name + "</a>" ;
-                var zoom = "<span id='zoomTo' class='btn'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra;
+                var zoom = "<span id='zoomTo' class='btn btn-default'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra;
                 var latlng = map.gmap.getCenter()
                 var bbox = selectedRegionType.getRegion(this.name).bbox;
                 if (bbox !== undefined) {
@@ -626,10 +626,6 @@
         }
 
     };
-
-    /*function delayNewRegion(region) {
-     new Region(region).set();
-     }*/
 
     /**
      * Activates the help link.
