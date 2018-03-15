@@ -256,7 +256,7 @@
         drawLayer: function (colour, order) {
             var redraw = false,
                 layerParams,
-                sld_body = '<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld"><NamedLayer><Name>ALA:LAYERNAME</Name><UserStyle><FeatureTypeStyle><Rule><Title>Polygon</Title><PolygonSymbolizer><Fill><CssParameter name="fill">COLOUR</CssParameter></Fill><Stroke><CssParameter name="stroke">#000000</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>';
+                sld_body = '<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld"><NamedLayer><Name>ALA:LAYERNAME</Name><UserStyle><FeatureTypeStyle><Rule><Title>Polygon</Title><PolygonSymbolizer><Fill><CssParameter name="fill">COLOUR</CssParameter><CssParameter name="fill-opacity">FILL_OPACITY</CssParameter></Fill><Stroke><CssParameter name="stroke">#000000</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>';
 
             colour = colour || '#FFFFFF';
             order = order == undefined ? 1 : order;
@@ -269,12 +269,13 @@
                     redraw = true;
                 }
                 else {
+                    console.log("opacity: " + this.wms.opacity + " vs " + getLayerOpacity());
                     redraw = (this.wms.opacity !== getLayerOpacity());
                 }
 
 
                 if (redraw) {
-                    var sld = sld_body.replace('LAYERNAME', this.layerName).replace('COLOUR', colour);
+                    var sld = sld_body.replace('LAYERNAME', this.layerName).replace('COLOUR', colour).replace('FILL_OPACITY', getLayerOpacity());
                     layerParams = [
                         "FORMAT=image/png8",
                         "LAYERS=ALA:" + this.layerName,
@@ -294,14 +295,19 @@
             if (selectedRegion === null) {
                 return;
             }
+
+            var sld_body_for_area = '<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld"><NamedLayer><Name>ALA:Objects</Name><UserStyle><FeatureTypeStyle><Rule><Title>Polygon</Title><PolygonSymbolizer><Fill><CssParameter name="fill">COLOUR</CssParameter><CssParameter name="fill-opacity">FILL_OPACITY</CssParameter></Fill><Stroke><CssParameter name="stroke">#000000</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>';
+
+            var sld_for_region = sld_body_for_area.replace('FILL_OPACITY', getRegionOpacity());
             var layerName = this.objects[selectedRegion.name].layerName,
                 layerParams = [
                     "FORMAT=image/png8",
                     "LAYERS=ALA:" + layerName,
-                    "STYLES=polygon"
+                    "STYLES=polygon",
+                    "sld_body=" + encodeURIComponent(sld_for_region)
                 ],
                 wms = new WMSTileLayer(layerName, config.spatialCacheUrl, layerParams, map.wmsTileLoaded,
-                    getLayerOpacity());
+                    getRegionOpacity());
             if ($('#toggleLayer').is(':checked')) {
                 map.setLayerOverlay(wms);
             }
@@ -408,11 +414,24 @@
         },
         /* Draw this region on the map */
         displayRegion: function () {
+
+
+            // var sld = sld_body.replace('LAYERNAME', this.layerName).replace('COLOUR', colour).replace('FILL_OPACITY', getLayerOpacity());
+            // layerParams = [
+            //     "FORMAT=image/png8",
+            //     "LAYERS=ALA:" + this.layerName,
+            //     "STYLES=polygon",
+            //     "sld_body=" + encodeURIComponent(sld)
+            // ];
+
+
+
             var params = [
                     "FORMAT=image/png8",
                     "LAYERS=ALA:Objects",
                     "viewparams=s:" + (this.other ? this.subregionPid : this.id),
                     "STYLES=polygon"
+                    // "sld_body=" + encodeURIComponent(sld)
                 ],
                 ov = new WMSTileLayer('regionLayer', config.spatialWmsUrl, params, map.wmsTileLoaded, getRegionOpacity());
             map.setRegionOverlay(ov);
@@ -708,6 +727,7 @@
             max: 100,
             value: map.defaultLayerOpacity * 100,
             change: function () {
+                console.log("Opacity change for layer...." + getLayerOpacity());
                 selectedRegionType.drawLayer();
             }
         });
@@ -717,6 +737,7 @@
             disabled: true,
             value: map.defaultRegionOpacity * 100,
             change: function () {
+                console.log("Opacity change for region...." + getRegionOpacity());
                 selectedRegion.displayRegion();
             }
         });

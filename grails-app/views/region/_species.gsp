@@ -9,8 +9,6 @@
         <zone id="moreSpeciesZone"><![CDATA[
     </g:if>
 
-
-
         <g:if test="${species.totalRecords == 0}">
             <tr>
                 <td colspan="3">No records found.</td>
@@ -33,10 +31,14 @@
                 <td>&nbsp;</td>
                 <td colspan="2">
                     <a href="${speciesPageUrl}/${singleSpecies.guid}" class="btn btn-default btn-xs"
-                       title="View Species page"><i class="fa fa-share-square-o"></i> Species Profile</a>
+                       title="${g.message(code:'species.profile.alt')}" class="regionsSpeciesPageLink"><i class="fa fa-share-square-o"></i>
+                        <g:message code="species.profile" />
+                    </a>
                     <a href="${rg.speciesRecordListUrl([guid: singleSpecies.guid, regionFid: regionFid, regionName: regionName, regionType: regionType, regionPid: regionPid, from: from, to: to, showHubData: showHubData])}"
-                       class="btn btn-default btn-xs" title="View list of Records"><i
-                            class="fa fa-database"></i> List of Records</a>
+                       class="btn btn-default btn-xs" title="${g.message(code:'list.records.alt')}"><i
+                            class="fa fa-database"></i>
+                        <g:message code="list.records" />
+                    </a>
                 </td>
             </tr>
         </g:each>
@@ -49,7 +51,10 @@
                    aa-js-before="regionWidget.showMoreSpecies();"
                    aa-js-after="regionWidget.speciesLoaded();"
                    aa-queue="abort"
-                   class="btn btn-default btn-sm"><i class="fa fa-plus"></i> Show more species</a>
+                   class="btn btn-default btn-sm"><i class="fa fa-plus"></i>
+
+                    <g:message code="show.more.species" />
+                </a>
             </td>
             <td></td>
         </tr>
@@ -60,14 +65,18 @@
                                                 regionPid: regionPid, from: from, to: to,
                                                 group: group, subgroup: subgroup,
                                                 showHubData: showHubData, fq: fq])}"
-               id="viewRecords" class="btn"><i class="fa fa-share-square-o"></i> View Records</a>
+               id="viewRecords" class="btn btn-default"><i class="fa fa-share-square-o"></i>
+                <g:message code="view.records" />
+            </a>
 
             <a href="${rg.downloadRecordListUrl([guid: null, regionFid: regionFid,
                                                  regionName: regionName, regionType: regionType,
                                                  regionPid: regionPid, from: from, to: to,
                                                  group: group, subgroup: subgroup,
                                                  showHubData: showHubData, fq: fq])}"
-               id="downloadRecords" class="btn"><i class="fa fa-download"></i> Download Records
+               id="downloadRecords" class="btn btn-default"><i class="fa fa-download"></i>
+                <g:message code="download.records" />
+
             </a>
         </div></td></tr>
 

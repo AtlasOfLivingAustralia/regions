@@ -7,6 +7,7 @@
 //= require jquery-ui-slider-pips/jquery-ui-slider-pips
 //= require jquery-aa/aa.js
 //= require jquery-aa/jquery-ajaxq-0.0.2.js
+//= require jquery.i18n/jquery.i18n.properties-1.0.9.js
 
 // initialise plugins
 $(function () {

@@ -68,24 +68,27 @@
             </div>
 
             <div id="controls">
-
                 <div>
                     <div class="tish">
-                        <label class="checkbox" for="toggleLayer">
-                            <input type="checkbox" name="layer" id="toggleLayer" value="1" checked/>
-                            <g:message code="all.regions"/>
-                        </label></div>
-
+                        <div class="checkbox">
+                            <label for="toggleLayer">
+                                <input type="checkbox" name="layer" id="toggleLayer" value="1" checked>
+                                <g:message code="all.regions"/>
+                            </label>
+                        </div>
+                    </div>
                     <div id="layerOpacity"></div>
                 </div>
 
                 <div>
                     <div class="tish">
-                        <label class="checkbox" for="toggleRegion">
-                            <input type="checkbox" name="region" id="toggleRegion" value="1" checked disabled/>
-                            <g:message code="selected.region"/>
-                        </label></div>
-
+                        <div class="checkbox">
+                            <label for="toggleRegion">
+                                <input type="checkbox" name="region" id="toggleRegion" value="1" checked disabled>
+                                <g:message code="selected.region"/>
+                            </label>
+                        </div>
+                    </div>
                     <div id="regionOpacity"></div>
                 </div>
             </div>

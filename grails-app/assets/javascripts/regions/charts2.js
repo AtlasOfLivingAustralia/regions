@@ -450,7 +450,7 @@ var taxonomyChart = {
         // draw the back button / instructions
         var $backLink = $('#backLink');
         if ($backLink.length == 0) {
-            $backLink = $('<a class="btn" id="backLink">&laquo; Previous rank</a>').appendTo($outerContainer);  // create it
+            $backLink = $('<a class="btn btn-default" id="backLink">&laquo; Previous rank</a>').appendTo($outerContainer);  // create it
             $backLink.css('position', 'relative').css('top', '-75px');
             $backLink.click(function () {
                 // only act if link was real
@@ -481,7 +481,7 @@ var taxonomyChart = {
         // draw records link
         var $recordsLink = $('#recordsLink');
         if ($recordsLink.length == 0) {
-            $recordsLink = $('<a id="recordsLink" class="btn"><i id="btn_icon" class="fa fa-share-square-o"></i>&nbsp;View records</a>').appendTo($outerContainer);  // create it
+            $recordsLink = $('<a id="recordsLink" class="btn btn-default"><i id="btn_icon" class="fa fa-share-square-o"></i>&nbsp;View records</a>').appendTo($outerContainer);  // create it
             $recordsLink.css('position', 'relative').css('top', '-75px');
             $recordsLink.click(function () {
                 thisChart.showRecords();  // called explicitly so we have the correct 'this' context
