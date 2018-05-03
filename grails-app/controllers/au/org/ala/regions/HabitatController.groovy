@@ -22,8 +22,13 @@ class HabitatController {
         if(node.containsKey(habitatID)){
             nodeToReturn = node.get(habitatID)
         } else {
-            if(node.children){
-                nodeToReturn = findNode(node.children, habitatID)
+            for (Map.Entry me : node.entrySet()) {
+                if (me.getValue() instanceof Map) {
+                    if(me.getValue().containsKey("children")) {
+                        nodeToReturn = findNode(me.getValue().children, habitatID)
+                        if (nodeToReturn != null) break;
+                    }
+                }
             }
         }
         nodeToReturn
