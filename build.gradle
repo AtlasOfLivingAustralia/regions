@@ -15,7 +15,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "1.4.17"
 }
 
-version "3.0"
+version "3.1-SNAPSHOT"
 group "au.org.ala"
 
 apply plugin:"eclipse"
@@ -95,22 +95,22 @@ publishing {
             }
         }
     }
-    publications {
-        mavenJar(MavenPublication) {
-            pom.withXml {
-                def pomNode = asNode()
-                pomNode.dependencyManagement.replaceNode {}
-
-                // simply remove dependencies without a version
-                // version-less dependencies are handled with dependencyManagement
-                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
-                pomNode.dependencies.dependency.findAll {
-                    it.version.text().isEmpty()
-                }.each {
-                    it.replaceNode {}
-                }
-            }
-            from components.web
-        }
-    }
+//    publications {
+//        mavenJar(MavenPublication) {
+//            pom.withXml {
+//                def pomNode = asNode()
+//                pomNode.dependencyManagement.replaceNode {}
+//
+//                // simply remove dependencies without a version
+//                // version-less dependencies are handled with dependencyManagement
+//                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
+//                pomNode.dependencies.dependency.findAll {
+//                    it.version.text().isEmpty()
+//                }.each {
+//                    it.replaceNode {}
+//                }
+//            }
+//            from components.web
+//        }
+//    }
 }
