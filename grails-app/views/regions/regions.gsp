@@ -12,7 +12,9 @@
     <script src="https://maps.google.com/maps/api/js?key=${grailsApplication.config.google.apikey}"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
 
+    <asset:stylesheet src="leaflet/leaflet"/>
     <asset:stylesheet src="application"/>
+    <asset:javascript src="leaflet/leaflet"/>
     <asset:javascript src="regions_app"/>
     <asset:javascript src="regions_page"/>
 </head>

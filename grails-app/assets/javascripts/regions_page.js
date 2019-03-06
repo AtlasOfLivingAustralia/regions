@@ -45,7 +45,7 @@
         mapBounds,
 
         // infoWindow popup
-        infoWindow  = new google.maps.InfoWindow({content: "nothing selected"}),
+        //infoWindow  = new google.maps.InfoWindow({content: "nothing selected"}),
 
         // the currently selected region - will be null if no region is selected else an instance of Region
         selectedRegion = null;
@@ -475,7 +475,8 @@
     /*** map represents the map and its associated properties and events ************************************************/
     map = {
         // the google map object
-        gmap: null,
+        lmap: null, // leaflet map object
+        gmap: null, // deprecated google map
         config: {},
         // the DOM contain to draw the map in
         containerId: "some_default",
@@ -484,37 +485,59 @@
         // default opacity for the overlay showing the selected layer
         defaultLayerOpacity: 0.55,
         // the default bounds for the map
-        initialBounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(-41.5, 114),
-            new google.maps.LatLng(-13.5, 154)),
+        // initialBounds: new google.maps.LatLngBounds(
+        //     new google.maps.LatLng(-41.5, 114),
+        //     new google.maps.LatLng(-13.5, 154)),
+        initialBounds:  L.latLngBounds(L.latLng(-41.5, 114), L.latLng(-13.5, 154)),
         clickedRegion: "",
         init: function () {
-            var options = {
-                scrollwheel: false,
-                streetViewControl: false,
-                mapTypeControl: true,
-                mapTypeControlOptions: {
-                    style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
-                },
-                scaleControl: true,
-                scaleControlOptions: {
-                    position: google.maps.ControlPosition.LEFT_BOTTOM
-                },
-                panControl: false,
-                disableDoubleClickZoom: true,
-                draggableCursor: 'pointer',
-                mapTypeId: google.maps.MapTypeId.TERRAIN
-            };
+            // var options = {
+            //     scrollwheel: false,
+            //     streetViewControl: false,
+            //     mapTypeControl: true,
+            //     mapTypeControlOptions: {
+            //         style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+            //     },
+            //     scaleControl: true,
+            //     scaleControlOptions: {
+            //         position: google.maps.ControlPosition.LEFT_BOTTOM
+            //     },
+            //     panControl: false,
+            //     disableDoubleClickZoom: true,
+            //     draggableCursor: 'pointer',
+            //     mapTypeId: google.maps.MapTypeId.TERRAIN
+            // };
+            //
+            // this.gmap = new google.maps.Map(document.getElementById(this.containerId), options);
+            // this.gmap.fitBounds(this.initialBounds);
+            // this.gmap.enableKeyDragZoom();
+            // if (config.showQueryContextLayer) {
+            //     var queryContextRegionSet = new RegionSet(config.queryContextLayer.name, config.queryContextLayer.shortName, config.queryContextLayer.fid, config.queryContextLayer.bieContext, config.queryContextLayer.order, config.queryContextLayer.displayName);
+            //     queryContextRegionSet.drawLayer(config.queryContextLayerColour, config.queryContextLayerOrder)
+            // }
+            //
+            // google.maps.event.addListener(this.gmap, 'click', this.clickHandler);
 
-            this.gmap = new google.maps.Map(document.getElementById(this.containerId), options);
-            this.gmap.fitBounds(this.initialBounds);
-            this.gmap.enableKeyDragZoom();
+
+            this.lmap = L.map(this.containerId, {
+                scrollWheelZoom: false
+            });
+            this.lmap.fitBounds(this.initialBounds);
+            // TODO pull basemap into config
+            var defaultBaseLayer = L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
+                attribution:  "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, imagery &copy; <a href='https://cartodb.com/attributions'>CartoDB</a>",
+                subdomains: "abcd"
+            });
+
+            // add the default base layer
+            this.lmap.addLayer(defaultBaseLayer);
+            this.lmap.on('click', this.clickHandler);
             if (config.showQueryContextLayer) {
+                // TODO adapt for leaflet
                 var queryContextRegionSet = new RegionSet(config.queryContextLayer.name, config.queryContextLayer.shortName, config.queryContextLayer.fid, config.queryContextLayer.bieContext, config.queryContextLayer.order, config.queryContextLayer.displayName);
                 queryContextRegionSet.drawLayer(config.queryContextLayerColour, config.queryContextLayerOrder)
             }
 
-            google.maps.event.addListener(this.gmap, 'click', this.clickHandler);
             this.config = config;
 
         },

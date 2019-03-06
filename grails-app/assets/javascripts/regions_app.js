@@ -9,7 +9,7 @@
 //= require regions/application
 //= require regions/charts2
 //= require regions/keydragzoom
-//= require regions/wms
+// #= require regions/wms
 //= require bootstrap-switch/bootstrap-switch.min
 //= require he/he-0.5.0
 //= require number-functions/number-functions
