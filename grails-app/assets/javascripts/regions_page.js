@@ -276,18 +276,32 @@
 
                 if (redraw) {
                     var sld = sld_body.replace('LAYERNAME', this.layerName).replace('COLOUR', colour).replace('FILL_OPACITY', getLayerOpacity());
-                    layerParams = [
-                        "FORMAT=image/png8",
-                        "LAYERS=ALA:" + this.layerName,
-                        "STYLES=polygon",
-                        "sld_body=" + encodeURIComponent(sld)
-                    ];
+                    var sldParam = jQuery.param({
+                        sld_body: sld,
+                        zoom: 4
+                    }, true);
+                    layerParams = {
+                        //layers: 'ALA:occurrences',
+                        //format: 'image/png',
+                        transparent: true,
+                        attribution: "Atlas of Living Australia",
+                        bgcolor:"0xFFFFFF",
+                        outline: false,
+                        //GRIDDETAIL: 32, // 64 || 32
+                        //ENV: "color:DF4A21;name:circle;size:4;opacity:0.7",
+                        format:"image/png8",
+                        layers:"ALA:" + this.layerName,
+                        styles: "polygon",
+                        //sld_body: encodeURIComponent(sld),
+                        uppercase: true
+                    };
 
-                    this.wms = new WMSTileLayer(
-                        this.layerName, config.spatialCacheUrl, layerParams, map.wmsTileLoaded, getLayerOpacity());
+                    //this.wms = new WMSTileLayer(this.layerName, config.spatialCacheUrl, layerParams, map.wmsTileLoaded, getLayerOpacity());
                 }
 
                 map.setLayerOverlay(this.wms, order);
+
+                L.tileLayer.wms(config.spatialCacheUrl + sldParam, layerParams).addTo(map.lmap);
             }
         },
         /* Draw the currently selected 'other' region as a layer */
@@ -543,10 +557,10 @@
         },
         /* Set the layer overlay */
         setLayerOverlay: function (wms, order) {
-            $('#maploading').fadeIn("slow");
-
-            order = order == undefined ? 1 : order;
-            this.gmap.overlayMapTypes.setAt(order, wms);
+            // $('#maploading').fadeIn("slow");
+            //
+            // order = order == undefined ? 1 : order;
+            // this.gmap.overlayMapTypes.setAt(order, wms);
         },
         /* Clear the layer overlay */
         removeLayerOverlay: function () {
