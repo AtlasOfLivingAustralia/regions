@@ -524,3 +524,12 @@ div #maploading > div > i {
     border-radius: 0;
     /*border: none;*/
 }
+
+.region-link {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.leaflet-container {
+    cursor: pointer !important;
+}

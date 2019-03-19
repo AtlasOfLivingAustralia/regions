@@ -112,6 +112,16 @@
     function showInfo(label, zoom, latlng) {
         $('#click-info').html(label + zoom);
         // TODO Convert to leaflet feature.bindPopup
+        if (regionSelectedLayer.tilelayer) {
+            //regionSelectedLayer.tilelayer.bindPopup("<span class='infoPopup'>" + label + "</span>").openPopup();
+            regionSelectedLayer.popup = L.popup()
+                .setLatLng(latlng)
+                .setContent("<span class='infoPopup'>" + label + "</span>")
+                .openOn(map.lmap);
+        } else {
+            console.log("regionSelectedLayer.tilelayer undef");
+        }
+
         // var popup = "<span class='infoPopup'>" + label + "</span>";
         // infoWindow.setContent(popup);
         // infoWindow.setPosition(latlng);// new google.maps.LatLng(-34, 151)
@@ -282,6 +292,7 @@
                     console.log("drawLayer + redraw", selectedRegionType);
                     if (regionTypeLayer.tilelayer) {
                         map.lmap.removeLayer(regionTypeLayer.tilelayer); // remove current layer
+                        regionSelectedLayer.popup.remove(); // remove popup
                         console.log("removed layer " + regionTypeLayer.tilelayer);
                     }
                     var sld = sld_body.replace('LAYERNAME', this.layerName).replace('COLOUR', colour).replace('FILL_OPACITY', getLayerOpacity());
@@ -316,21 +327,22 @@
                 return;
             }
 
-            var sld_body_for_area = '<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld"><NamedLayer><Name>ALA:Objects</Name><UserStyle><FeatureTypeStyle><Rule><Title>Polygon</Title><PolygonSymbolizer><Fill><CssParameter name="fill">COLOUR</CssParameter><CssParameter name="fill-opacity">FILL_OPACITY</CssParameter></Fill><Stroke><CssParameter name="stroke">#000000</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>';
-
-            var sld_for_region = sld_body_for_area.replace('FILL_OPACITY', getRegionOpacity());
+            // var sld_body_for_area = '<?xml version="1.0" encoding="UTF-8"?><StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld"><NamedLayer><Name>ALA:Objects</Name><UserStyle><FeatureTypeStyle><Rule><Title>Polygon</Title><PolygonSymbolizer><Fill><CssParameter name="fill">COLOUR</CssParameter><CssParameter name="fill-opacity">FILL_OPACITY</CssParameter></Fill><Stroke><CssParameter name="stroke">#000000</CssParameter><CssParameter name="stroke-width">1</CssParameter></Stroke></PolygonSymbolizer></Rule></FeatureTypeStyle></UserStyle></NamedLayer></StyledLayerDescriptor>';
+            // var sld_for_region = sld_body_for_area.replace('FILL_OPACITY', getRegionOpacity());
             var layerName = this.objects[selectedRegion.name].layerName,
-                layerParams = [
-                    "FORMAT=image/png8",
-                    "LAYERS=ALA:" + layerName,
-                    "STYLES=polygon",
-                    "sld_body=" + encodeURIComponent(sld_for_region)
-                ],
-                // TODO check is consistent with other wms code
-                wms = new WMSTileLayer(layerName, config.spatialCacheUrl, layerParams, map.wmsTileLoaded,
-                    getRegionOpacity());
+                layerparams = {
+                    format: "image/png8",
+                    layers:"ALA:" + layerName,
+                    //viewparams: "s:" + (this.other ? this.subregionPid : this.id),
+                    styles: "polygon",
+                    //sld_body: encodeURIComponent(sld_for_region),
+                    opacity: getRegionOpacity()
+                };
+            regionSelectedLayer.tilelayer = L.tileLayer.wms(config.spatialCacheUrl, layerparams); //.addTo(map.lmap);
+            regionSelectedLayer.opacity = getRegionOpacity();
+
             if ($('#toggleLayer').is(':checked')) {
-                map.setLayerOverlay(wms);
+                map.setLayerOverlay(regionSelectedLayer.tilelayer);
             }
         },
         /* Highlight the specified region name in the list of regions for this set
@@ -390,7 +402,7 @@
                 $.bbq.pushState({region: this.name});
                 selectedRegionType.highlightInList(this.name);
             }
-            this.setLinks();
+            this.setLinks(selectedRegion);
             if (this.other) {
                 this.id = layers[selectedRegionType.name].objects[this.name].fid;
                 // other regions draw as a full layer
@@ -437,21 +449,22 @@
         /* Draw this region on the map */
         displayRegion: function () {
             console.log("displayRegion", getRegionOpacity());
-            if (regionSelectedLayer.wms) {
+            if (regionSelectedLayer.tilelayer) {
                 map.removeRegionOverlay();
             }
 
             var params = {
                 format: "image/png8",
                 layers:"ALA:Objects",
+                transparent: true,
                 viewparams: "s:" + (this.other ? this.subregionPid : this.id),
                 styles: "polygon",
                 opacity: getRegionOpacity()
             };
-            regionSelectedLayer.wms = L.tileLayer.wms(config.spatialCacheUrl, params); //.addTo(map.lmap);
-            //map.selectedRegionType = wms;
+            regionSelectedLayer.tilelayer = L.tileLayer.wms(config.spatialCacheUrl, params); //.addTo(map.lmap);
+            //regionSelectedLayer.tilelayer.bindPopup("<span class='infoPopup'>" + label + "</span>");
             regionSelectedLayer.opacity = getRegionOpacity();
-            map.setRegionOverlay(regionSelectedLayer.wms);
+            map.setRegionOverlay(regionSelectedLayer.tilelayer);
         },
         /* Build the url to view the current region */
         urlToViewRegion: function () {
@@ -460,6 +473,7 @@
         /* Write the region link and optional subregion name and zoom link at the top of the map.
          * @param subregion the name of the subregion */
         setLinks: function (subregion) {
+            console.log("setLinks", subregion);
             var extra = "";
             if (this.name.toLowerCase() === 'n/a') {
                 showInfo("N/A");
@@ -470,7 +484,7 @@
                     }
                 }
 
-                var label = "<a class='btn btn-default' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                var label = "<a class='region-link' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
                     this.name + "</a>" ;
                 var zoom = "<span id='zoomTo' class='btn btn-default'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra;
                 var latlng = map.lmap.getCenter()
@@ -499,7 +513,7 @@
         // the DOM contain to draw the map in
         containerId: "some_default",
         // default opacity for the overlay showing the selected region
-        defaultRegionOpacity: 0.4,
+        defaultRegionOpacity: 0.7,
         // default opacity for the overlay showing the selected layer
         defaultLayerOpacity: 0.5,
         // the default bounds for the map
@@ -574,7 +588,9 @@
         removeLayerOverlay: function () {
             console.log("removeLayerOverlay");
             //$('#maploading').fadeOut("fast");
-            this.lmap.removeLayer(this.selectedRegionType);
+            if (regionTypeLayer.tilelayer) {
+                this.lmap.removeLayer(regionTypeLayer.tilelayer);
+            }
             //this.gmap.overlayMapTypes.setAt(0, null);
         },
         /* Set the region overlay */
@@ -584,12 +600,13 @@
             this.lmap.addLayer(wms);
             //this.gmap.overlayMapTypes.setAt(2, wms);
             this.clickedRegion = null;
+            selectedRegion.setLinks(selectedRegion);
         },
         /* Clear the region overlay */
         removeRegionOverlay: function () {
             console.log("removeRegionOverlay");
             //$('#maploading').fadeIn("fast");
-            this.lmap.removeLayer(regionSelectedLayer.wms);
+            this.lmap.removeLayer(regionSelectedLayer.tilelayer);
             //this.gmap.overlayMapTypes.setAt(2, null);
         },
         /* Reset the map to the default bounds */
@@ -664,8 +681,8 @@
                             }
                             break;
                         default:  // treat one or many as just one for now
-                            if (selectedRegion && selectedRegion.other) {
-                                // NdR - I can't see where `features` gets set - only ref is an empty array declaration
+                            if (false && selectedRegion && selectedRegion.other) {
+                                // NdR - skipped this check - I can't see where `features` gets set - only ref is an empty array declaration
                                 selectedRegion.setSubregion(features[0].value, features[0].pid);
                             }
                             else {
