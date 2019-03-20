@@ -113,7 +113,7 @@ var region = {
                 if (pos < 0) {
                     params.push(v);
                 } else {
-                    params.push('&fq=' + v.substring(pos + 1))
+                    params.push('fq=' + v.substring(pos + 1))
                 }
             });
         }
@@ -130,6 +130,10 @@ var region = {
             params.push("fq=" + timeFacet);
         }
 
+        // remove any empty elements
+        params = jQuery.grep(params, function(n){ return (n); });
+
+        console.log("params", params);
         return params;
     },
 
@@ -561,12 +565,11 @@ var RegionTimeControls = function (config) {
                 updateTimeRange(ui.values);
             }
         })
-
-            .slider("pips", {
-                rest: "pip",
-                step: 10
-            })
-            .slider("float", {});
+        .slider("pips", {
+            rest: "pip",
+            step: 10
+        })
+        .slider("float", {});
 
         initializeTimeControlsEvents();
     };
@@ -735,32 +738,45 @@ var RegionMap = function (config) {
     var enableRegionOverlay = true;
 
     var init = function (config) {
-        initialBounds = new google.maps.LatLngBounds(
-            new google.maps.LatLng(config.bbox.sw.lat, config.bbox.sw.lng),
-            new google.maps.LatLng(config.bbox.ne.lat, config.bbox.ne.lng));
+        // initialBounds = new google.maps.LatLngBounds(
+        //     new google.maps.LatLng(config.bbox.sw.lat, config.bbox.sw.lng),
+        //     new google.maps.LatLng(config.bbox.ne.lat, config.bbox.ne.lng));
+        initialBounds = L.latLngBounds(
+            L.latLng(config.bbox.sw.lat, config.bbox.sw.lng),
+            L.latLng(config.bbox.ne.lat, config.bbox.ne.lng));
 
         useReflectService = config.useReflectService;
         enableRegionOverlay = config.enableRegionOverlay;
 
-        var myOptions = {
-            scrollwheel: false,
-            streetViewControl: false,
-            mapTypeControl: true,
-            mapTypeControlOptions: {
-                style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
-            },
-            scaleControl: true,
-            scaleControlOptions: {
-                position: google.maps.ControlPosition.LEFT_BOTTOM
-            },
-            panControl: false,
-            draggableCursor: 'crosshair',
-            mapTypeId: google.maps.MapTypeId.TERRAIN
-        };
+        // var myOptions = {
+        //     scrollwheel: false,
+        //     streetViewControl: false,
+        //     mapTypeControl: true,
+        //     mapTypeControlOptions: {
+        //         style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+        //     },
+        //     scaleControl: true,
+        //     scaleControlOptions: {
+        //         position: google.maps.ControlPosition.LEFT_BOTTOM
+        //     },
+        //     panControl: false,
+        //     draggableCursor: 'crosshair',
+        //     mapTypeId: google.maps.MapTypeId.TERRAIN
+        // };
+        //
+        // map = new google.maps.Map(document.getElementById("region-map"), myOptions);
+        // map.fitBounds(initialBounds);
+        // map.enableKeyDragZoom();
 
-        map = new google.maps.Map(document.getElementById("region-map"), myOptions);
+        var defaultBaseLayer = L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
+            attribution:  "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, imagery &copy; <a href='https://cartodb.com/attributions'>CartoDB</a>",
+            subdomains: "abcd"
+        });
+        map = L.map(document.getElementById("region-map"), {
+            scrollWheelZoom: false,
+            layers: [defaultBaseLayer]
+        });
         map.fitBounds(initialBounds);
-        map.enableKeyDragZoom();
 
         initializeOpacityControls();
 
@@ -773,7 +789,7 @@ var RegionMap = function (config) {
          | Hack the viewport if we don't have good bbox data
          \*******************************************************/
         // fall-back attempt at bounding box if all of Oz
-        if (initialBounds.equals(new google.maps.LatLngBounds(
+        if (false && initialBounds.equals(new google.maps.LatLngBounds(
                 new google.maps.LatLng(-42, 113),
                 new google.maps.LatLng(-14, 153)))) {
             $.ajax({
@@ -853,7 +869,8 @@ var RegionMap = function (config) {
      * @param show true to show; false to hide
      */
     var toggleOverlay = function (n, show) {
-        map.overlayMapTypes.setAt(n, show ? overlays[n] : null);
+        //map.overlayMapTypes.setAt(n, show ? overlays[n] : null);
+        map.removeLayer(overlays[n]); // TODO test this
     };
 
     /**
@@ -883,26 +900,49 @@ var RegionMap = function (config) {
 
             if (currentState.q.indexOf("%3A*") === currentState.q.length - 4) {
                 /* this draws the region as a WMS layer */
-                var layerParams = [
-                    "FORMAT=" + overlayFormat,
-                    "LAYERS=ALA:" + currentState.regionLayerName,
-                    "STYLES=polygon"
-                ];
-                overlays[0] = new WMSTileLayer(currentState.regionLayerName, urls.spatialCacheUrl, layerParams,
-                    wmsTileLoaded, getRegionOpacity());
+                // var layerParams = [
+                //     "FORMAT=" + overlayFormat,
+                //     "LAYERS=ALA:" + currentState.regionLayerName,
+                //     "STYLES=polygon"
+                // ];
+                // overlays[0] = new WMSTileLayer(currentState.regionLayerName, urls.spatialCacheUrl, layerParams,
+                //     wmsTileLoaded, getRegionOpacity());
+                // $('#maploading').fadeIn("fast");
+                // map.overlayMapTypes.setAt(0, overlays[0]);
+
+                var layerParams = {
+                    FORMAT: overlayFormat,
+                    LAYERS: "ALA:" + currentState.regionLayerName,
+                    STYLES: "polygon",
+                    TRANSPARENT: true,
+                    opacity: getRegionOpacity()
+                };
+                overlays[0] = L.tileLayer.wms(urls.spatialCacheUrl, layerParams);
                 $('#maploading').fadeIn("fast");
-                map.overlayMapTypes.setAt(0, overlays[0]);
+                map.addLayer(overlays[0]);
             } else {
-                var params = [
-                    "FORMAT=" + overlayFormat,
-                    "LAYERS=ALA:Objects",
-                    "viewparams=s:" + currentState.regionPid,
-                    "STYLES=polygon"
-                ];
-                overlays[0] = new WMSTileLayer(currentState.regionLayerName, urls.spatialWmsUrl, params,
-                    wmsTileLoaded, getRegionOpacity());
+                // var params = [
+                //     "FORMAT=" + overlayFormat,
+                //     "LAYERS=ALA:Objects",
+                //     "viewparams=s:" + currentState.regionPid,
+                //     "STYLES=polygon"
+                // ];
+                // overlays[0] = new WMSTileLayer(currentState.regionLayerName, urls.spatialWmsUrl, params,
+                //     wmsTileLoaded, getRegionOpacity());
+                // $('#maploading').fadeIn("fast");
+                // map.overlayMapTypes.setAt(0, overlays[0]);
+                var params = {
+                    FORMAT: overlayFormat,
+                    LAYERS: "ALA:Objects",
+                    viewparams: "s:" + currentState.regionPid,
+                    STYLES: "polygon",
+                    TRANSPARENT: true,
+                    opacity: getRegionOpacity()
+                };
+                overlays[0] = L.tileLayer.wms(urls.spatialWmsUrl, params);
                 $('#maploading').fadeIn("fast");
-                map.overlayMapTypes.setAt(0, overlays[0]);
+                map.addLayer(overlays[0]);
+                $('#maploading').fadeOut("fast")
             }
         }
     };
@@ -921,20 +961,33 @@ var RegionMap = function (config) {
             return;
         }
 
-        var customParams = [
-            "FORMAT=" + overlayFormat,
-            "colourby=3368652",
-            "symsize=4"
+        // var customParams = [
+        //     "FORMAT=" + overlayFormat,
+        //     "colourby=3368652",
+        //     "symsize=4"
+        // ];
+        //
+        // //Add query string params to custom params
+        // var query = region.buildBiocacheQuery(customParams, 0);
+        // overlays[1] = new WMSTileLayer("Occurrences",
+        //     urlConcat(urls.biocacheServiceUrl, "occurrences/wms?"), query, wmsTileLoaded, getOccurrenceOpacity());
+        // $('#maploading').fadeIn("fast");
+        //map.overlayMapTypes.setAt(1, $('#toggleOccurrences').is(':checked') ? overlays[1] : null);
+        var queryParams = [
+            //"colourby=3368652",
+            //"symsize=4"
         ];
-
-        //Add query string params to custom params
-        var query = region.buildBiocacheQuery(customParams, 0);
-
-        overlays[1] = new WMSTileLayer("Occurrences",
-            urlConcat(urls.biocacheServiceUrl, "occurrences/wms?"), query, wmsTileLoaded, getOccurrenceOpacity());
-
+        var wmsParams = {
+            format: overlayFormat,
+            opacity: getOccurrenceOpacity(),
+            symsize: 4,
+            colourby: 3368652
+        };
+        var query = region.buildBiocacheQuery(queryParams, 0).join("&");
+        overlays[1] = L.tileLayer.wms(urlConcat(urls.biocacheServiceUrl, "occurrences/wms?") + query, wmsParams);
         $('#maploading').fadeIn("fast");
-        map.overlayMapTypes.setAt(1, $('#toggleOccurrences').is(':checked') ? overlays[1] : null);
+        map.addLayer(overlays[1]);
+        $('#maploading').fadeOut("fast")
     };
 
     var drawRecordsOverlay2 = function () {
@@ -942,26 +995,53 @@ var RegionMap = function (config) {
 
         var url = urls.biocacheServiceUrl + "/mapping/wms/reflect?";
 
-        var prms = [
-            "FORMAT=" + overlayFormat,
-            "LAYERS=ALA%3Aoccurrences",
-            "STYLES=",
-            "BGCOLOR=0xFFFFFF",
-            'CQL_FILTER=',
-            "symsize=3",
-            "ENV=color:FF0000;name:circle;size:3;opacity:" + getOccurrenceOpacity(),
-            "EXCEPTIONS=application-vnd.ogc.se_inimage"
-        ];
-        var query = region.buildBiocacheQuery(prms, 0);
+        if (overlays[1]) {
+            // redrawing records, so remove previous records layer
+            map.removeLayer(overlays[1]);
+        }
 
-        overlays[1] = new WMSTileLayer("Occurrences (by reflect service)", url, query, wmsTileLoaded, 0.8);
+        // var prms = [
+        //     "FORMAT=" + overlayFormat,
+        //     "LAYERS=ALA%3Aoccurrences",
+        //     "STYLES=",
+        //     "BGCOLOR=0xFFFFFF",
+        //     'CQL_FILTER=',
+        //     "symsize=3",
+        //     "ENV=color:FF0000;name:circle;size:3;opacity:" + getOccurrenceOpacity(),
+        //     "EXCEPTIONS=application-vnd.ogc.se_inimage"
+        // ];
+        // var query = region.buildBiocacheQuery(prms, 0);
+        // overlays[1] = new WMSTileLayer("Occurrences (by reflect service)", url, query, wmsTileLoaded, 0.8);
+        var queryParams = [
+            // "symsize=3",
+            // "STYLES=",
+            // 'CQL_FILTER=',
+            // "EXCEPTIONS=application-vnd.ogc.se_inimage"
+        ];
+        var wmsParams = {
+            format: overlayFormat,
+            layers: "ALA:occurrences",
+            styles: "",
+            bgcolor: "0xFFFFFF",
+            cql_filter: "",
+            symsize: 3,
+            env: "color:FF0000;name:circle;size:3;opacity:" + getOccurrenceOpacity(),
+            exceptions: "application-vnd.ogc.se_inimage",
+            outline: false,
+            opacity: getOccurrenceOpacity(),
+            uppercase: true
+        };
+        var query = region.buildBiocacheQuery(queryParams, 0).join("&");
+        overlays[1] = L.tileLayer.wms(url + query, wmsParams);
 
         //do not fade in $('#maploading') when playing the time slider
         if (!regionWidget.getTimeControls() || !regionWidget.getTimeControls().isRunning
             || !regionWidget.getTimeControls().isRunning()) {
             $('#maploading').fadeIn("fast")
         }
-        map.overlayMapTypes.setAt(1, $('#toggleOccurrences').is(':checked') ? overlays[1] : null);
+        //map.overlayMapTypes.setAt(1, $('#toggleOccurrences').is(':checked') ? overlays[1] : null);
+        map.addLayer(overlays[1]);
+        $('#maploading').fadeOut("fast")
     };
 
     var _public = {

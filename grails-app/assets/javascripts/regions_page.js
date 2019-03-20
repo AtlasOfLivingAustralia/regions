@@ -109,8 +109,8 @@
      * Sets the specified text to the map title.
      * @param text
      */
-    function showInfo(label, zoom, latlng) {
-        $('#click-info').html(label + zoom);
+    function showInfo(btn, label, zoom, latlng) {
+        $('#click-info').html(btn + zoom);
         // TODO Convert to leaflet feature.bindPopup
         if (regionSelectedLayer.tilelayer) {
             //regionSelectedLayer.tilelayer.bindPopup("<span class='infoPopup'>" + label + "</span>").openPopup();
@@ -484,6 +484,8 @@
                     }
                 }
 
+                var btn = "<a class='btn btn-default' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
+                    this.name + "</a>" ;
                 var label = "<a class='region-link' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
                     this.name + "</a>" ;
                 var zoom = "<span id='zoomTo' class='btn btn-default'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra;
@@ -498,7 +500,7 @@
                     latlng = lBbox.getCenter();
                 }
 
-                showInfo(label, zoom, latlng);
+                showInfo(btn, label, zoom, latlng);
             }
         }
     };

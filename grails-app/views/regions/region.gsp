@@ -57,8 +57,10 @@
     <script src="https://maps.google.com/maps/api/js?key=${grailsApplication.config.google.apikey}"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
 
-    <asset:javascript src="application"/>
+    <asset:stylesheet src="leaflet/leaflet"/>
     <asset:stylesheet src="application"/>
+    <asset:javascript src="application"/>
+    <asset:javascript src="leaflet/leaflet"/>
     <asset:javascript src="regions_app" asset-defer="true"/>
     <asset:javascript src="region_page" asset-defer="true"/>
 </head>
