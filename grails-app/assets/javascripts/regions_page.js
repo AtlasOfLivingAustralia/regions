@@ -44,8 +44,7 @@
         // restrict accordion regions to those which intersect bounds (optional)
         mapBounds,
 
-        // infoWindow popup
-        //infoWindow  = new google.maps.InfoWindow({content: "nothing selected"}),
+        // store layers references,
         regionTypeLayer = {},
         regionSelectedLayer = {},
 
@@ -111,21 +110,16 @@
      */
     function showInfo(btn, label, zoom, latlng) {
         $('#click-info').html(btn + zoom);
-        // TODO Convert to leaflet feature.bindPopup
+
         if (regionSelectedLayer.tilelayer) {
-            //regionSelectedLayer.tilelayer.bindPopup("<span class='infoPopup'>" + label + "</span>").openPopup();
+            // bind popup to layer
             regionSelectedLayer.popup = L.popup()
                 .setLatLng(latlng)
                 .setContent("<span class='infoPopup'>" + label + "</span>")
                 .openOn(map.lmap);
         } else {
-            console.log("regionSelectedLayer.tilelayer undef");
+            // console.log("regionSelectedLayer.tilelayer undef");
         }
-
-        // var popup = "<span class='infoPopup'>" + label + "</span>";
-        // infoWindow.setContent(popup);
-        // infoWindow.setPosition(latlng);// new google.maps.LatLng(-34, 151)
-        // infoWindow.open(map.gmap);
     }
 
     /*** RegionSet represents a set of regions such as all states ********************************************************/
@@ -280,20 +274,19 @@
             else {
                 if (this.wms === undefined) {
                     redraw = true;
-                    //this.wms = {opacity: null, tilelayer: null};
                 }
                 else {
-                    console.log("opacity: " + this.wms.opacity + " vs " + getLayerOpacity());
+                    // console.log("opacity: " + this.wms.opacity + " vs " + getLayerOpacity());
                     redraw = (this.wms.opacity !== getLayerOpacity());
                 }
 
 
                 if (redraw) {
-                    console.log("drawLayer + redraw", selectedRegionType);
+                    // console.log("drawLayer + redraw", selectedRegionType);
                     if (regionTypeLayer.tilelayer) {
                         map.lmap.removeLayer(regionTypeLayer.tilelayer); // remove current layer
                         regionSelectedLayer.popup.remove(); // remove popup
-                        console.log("removed layer " + regionTypeLayer.tilelayer);
+                        // console.log("removed layer " + regionTypeLayer.tilelayer);
                     }
                     var sld = sld_body.replace('LAYERNAME', this.layerName).replace('COLOUR', colour).replace('FILL_OPACITY', getLayerOpacity());
                     var sldParam = jQuery.param({
@@ -311,8 +304,6 @@
                         styles: "polygon",
                         uppercase: true
                     };
-
-                    //this.wms = new WMSTileLayer(this.layerName, config.spatialCacheUrl, layerParams, map.wmsTileLoaded, getLayerOpacity());
                 }
 
                 regionTypeLayer.opacity = getLayerOpacity();
@@ -322,7 +313,7 @@
         },
         /* Draw the currently selected 'other' region as a layer */
         drawOtherLayers: function () {
-            console.log("drawOtherLayers");
+            // console.log("drawOtherLayers");
             if (selectedRegion === null) {
                 return;
             }
@@ -363,7 +354,7 @@
     /* Create the regions sets to be displayed */
     var layers = {};
 
-// (name, layerName, fid, bieContext, order, displayName)
+    // (name, layerName, fid, bieContext, order, displayName)
     function createRegionTypes() {
         if (REGIONS == undefined) {
             REGIONS = {}
@@ -433,7 +424,7 @@
         // this has meaning when the region is a layer/field in the 'other' set and an object within that
         // layer has been selected.
         setSubregion: function (region, pid) {
-            console.log("setSubregion");
+            // console.log("setSubregion");
             this.subregion = region;
             this.subregionPid = pid;
             this.displayRegion();
@@ -448,7 +439,7 @@
         },
         /* Draw this region on the map */
         displayRegion: function () {
-            console.log("displayRegion", getRegionOpacity());
+            // console.log("displayRegion", getRegionOpacity());
             if (regionSelectedLayer.tilelayer) {
                 map.removeRegionOverlay();
             }
@@ -473,7 +464,7 @@
         /* Write the region link and optional subregion name and zoom link at the top of the map.
          * @param subregion the name of the subregion */
         setLinks: function (subregion) {
-            console.log("setLinks", subregion);
+            // console.log("setLinks", subregion);
             var extra = "";
             if (this.name.toLowerCase() === 'n/a') {
                 showInfo("N/A");
@@ -492,10 +483,7 @@
                 var latlng = map.lmap.getCenter()
                 var bbox = selectedRegionType.getRegion(this.name).bbox;
                 if (bbox !== undefined) {
-                    //console.log("bbox", bbox);
-                    // var gBbox = new google.maps.LatLngBounds(
-                    //     new google.maps.LatLng(bbox.minLat, bbox.minLng),
-                    //     new google.maps.LatLng(bbox.maxLat, bbox.maxLng));
+                    //console.log("bbox", bbox);));
                     var lBbox = L.latLngBounds(L.latLng(bbox.minLat, bbox.minLng), L.latLng(bbox.maxLat, bbox.maxLng));
                     latlng = lBbox.getCenter();
                 }
@@ -519,40 +507,9 @@
         // default opacity for the overlay showing the selected layer
         defaultLayerOpacity: 0.5,
         // the default bounds for the map
-        // initialBounds: new google.maps.LatLngBounds(
-        //     new google.maps.LatLng(-41.5, 114),
-        //     new google.maps.LatLng(-13.5, 154)),
         initialBounds:  L.latLngBounds(L.latLng(-41.5, 114), L.latLng(-13.5, 154)),
         clickedRegion: "",
         init: function () {
-            // var options = {
-            //     scrollwheel: false,
-            //     streetViewControl: false,
-            //     mapTypeControl: true,
-            //     mapTypeControlOptions: {
-            //         style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
-            //     },
-            //     scaleControl: true,
-            //     scaleControlOptions: {
-            //         position: google.maps.ControlPosition.LEFT_BOTTOM
-            //     },
-            //     panControl: false,
-            //     disableDoubleClickZoom: true,
-            //     draggableCursor: 'pointer',
-            //     mapTypeId: google.maps.MapTypeId.TERRAIN
-            // };
-            //
-            // this.gmap = new google.maps.Map(document.getElementById(this.containerId), options);
-            // this.gmap.fitBounds(this.initialBounds);
-            // this.gmap.enableKeyDragZoom();
-            // if (config.showQueryContextLayer) {
-            //     var queryContextRegionSet = new RegionSet(config.queryContextLayer.name, config.queryContextLayer.shortName, config.queryContextLayer.fid, config.queryContextLayer.bieContext, config.queryContextLayer.order, config.queryContextLayer.displayName);
-            //     queryContextRegionSet.drawLayer(config.queryContextLayerColour, config.queryContextLayerOrder)
-            // }
-            //
-            // google.maps.event.addListener(this.gmap, 'click', this.clickHandler);
-
-
 
             // TODO pull basemap into config
             var defaultBaseLayer = L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
@@ -579,41 +536,34 @@
         },
         /* Set the layer overlay */
         setLayerOverlay: function (wms, order) {
-            console.log("setLayerOverlay", wms, order);
+            // console.log("setLayerOverlay", wms, order);
             //$('#maploading').fadeIn("slow");
-            //
-            // order = order == undefined ? 1 : order;
             this.lmap.addLayer(wms);
-            // this.gmap.overlayMapTypes.setAt(order, wms);
         },
         /* Clear the layer overlay */
         removeLayerOverlay: function () {
-            console.log("removeLayerOverlay");
+            // console.log("removeLayerOverlay");
             //$('#maploading').fadeOut("fast");
             if (regionTypeLayer.tilelayer) {
                 this.lmap.removeLayer(regionTypeLayer.tilelayer);
             }
-            //this.gmap.overlayMapTypes.setAt(0, null);
         },
         /* Set the region overlay */
         setRegionOverlay: function (wms) {
-            console.log("setRegionOverlay", wms);
+            // console.log("setRegionOverlay", wms);
             //$('#maploading').fadeIn("slow");
             this.lmap.addLayer(wms);
-            //this.gmap.overlayMapTypes.setAt(2, wms);
             this.clickedRegion = null;
             selectedRegion.setLinks(selectedRegion);
         },
         /* Clear the region overlay */
         removeRegionOverlay: function () {
-            console.log("removeRegionOverlay");
+            // console.log("removeRegionOverlay");
             //$('#maploading').fadeIn("fast");
             this.lmap.removeLayer(regionSelectedLayer.tilelayer);
-            //this.gmap.overlayMapTypes.setAt(2, null);
         },
         /* Reset the map to the default bounds */
         resetViewport: function () {
-            //this.gmap.fitBounds(this.initialBounds);
             this.lmap.fitBounds(this.initialBounds);
         },
         /* Zoom to the bbox of the specified region */
@@ -621,18 +571,10 @@
             // lookup the bbox from the regions cache
             var bbox = selectedRegionType.getRegion(regionName).bbox;
             if (bbox !== undefined) {
-                // var gBbox = new google.maps.LatLngBounds(
-                //     new google.maps.LatLng(bbox.minLat, bbox.minLng),
-                //     new google.maps.LatLng(bbox.maxLat, bbox.maxLng));
-                //this.gmap.fitBounds(gBbox);
                 var bounds = L.latLngBounds(
                     L.latLng(bbox.minLat, bbox.minLng),
                     L.latLng(bbox.maxLat, bbox.maxLng));
                 this.lmap.fitBounds(bounds);
-
-                // if (infoWindow.getMap()) {
-                //     infoWindow.setPosition(gBbox.getCenter());
-                // }
             }
         },
         transform4326to3857: function (lon, lat) {
@@ -648,7 +590,7 @@
                 features = [],
                 that = this;
             this.clickedRegion = null;
-            console.log("click event", event, event.target);
+            // console.log("click event", event, event.target);
             var n = this.getBounds().getNorthEast();
             var s = this.getBounds().getSouthWest();
             var ne = map.transform4326to3857(n.lng, n.lat);
@@ -692,7 +634,7 @@
                                 $.each(selectedRegionType.objects, function (idx, rt) {
                                     if (!found) {
                                         $.each(result.find('td'), function (i, obj) {
-                                            console.log("td check", obj.innerHTML, rt.name);
+                                            // console.log("td check", obj.innerHTML, rt.name);
                                             if (!found && obj.innerHTML === rt.name) {
                                                 found = true;
 
@@ -756,7 +698,7 @@
      * - defaultRegion: string containing the name of the region within the defaultRegionType menu to select by default
      */
     function init(options) {
-        console.log("init", options);
+        // console.log("init", options);
         var initialRegionTypeStr;
 
         config.baseUrl = options.server;
@@ -804,7 +746,7 @@
             max: 100,
             value: map.defaultLayerOpacity * 100,
             change: function () {
-                console.log("Opacity change for layer...." + getLayerOpacity());
+                // console.log("Opacity change for layer...." + getLayerOpacity());
                 selectedRegionType.drawLayer();
             }
         });
@@ -814,7 +756,7 @@
             disabled: true,
             value: map.defaultRegionOpacity * 100,
             change: function () {
-                console.log("Opacity change for region...." + getRegionOpacity());
+                // console.log("Opacity change for region...." + getRegionOpacity());
                 selectedRegion.displayRegion();
             }
         });

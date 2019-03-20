@@ -8,7 +8,7 @@
                     <li class="col-md-3">
                         <a href="${emblem?.speciesUrl}" title="Go to ${emblem?.commonName} details.">
                             <div class="media thumbnail">
-                                <img class="pull-left" src="${emblem?.imgUrl}" class="media-object"
+                                <img class="pull+left" src="${emblem?.imgUrl}" class="media-object"
                                      alt="${emblem?.scientificName} image"></img>
 
                                 <div class="media-body">

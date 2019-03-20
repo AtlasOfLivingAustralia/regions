@@ -145,6 +145,12 @@ li.regionLink {
 
 #emblems .thumbnail {
     box-shadow: 3px 3px 8px 0px rgba(50, 50, 50, 0.7);
+    padding: 6px;
+    text-align: center;
+}
+
+#emblems .thumbnail img {
+    max-height: 300px;
 }
 
 #emblems a {
@@ -154,6 +160,10 @@ li.regionLink {
 #emblems a:hover {
     text-decoration: none;
     /*color: inherit;*/
+}
+
+#emblems .media-body {
+    padding-top: 5px;
 }
 
 #region-map {
