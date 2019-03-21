@@ -12,6 +12,7 @@
  *  implied. See the License for the specific language governing
  *  rights and limitations under the License.
  */
+//= require leaflet-google
 
 var regionWidget;
 
@@ -750,10 +751,23 @@ var RegionMap = function (config) {
             attribution:  "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, imagery &copy; <a href='https://cartodb.com/attributions'>CartoDB</a>",
             subdomains: "abcd"
         });
+
+        var baseLayers = {
+            "Minimal": defaultBaseLayer
+        };
+
+        if (REGION_CONFIG.useGoogleApi) {
+            baseLayers.Road = new L.Google('ROADMAP');
+            baseLayers.Terrain = new L.Google('TERRAIN');
+            baseLayers.Satellite = new L.Google('HYBRID');
+        }
+
         map = L.map(document.getElementById("region-map"), {
             scrollWheelZoom: false,
-            layers: [defaultBaseLayer]
         });
+
+        map.layerControl = L.control.layers(baseLayers).addTo(map);
+        map.addLayer(defaultBaseLayer);
         map.fitBounds(initialBounds);
 
         initializeOpacityControls();

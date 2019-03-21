@@ -26,6 +26,7 @@
                 spatialServiceUrl: "${grailsApplication.config.layersService.baseURL}/",
             },
             username: '${rg.loggedInUsername()}',
+            useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}',
             q: '${region.q}'
         <g:if test="${enableQueryContext}">
             ,qc: "${grailsApplication.config.biocache.queryContext}"
@@ -38,15 +39,15 @@
         ,bbox: {
             sw: {
                 lat: ${region.bbox?.minLat},
-                    lng: ${region.bbox?.minLng}
-        },
-        ne: {
-            lat: ${region.bbox?.maxLat},
-                        lng: ${region.bbox?.maxLng}
+                lng: ${region.bbox?.minLng}
+            },
+            ne: {
+                lat: ${region.bbox?.maxLat},
+                lng: ${region.bbox?.maxLng}
+            }
         }
-    }
-    ,useReflectService: ${useReflect}
-        ,enableRegionOverlay: ${enableRegionOverlay != null ? enableRegionOverlay : 'true'}
+        ,useReflectService: ${useReflect}
+            ,enableRegionOverlay: ${enableRegionOverlay != null ? enableRegionOverlay : 'true'}
         };
     </asset:script>
 
