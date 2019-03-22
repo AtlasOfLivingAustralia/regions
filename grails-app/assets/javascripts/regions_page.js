@@ -334,6 +334,7 @@
                     layers:"ALA:" + layerName,
                     //viewparams: "s:" + (this.other ? this.subregionPid : this.id),
                     styles: "polygon",
+                    transparent: true,
                     //sld_body: encodeURIComponent(sld_for_region),
                     opacity: getRegionOpacity()
                 };
