@@ -12,7 +12,8 @@
  *  implied. See the License for the specific language governing
  *  rights and limitations under the License.
  */
-//= require leaflet-google
+
+//= require Leaflet-gridlayer-google-mutant/Leaflet.GoogleMutant.js
 
 var regionWidget;
 
@@ -757,9 +758,9 @@ var RegionMap = function (config) {
         };
 
         if (REGION_CONFIG.useGoogleApi) {
-            baseLayers.Road = new L.Google('ROADMAP');
-            baseLayers.Terrain = new L.Google('TERRAIN');
-            baseLayers.Satellite = new L.Google('HYBRID');
+            baseLayers.Road = L.gridLayer.googleMutant({ type: 'roadmap' });
+            baseLayers.Terrain = L.gridLayer.googleMutant({ type: 'terrain' });
+            baseLayers.Satellite = L.gridLayer.googleMutant({ type: 'hybrid' });
         }
 
         map = L.map(document.getElementById("region-map"), {
@@ -769,6 +770,16 @@ var RegionMap = function (config) {
         map.layerControl = L.control.layers(baseLayers).addTo(map);
         map.addLayer(defaultBaseLayer);
         map.fitBounds(initialBounds);
+
+        map.on('baselayerchange', function() {
+            // prevent baselayers covering/hiding overlay layers when switching baselayers
+            if (map.hasLayer(overlays[0])) {
+                overlays[0].bringToFront();
+            }
+            if (map.hasLayer(overlays[1])) {
+                overlays[1].bringToFront();
+            }
+        });
 
         initializeOpacityControls();
 
