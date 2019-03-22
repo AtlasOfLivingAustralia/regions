@@ -288,7 +288,7 @@
                     // console.log("drawLayer + redraw", selectedRegionType);
                     if (regionTypeLayer.tilelayer) {
                         map.lmap.removeLayer(regionTypeLayer.tilelayer); // remove current layer
-                        regionSelectedLayer.popup.remove(); // remove popup
+                        if (regionSelectedLayer.popup) regionSelectedLayer.popup.remove(); // remove popup
                         // console.log("removed layer " + regionTypeLayer.tilelayer);
                     }
                     var sld = sld_body.replace('LAYERNAME', this.layerName).replace('COLOUR', colour).replace('FILL_OPACITY', getLayerOpacity());
@@ -484,7 +484,9 @@
             } else {
                 if (this.other) {
                     if (subregion) {
-                        extra = "<span class='btn btn-default' id='extra'>(" + subregion + ")</span>";
+                        //console.log('setLinks', subregion);
+                        // not needed
+                        //extra = "<span class='btn btn-default' id='extra'>(" + subregion + ")</span>";
                     }
                 }
 
