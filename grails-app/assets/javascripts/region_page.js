@@ -850,10 +850,16 @@ var RegionMap = function (config) {
         // layer toggling
         $("#toggleOccurrences").click(function () {
             $('#maploading').fadeOut("fast");
+            (this.checked)
+                ? $('#occurrencesOpacity').slider('enable')
+                : $('#occurrencesOpacity').slider('disable');
             toggleOverlay(1, this.checked);
         });
         $("#toggleRegion").click(function () {
             $('#maploading').fadeOut("fast");
+            (this.checked)
+                ? $('#regionOpacity').slider('enable')
+                : $('#regionOpacity').slider('disable');
             toggleOverlay(0, this.checked);
         });
     };
@@ -873,7 +879,12 @@ var RegionMap = function (config) {
      */
     var toggleOverlay = function (n, show) {
         //map.overlayMapTypes.setAt(n, show ? overlays[n] : null);
-        map.removeLayer(overlays[n]); // TODO test this
+        if (show) {
+            map.addLayer(overlays[n]);
+            overlays[n].bringToFront();
+        } else {
+            map.removeLayer(overlays[n]);
+        }
     };
 
     /**
@@ -901,7 +912,12 @@ var RegionMap = function (config) {
             var currentState = regionWidget.getCurrentState();
             var urls = regionWidget.getUrls();
 
+            if (map.hasLayer(overlays[0])) {
+                map.removeLayer(overlays[0]);
+            }
+
             if (currentState.q.indexOf("%3A*") === currentState.q.length - 4) {
+                // q contains wildcard field value, e.g. `cl22%3A*` (cl22:*)
                 var layerParams = {
                     FORMAT: overlayFormat,
                     LAYERS: "ALA:" + currentState.regionLayerName,
@@ -911,8 +927,14 @@ var RegionMap = function (config) {
                 };
                 overlays[0] = L.tileLayer.wms(urls.spatialCacheUrl, layerParams);
                 $('#maploading').fadeIn("fast");
+                overlays[0].on('add', function (event) {
+                    overlays[0].bringToFront();
+                    if (overlays[1]) overlays[1].bringToFront(); // so records are always on top
+                    $('#maploading').fadeOut("fast");
+                });
                 map.addLayer(overlays[0]);
             } else {
+                // q contains an actual field value, e.g. `cl22%3A%22Queensland%22` (cl22:"Queensland")
                 var params = {
                     FORMAT: overlayFormat,
                     LAYERS: "ALA:Objects",
@@ -923,8 +945,13 @@ var RegionMap = function (config) {
                 };
                 overlays[0] = L.tileLayer.wms(urls.spatialWmsUrl, params);
                 $('#maploading').fadeIn("fast");
+
+                overlays[0].on('add', function (event) {
+                    overlays[0].bringToFront();
+                    if (overlays[1]) overlays[1].bringToFront(); // so records are always on top
+                    $('#maploading').fadeOut("fast");
+                });
                 map.addLayer(overlays[0]);
-                $('#maploading').fadeOut("fast")
             }
         }
     };
@@ -953,8 +980,12 @@ var RegionMap = function (config) {
         var query = region.buildBiocacheQuery(queryParams, 0).join("&");
         overlays[1] = L.tileLayer.wms(urlConcat(urls.biocacheServiceUrl, "occurrences/wms?") + query, wmsParams);
         $('#maploading').fadeIn("fast");
+
+        overlays[1].on('add', function (event) {
+            overlays[1].bringToFront();
+            $('#maploading').fadeOut("fast");
+        });
         map.addLayer(overlays[1]);
-        $('#maploading').fadeOut("fast")
     };
 
     var drawRecordsOverlay2 = function () {
@@ -990,8 +1021,12 @@ var RegionMap = function (config) {
             $('#maploading').fadeIn("fast")
         }
 
+        overlays[1].on('add', function (event) {
+            overlays[1].bringToFront();
+            $('#maploading').fadeOut("fast");
+        });
+
         map.addLayer(overlays[1]);
-        $('#maploading').fadeOut("fast")
     };
 
     var _public = {
