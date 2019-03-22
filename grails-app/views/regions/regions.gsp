@@ -127,7 +127,8 @@
                 bieContext:"${grailsApplication.config.layers.queryContextBieContext}",
                 order:"${grailsApplication.config.layers.queryContextOrder}",
                 displayName:"${grailsApplication.config.layers.queryContextDisplayName}"
-            }
+            },
+            useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}'
         });
     })
 </asset:script>

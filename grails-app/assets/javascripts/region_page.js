@@ -748,26 +748,28 @@ var RegionMap = function (config) {
         useReflectService = config.useReflectService;
         enableRegionOverlay = config.enableRegionOverlay;
 
+        // create leaflet map object
+        map = L.map(document.getElementById("region-map"), {
+            scrollWheelZoom: false,
+        });
+
+        // TODO pull out into config, so it can be changed without redeploying app
         var defaultBaseLayer = L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
             attribution:  "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, imagery &copy; <a href='https://cartodb.com/attributions'>CartoDB</a>",
             subdomains: "abcd"
         });
 
-        var baseLayers = {
-            "Minimal": defaultBaseLayer
-        };
-
         if (REGION_CONFIG.useGoogleApi) {
-            baseLayers.Road = L.gridLayer.googleMutant({ type: 'roadmap' });
-            baseLayers.Terrain = L.gridLayer.googleMutant({ type: 'terrain' });
-            baseLayers.Satellite = L.gridLayer.googleMutant({ type: 'hybrid' });
+            // only show layer controls when Google API key is available
+            var baseLayers = {
+                Minimal: defaultBaseLayer,
+                Road: L.gridLayer.googleMutant({ type: 'roadmap' }),
+                Terrain: L.gridLayer.googleMutant({ type: 'terrain' }),
+                Satellite: L.gridLayer.googleMutant({ type: 'hybrid' })
+            };
+            map.layerControl = L.control.layers(baseLayers).addTo(map);
         }
 
-        map = L.map(document.getElementById("region-map"), {
-            scrollWheelZoom: false,
-        });
-
-        map.layerControl = L.control.layers(baseLayers).addTo(map);
         map.addLayer(defaultBaseLayer);
         map.fitBounds(initialBounds);
 

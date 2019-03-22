@@ -13,6 +13,9 @@
  *  rights and limitations under the License.
  */
 /*
+
+//= require Leaflet-gridlayer-google-mutant/Leaflet.GoogleMutant.js
+
  Javascript to support the top level regions page.
 
  The page has a map and an accordion widget that groups regions by their type. Regions can be selected on the map
@@ -308,6 +311,11 @@
 
                 regionTypeLayer.opacity = getLayerOpacity();
                 regionTypeLayer.tilelayer = L.tileLayer.wms(config.spatialCacheUrl + sldParam, layerParams); //.addTo(map.lmap);
+                regionTypeLayer.tilelayer.on('add', function (event) {
+                    regionTypeLayer.tilelayer.bringToFront();
+                    if (regionSelectedLayer.tilelayer) regionSelectedLayer.tilelayer.bringToFront(); // so selected layer is always on top
+                    //$('#maploading').fadeOut("fast");
+                });
                 map.setLayerOverlay(regionTypeLayer.tilelayer, order);
             }
         },
@@ -333,6 +341,10 @@
             regionSelectedLayer.opacity = getRegionOpacity();
 
             if ($('#toggleLayer').is(':checked')) {
+                regionSelectedLayer.tilelayer.on('add', function (event) {
+                    regionSelectedLayer.tilelayer.bringToFront();
+                    //$('#maploading').fadeOut("fast");
+                });
                 map.setLayerOverlay(regionSelectedLayer.tilelayer);
             }
         },
@@ -511,20 +523,37 @@
         clickedRegion: "",
         init: function () {
 
+            this.lmap = L.map(this.containerId, {
+                scrollWheelZoom: false
+            });
+
             // TODO pull basemap into config
             var defaultBaseLayer = L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
                 attribution:  "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, imagery &copy; <a href='https://cartodb.com/attributions'>CartoDB</a>",
                 subdomains: "abcd"
             });
-            this.lmap = L.map(this.containerId, {
-                scrollWheelZoom: false,
-                layers: [defaultBaseLayer]
-            });
+
+            var baseLayers = {
+                "Minimal": defaultBaseLayer
+            };
+
+            if (config.useGoogleApi) {
+                // only show layer controls when Google API key is available
+                var baseLayers = {
+                    Minimal: defaultBaseLayer,
+                    Road: L.gridLayer.googleMutant({ type: 'roadmap' }),
+                    Terrain: L.gridLayer.googleMutant({ type: 'terrain' }),
+                    Satellite: L.gridLayer.googleMutant({ type: 'hybrid' })
+                };
+                this.lmap.layerControl = L.control.layers(baseLayers).addTo(this.lmap);
+            }
+
+            this.lmap.addLayer(defaultBaseLayer);
             this.lmap.fitBounds(this.initialBounds);
 
-            // add the default base layer
-            //this.lmap.addLayer(defaultBaseLayer);
+            var that = this;
             this.lmap.on('click', this.clickHandler);
+            this.lmap.on('baselayerchange', this.layerChangeHandler);
             if (config.showQueryContextLayer) {
                 // TODO adapt for leaflet
                 var queryContextRegionSet = new RegionSet(config.queryContextLayer.name, config.queryContextLayer.shortName, config.queryContextLayer.fid, config.queryContextLayer.bieContext, config.queryContextLayer.order, config.queryContextLayer.displayName);
@@ -552,6 +581,10 @@
         setRegionOverlay: function (wms) {
             // console.log("setRegionOverlay", wms);
             //$('#maploading').fadeIn("slow");
+            wms.on('add', function (event) {
+                wms.bringToFront();
+                //$('#maploading').fadeOut("fast");
+            });
             this.lmap.addLayer(wms);
             this.clickedRegion = null;
             selectedRegion.setLinks(selectedRegion);
@@ -654,6 +687,17 @@
                 }
             });
         },
+        /* Triggred when map baselayer changes */
+        layerChangeHandler: function(event) {
+            // prevent baselayers covering/hiding overlay layers when switching baselayers
+            // (looking at you Google baselayers)
+            if (regionTypeLayer && regionTypeLayer.tilelayer && map.lmap.hasLayer(regionTypeLayer.tilelayer)) {
+                regionTypeLayer.tilelayer.bringToFront();
+            }
+            if (regionSelectedLayer && regionSelectedLayer.tilelayer && map.lmap.hasLayer(regionSelectedLayer.tilelayer)) {
+                regionSelectedLayer.tilelayer.bringToFront();
+            }
+        },
         /**
          * Called when the overlays are loaded. Currently does nothing.
          * @param numtiles
@@ -709,6 +753,7 @@
         config.queryContextLayer = options.queryContextLayer;
         config.queryContextLayerColour = options.queryContextLayerColour || "#8b0000";
         config.queryContextLayerOrder = options.queryContextLayerOrder || 0;
+        config.useGoogleApi = options.useGoogleApi;
 
         /*****************************************\
          | Create the region types from metadata
@@ -778,17 +823,21 @@
         $('#toggleLayer').change(function () {
             if ($(this).is(':checked')) {
                 selectedRegionType.drawLayer();
+                $('#layerOpacity').slider('enable');
             }
             else {
                 map.removeLayerOverlay();
+                $('#layerOpacity').slider('disable');
             }
         });
         $('#toggleRegion').change(function () {
             if ($(this).is(':checked')) {
                 selectedRegion.displayRegion();
+                $('#regionOpacity').slider('enable');
             }
             else {
                 map.removeRegionOverlay();
+                $('#regionOpacity').slider('disable');
             }
         });
 
