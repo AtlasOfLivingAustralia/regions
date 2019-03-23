@@ -261,7 +261,7 @@ var RegionWidget = function (config) {
         });
 
         // Initialize info message
-        //$('#timeControlsInfo').popover();
+        $('#timeControlsInfo').popover({trigger:'hover', container: 'body', placement: 'top'});
     };
 
     /**
