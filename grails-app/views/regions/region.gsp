@@ -60,7 +60,7 @@
 
     <asset:stylesheet src="leaflet/leaflet"/>
     <asset:stylesheet src="application"/>
-    <asset:javascript src="application"/>
+    <asset:javascript src="regions/application"/>
     <asset:javascript src="leaflet/leaflet"/>
     <asset:javascript src="regions_app" asset-defer="true"/>
     <asset:javascript src="region_page" asset-defer="true"/>

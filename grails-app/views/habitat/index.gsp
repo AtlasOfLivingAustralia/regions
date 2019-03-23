@@ -8,7 +8,7 @@
     <meta name="layout" content="${grailsApplication.config.getProperty('skin.layout') ?: 'main'}"/>
     <title>Habitats | ${grailsApplication.config.orgNameLong}</title>
 
-    <asset:javascript src="application"/>
+    <asset:javascript src="regions/application"/>
     <asset:stylesheet src="application"/>
     %{--<asset:javascript src="regions_app" asset-defer="true" />--}%
     %{--<asset:javascript src="region_page" asset-defer="true" />--}%
