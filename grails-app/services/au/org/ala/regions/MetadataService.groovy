@@ -592,7 +592,7 @@ class MetadataService {
         if (file.exists()) {
             JSON.parse(file.text)
         } else {
-            []
+            [] // NdR this should be a Map not List! TODO test and fix
         }
     }
 
