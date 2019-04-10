@@ -5,6 +5,7 @@ import grails.plugin.cache.Cacheable
 import grails.util.Metadata
 import groovyx.net.http.URIBuilder
 import org.apache.commons.lang.StringEscapeUtils
+import org.apache.commons.httpclient.util.URIUtil
 
 import javax.annotation.PostConstruct
 
@@ -225,11 +226,12 @@ class MetadataService {
             String searchTerms = paramsToString(buildCommonDownloadRecordsParams(region.fid, region.type, region.name, region.pid))
 
             query = [
-                    webserviceQuery : "/occurrences/search?${searchTerms}",
-                    uiQuery         : "/occurrences/search?${searchTerms}",
-                    queryDisplayName: region.name,
-                    baseUrlForWS    : "${BIOCACHE_SERVICE_URL}",
-                    baseUrlForUI    : "${BIOCACHE_URL}&resourceName=Atlas"
+                    webserviceQuery : URIUtil.encodeWithinQuery("/occurrences/search?${searchTerms}"),
+                    uiQuery         : URIUtil.encodeWithinQuery("/occurrences/search?${searchTerms}"),
+                    queryDisplayName: URIUtil.encodeWithinQuery(region.name),
+                    baseUrlForWS    : URIUtil.encodeWithinQuery("${BIOCACHE_SERVICE_URL}"),
+                    baseUrlForUI    : URIUtil.encodeWithinQuery("${BIOCACHE_URL}&resourceName=Atlas"),
+                    resourceName    : URIUtil.encodeWithinQuery( grailsApplication.config.getProperty("alertsResourceName") ) 
             ]
 
             it

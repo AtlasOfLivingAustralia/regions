@@ -73,7 +73,7 @@ layers.queryContextDisplayName = ''
 layers.queryContextFid = ''
 layers.queryContextBieContext = ''
 layers.queryContextOrder = ''
-
+alertsResourceName = 'Atlas'
 redirectDownloads = false
 
 //
