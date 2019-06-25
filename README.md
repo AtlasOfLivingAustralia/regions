@@ -5,6 +5,6 @@ to present regional data breakdowns.
 
 It uses services from:
 
-* Biocache (https://biocache.ala.org.au/ws)
+* Biocache (https://biocache-ws.ala.org.au/ws)
 * Layers services (https://spatial.ala.org.au/ws)
 
