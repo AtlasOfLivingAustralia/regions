@@ -59,25 +59,25 @@ class MetadataServiceSpec extends Specification {
         // Retrieving all species
         String url = metadataService.buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, null, null)
         then:
-        URLDecoder.decode(url, 'UTF-8') == "https://biocache.ala.org.au/ws/occurrences/search?facets=names_and_lsid&fsort=taxon_name&pageSize=0&flimit=50&foffset=0&q=cl22:\"New South Wales\"&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
+        URLDecoder.decode(url, 'UTF-8') == "https://biocache-ws.ala.org.au/ws/occurrences/search?facets=names_and_lsid&fsort=taxon_name&pageSize=0&flimit=50&foffset=0&q=cl22:\"New South Wales\"&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
 
         when:
         // Retrieving all species second page
         url = metadataService.buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, null, null, null, null, "1")
         then:
-        URLDecoder.decode(url, 'UTF-8') == "https://biocache.ala.org.au/ws/occurrences/search?facets=names_and_lsid&fsort=taxon_name&pageSize=0&flimit=50&foffset=50&q=cl22:\"New South Wales\"&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
+        URLDecoder.decode(url, 'UTF-8') == "https://biocache-ws.ala.org.au/ws/occurrences/search?facets=names_and_lsid&fsort=taxon_name&pageSize=0&flimit=50&foffset=50&q=cl22:\"New South Wales\"&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
 
         when:
         // Retrieving all species within a timeframe
         url = metadataService.buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, null, null, from, to)
         then:
-        URLDecoder.decode(url, 'UTF-8') == "https://biocache.ala.org.au/ws/occurrences/search?facets=names_and_lsid&fsort=taxon_name&pageSize=0&flimit=50&foffset=0&q=cl22:\"New South Wales\"&fq=occurrence_year:[1900-01-01T00:00:00Z TO 1999-12-31T23:59:59Z]&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
+        URLDecoder.decode(url, 'UTF-8') == "https://biocache-ws.ala.org.au/ws/occurrences/search?facets=names_and_lsid&fsort=taxon_name&pageSize=0&flimit=50&foffset=0&q=cl22:\"New South Wales\"&fq=occurrence_year:[1900-01-01T00:00:00Z TO 1999-12-31T23:59:59Z]&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
 
         when:
         // Retrieving all species for a given group
         url = metadataService.buildBiocacheSearchOccurrencesWsUrl(regionFid, regionType, regionName, regionPid, groupName, null, null, null, '0', false, 'species_group:\"Mammals\"')
         then:
-        URLDecoder.decode(url, 'UTF-8') == "https://biocache.ala.org.au/ws/occurrences/search?facets=names_and_lsid&fsort=taxon_name&pageSize=0&flimit=50&foffset=0&q=cl22:\"New South Wales\"&fq=species_group:\"Mammals\"&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
+        URLDecoder.decode(url, 'UTF-8') == "https://biocache-ws.ala.org.au/ws/occurrences/search?facets=names_and_lsid&fsort=taxon_name&pageSize=0&flimit=50&foffset=0&q=cl22:\"New South Wales\"&fq=species_group:\"Mammals\"&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*"
     }
 
     void "test species retrieval"() {
