@@ -1,7 +1,7 @@
 [
   {
     "label": "States and territories",
-    "fid": "cl22",
+    "fid": "cl10925",
     "exclude": ["Unknown1", "Macquarie Island", "Ashmore and Cartier Islands", "Coral Sea Islands"],
     "subregions": [
       {
@@ -33,7 +33,7 @@
           },
           {
             "label": "Natural Resource Management (NRM)",
-            "fid": "cl2120",
+            "fid": "cl10930",
             "regions": [
               {
                 "label": "ACT"
@@ -46,7 +46,15 @@
   },
   {
     "label": "Local government",
-    "fid": "cl959"
+    "fid": "cl10923"
+  },
+  {
+    "label": "Commonwealth government",
+    "fid": "cl10921"
+  },
+  {
+    "label": "State government",
+    "fid": "cl10922"
   },
   {
     "label": "Bush Heritage Reserves",
@@ -66,7 +74,7 @@
   },
   {
     "label": "Management regions",
-    "fid": "cl2120"
+    "fid": "cl10930"
   },
   {
     "label": "Indigenous protected areas",
@@ -159,7 +167,7 @@
       },
       {
         "label": "Collaborative Australian Protected Areas Database",
-        "fid": "cl2079"
+        "fid": "cl10944"
       },
       {
         "label": "Exclusive Economic Zone",
