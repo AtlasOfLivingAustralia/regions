@@ -19,7 +19,7 @@ class MetadataServiceSpec extends Specification {
 
     void "test retrieveEmblemsMetadata method"() {
         given:
-        String regionName = "New South Wales"
+        String regionName = "NEW SOUTH WALES"
         when:
         List result = metadataService.getEmblemsMetadata(regionName)
         then:
