@@ -165,7 +165,7 @@ class RegionsController {
 
         region.q = URLEncoder.encode(metadataService.buildRegionFacet(region.fid, region.type, region.name, region.pid), "UTF-8")
 
-        if (region.type == 'states') {
+        if (region.type == 'States and territories') {
             // lookup state emblems
             def emblems = metadataService.getStateEmblems()[region.name]
             if (emblems) {

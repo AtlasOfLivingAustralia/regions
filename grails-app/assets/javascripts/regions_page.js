@@ -812,7 +812,7 @@
         /*****************************************\
          | Handle region clicks
          \*****************************************/
-        $('li.regionLink').live('click', function () {
+        $('#accordion').on('click', 'li.regionLink', function () {
             var name = $(this).html();
             if (selectedRegion !== null && name === selectedRegion.name) {
                 document.location.href = selectedRegion.urlToViewRegion();
@@ -869,7 +869,7 @@
         /*****************************************\
          | Handle zoom to region
          \*****************************************/
-        $('#zoomTo').live('click', function () {
+        $('#rightPanel').on('click', "#zoomTo", function () {
             var name = $(this).prev().html();
             map.zoomToRegion(name);
         });

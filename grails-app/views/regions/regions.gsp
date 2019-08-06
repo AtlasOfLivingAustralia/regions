@@ -15,6 +15,7 @@
     <asset:stylesheet src="leaflet/leaflet"/>
     <asset:stylesheet src="application"/>
     <asset:javascript src="leaflet/leaflet"/>
+    <asset:javascript src="dependencies.js"/>
     <asset:javascript src="regions_app"/>
     <asset:javascript src="regions_page"/>
 </head>

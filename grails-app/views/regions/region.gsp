@@ -61,6 +61,7 @@
     <asset:stylesheet src="leaflet/leaflet"/>
     <asset:stylesheet src="application"/>
     <asset:javascript src="regions/application"/>
+    <asset:javascript src="dependencies.js"/>
     <asset:javascript src="leaflet/leaflet"/>
     <asset:javascript src="regions_app" asset-defer="true"/>
     <asset:javascript src="region_page" asset-defer="true"/>
@@ -75,7 +76,7 @@
         <div class="pull-right">
             <div class="row">
                 <g:if test="${alertsUrl}">
-                <a id="alertsButton" class="btn btn-ala pull-right" href="${alertsUrl}">
+                <a id="alertsButton" class="btn btn-primary btn-ala pull-right" href="${alertsUrl}">
                     <g:message code="alerts.btn" />
                     <i class="icon-bell icon-white"></i>
                 </a>
