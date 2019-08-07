@@ -29,7 +29,7 @@ class MetadataServiceSpec extends Specification {
 
     void "test species groups retrieval"() {
         given:
-        String regionName = "New South Wales"
+        String regionName = "NEW SOUTH WALES"
         String regionType = "states"
         String regionFid = "cl10925"
         String regionPid = "1"
@@ -82,7 +82,7 @@ class MetadataServiceSpec extends Specification {
 
     void "test species retrieval"() {
         given:
-        String regionName = "New South Wales"
+        String regionName = "NEW SOUTH WALES"
         String regionType = "states"
         String regionFid = "cl10925"
         String regionPid = "1"
@@ -135,7 +135,7 @@ class MetadataServiceSpec extends Specification {
 
     void "test getSubgroupsWithRecords"() {
         given:
-        String regionName = "New South Wales"
+        String regionName = "NEW SOUTH WALES"
         String regionType = "states"
         String regionFid = "cl10925"
         String regionPid = "1"
