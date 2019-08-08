@@ -31,7 +31,7 @@ class MetadataService {
         BIE_SERVICE_URL = grailsApplication.config.bieService.baseURL
         BIOCACHE_URL = grailsApplication.config.biocache.baseURL
         BIOCACHE_SERVICE_URL = grailsApplication.config.biocacheService.baseURL
-        DEFAULT_IMG_URL = "${BIE_URL}/static/images/noImage85.jpg"
+        DEFAULT_IMG_URL = grailsApplication.config.noImageURL?:"${BIE_URL}/assets/noImage85.jpg"
         ALERTS_URL = grailsApplication.config.alerts.baseURL
         CONFIG_DIR = grailsApplication.config.config_dir
         ENABLE_HUB_DATA = grailsApplication.config.hub.enableHubData?.toBoolean() ?: false
