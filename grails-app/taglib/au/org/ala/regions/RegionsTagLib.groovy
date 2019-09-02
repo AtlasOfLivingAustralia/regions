@@ -81,6 +81,7 @@ class RegionsTagLib {
     }
 
     /**
+     * Build a URL string for link to biocache records results
      *
      * @attr guid REQUIRED
      * @attr regionFid REQUIRED
@@ -93,9 +94,20 @@ class RegionsTagLib {
         out << metadataService.buildSpeciesRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.regionPid, attrs.group, attrs.subgroup, attrs.from, attrs.to, attrs.showHubData, attrs.fq)
     }
 
+    /**
+     * Build a URL string for link to biocache download page
+     *
+     * @attr guid REQUIRED
+     * @attr regionFid REQUIRED
+     * @attr regionType REQUIRED
+     * @attr regionName REQUIRED
+     * @attr from REQUIRED
+     * @attr to REQUIRED
+     * @attr totalRecords REQUIRED
+     */
     def downloadRecordListUrl = { attrs ->
         out << metadataService.buildDownloadRecordListUrl(attrs.guid, attrs.regionFid, attrs.regionType, attrs.regionName, attrs.regionPid, attrs.group, attrs.subgroup, attrs.from, attrs.to, attrs.showHubData,
-                "${request.getHeader('referer')}#group=${attrs.group}&subgroup=${attrs.subgroup}&from=${attrs.from}&to=${attrs.to}", attrs.fq)
+                "${request.getHeader('referer')}", attrs.fq, attrs.totalRecords)
     }
 
     /**

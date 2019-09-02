@@ -73,7 +73,7 @@
                                                  regionName: regionName, regionType: regionType,
                                                  regionPid: regionPid, from: from, to: to,
                                                  group: group, subgroup: subgroup,
-                                                 showHubData: showHubData, fq: fq])}"
+                                                 showHubData: showHubData, fq: fq, totalRecords: species.totalRecords])}"
                id="downloadRecords" class="btn btn-default"><i class="fa fa-download"></i>
                 <g:message code="download.records" />
 
