@@ -15,7 +15,7 @@ class DataController {
     }
 
     def regionsMetadataJavascript() {
-        response.contentType = 'application/json'
+        response.contentType = 'text/javascript'
         render metadataService.getRegionsMetadataAsJavascript()
     }
 
