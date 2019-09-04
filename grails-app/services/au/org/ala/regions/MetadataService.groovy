@@ -254,7 +254,7 @@ class MetadataService {
             params.fq << "lsid:\"${guid}\""
         }
 
-        "${BIOCACHE_URL}/occurrences/search?${paramsToString(params)}"
+        "${BIOCACHE_URL}/occurrences/search?${paramsToString(params, true)}"
     }
 
     String buildDownloadRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid,
