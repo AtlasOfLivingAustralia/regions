@@ -362,7 +362,7 @@ var RegionWidget = function (config) {
 
         // Update widget state
         if (group !== "ALL_SPECIES") {
-            updateState({group: group, subgroup: '', guid: '', fq: fq});
+            updateState({group: group, subgroup: '', guid: '', fq: decodeJSEncodedString(fq)});
         } else {
             updateState({group: group, subgroup: '', guid: '', fq: ''});
         }
@@ -1040,3 +1040,15 @@ var RegionMap = function (config) {
     init(config);
     return _public;
 };
+
+/**
+ * Some JS variables are generated in GSP via the `encodeAsJS()` or `encodeAsJavaScript()` codec.
+ * This function decodes the generated unicode chars, such as "\u002c" to ",".
+ * Taken from https://stackoverflow.com/a/7885499/249327
+ *
+ * @param text
+ */
+function decodeJSEncodedString(text) {
+    let r = /\\u([\d\w]{4})/gi;
+    return text.replace(r, function (match, grp) { return String.fromCharCode(parseInt(grp, 16)); } );
+}

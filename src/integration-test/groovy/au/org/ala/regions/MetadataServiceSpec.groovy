@@ -129,7 +129,7 @@ class MetadataServiceSpec extends Specification {
         String url = metadataService.buildSpeciesRecordListUrl(guid, regionFid, regionType, regionName, regionPid, null, null, from, to, false, null)
 
         then:
-        url == "https://biocache.ala.org.au/occurrences/search?q=cl10925:\"New South Wales\"&fq=occurrence_year:[1912-01-01T00:00:00Z TO 2015-12-31T23:59:59Z]&fq=rank:(species OR subspecies)&fq=-occurrence_status_s:absent&fq=geospatial_kosher:true&fq=occurrence_year:*&fq=lsid:\"urn:lsid:biodiversity.org.au:afd.taxon:4163e0ea-afaf-456c-8926-7ec37e79d380\""
+          url == "https://biocache.ala.org.au/occurrences/search?q=cl10925%3A%22New+South+Wales%22&fq=occurrence_year%3A%5B1912-01-01T00%3A00%3A00Z+TO+2015-12-31T23%3A59%3A59Z%5D&fq=rank%3A%28species+OR+subspecies%29&fq=-occurrence_status_s%3Aabsent&fq=geospatial_kosher%3Atrue&fq=occurrence_year%3A*&fq=lsid%3A%22urn%3Alsid%3Abiodiversity.org.au%3Aafd.taxon%3A4163e0ea-afaf-456c-8926-7ec37e79d380%22"
     }
 
 

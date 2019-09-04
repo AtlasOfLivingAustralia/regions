@@ -254,16 +254,22 @@ class MetadataService {
             params.fq << "lsid:\"${guid}\""
         }
 
-        "${BIOCACHE_URL}/occurrences/search?${paramsToString(params)}"
+        "${BIOCACHE_URL}/occurrences/search?${paramsToString(params, true)}"
     }
 
-    String buildDownloadRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid, String groupName, String isSubgroup, String from, String to, Boolean showHubData, String source = null, String filter = null) {
+    String buildDownloadRecordListUrl(String guid, String regionFid, String regionType, String regionName, String regionPid,
+                String groupName, String isSubgroup, String from, String to, Boolean showHubData,
+                String source = null, String filter = null, def totalRecords) {
+
         Map params = buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, isSubgroup, from, to, showHubData, filter)
+
         if (guid) {
             params.fq << "lsid:\"${guid}\""
         }
+
         // offline downloads require double encoding (for now)
-        "${BIOCACHE_URL}/download?searchParams=${URLEncoder.encode("?"+paramsToString(params, true), "UTF-8")}&targetUri=${source}"
+        String searchParams = "?" + paramsToString(params, true)
+        "${BIOCACHE_URL}/download?searchParams=${searchParams.encodeAsURL()}&targetUri=${source.encodeAsURL()}&totalRecords=${totalRecords}"
     }
 
     /**
