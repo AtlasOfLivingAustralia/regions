@@ -1049,6 +1049,6 @@ var RegionMap = function (config) {
  * @param text
  */
 function decodeJSEncodedString(text) {
-    let r = /\\u([\d\w]{4})/gi;
+    var r = /\\u([\d\w]{4})/gi;
     return text.replace(r, function (match, grp) { return String.fromCharCode(parseInt(grp, 16)); } );
 }
