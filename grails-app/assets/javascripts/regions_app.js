@@ -5,7 +5,7 @@
 // You're free to add application-wide JavaScript to this file, but it's generally better
 // to create separate JavaScript files as needed.
 //
-//= require jquery_i18n
+// #= require jquery_i18n
 //= require regions/application
 //= require regions/charts2
 //= require regions/keydragzoom
