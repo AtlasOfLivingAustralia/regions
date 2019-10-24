@@ -20,6 +20,22 @@
     <asset:javascript src="regions_page"/>
 </head>
 <body class="nav-locations">
+<!-- Breadcrumb -->
+<section id="breadcrumb" style="background-color:#ef932a">
+    <div class="container-fluid">
+        <div class="row">
+            <ul class="breadcrumb-list">
+                <li><a href="${grailsApplication.config.skin?.homeUrl?:'https://www.biodiversityatlas.at'}">Home</a></li>
+                <g:if test="${pageProperty(name:'meta.breadcrumbParent')}">
+                    <g:set value="${pageProperty(name:'meta.breadcrumbParent').tokenize(',')}" var="parentArray"/>
+                    <li><a href="${parentArray[0]?:'/'}">${parentArray[1]}</a></li>
+                </g:if>
+                <li class="active">${pageProperty(name:'meta.breadcrumb')}</li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- Banner -->
 <div class="row">
     <div class="col-md-12">
         <g:if test="${flash.message}">
