@@ -4,7 +4,6 @@ import groovyx.net.http.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 
-
 class HabitatController {
 
     def metadataService
@@ -14,15 +13,23 @@ class HabitatController {
     }
 
     def findNode(node, habitatID){
-        log.debug("finding habitat ID: " + habitatID)
-        def nodeToReturn = null
-        if(node.containsKey(habitatID)){
+        log.debug("finding habitat ID: ${habitatID}")
+        def nodeToReturn
+
+        if (node.containsKey(habitatID)) {
             nodeToReturn = node.get(habitatID)
         } else {
-            if(node.children){
+            for (Map.Entry me : node.entrySet()) {
                 nodeToReturn = findNode(node.children, habitatID)
+                if (me.getValue().containsKey("children")) {
+                    nodeToReturn = findNode(me.getValue().children, habitatID)
+                    if (nodeToReturn != null) {
+                        break
+                    }
+                }
             }
         }
+
         nodeToReturn
     }
 
