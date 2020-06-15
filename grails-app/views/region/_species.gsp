@@ -11,7 +11,7 @@
 
         <g:if test="${species.totalRecords == 0}">
             <tr>
-                <td colspan="3">No records found.</td>
+                <td colspan="3"><g:message code="species.no.records.found" /></td>
             </tr>
         </g:if>
 

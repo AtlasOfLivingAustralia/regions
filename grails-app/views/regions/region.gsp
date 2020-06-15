@@ -103,7 +103,7 @@
     <div class="col-md-8">
         <g:if test="${region.description || region.notes}">
             <section class="section">
-                <h2>Description</h2>
+                <h2><g:message code="region.description" /></h2>
                 <g:if test="${region.description}"><p>${raw(region.description)}</p></g:if>
                 <g:if test="${region.notes}"><h3><g:message code="notes.on.maplayer" /></h3>
 

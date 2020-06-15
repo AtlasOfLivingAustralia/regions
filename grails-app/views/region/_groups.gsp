@@ -15,7 +15,7 @@
                     <g:if test="${!group.parent}">
                         <i class="fa fa-chevron-right"></i>
                     </g:if>
-                    ${group.commonName == 'ALL_SPECIES' ? 'All Species' : group.commonName}
+                    ${group.commonName == 'ALL_SPECIES' ? message(code:"groups.all.species") : group.commonName}
                 </td>
             </tr>
         </g:each>
