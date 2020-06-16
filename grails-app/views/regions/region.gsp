@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
     <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
-    <meta name="breadcrumbs" content="${g.createLink(uri: '/', absolute: true)},Regions"/>
+    <meta name="breadcrumbs" content="${g.createLink(uri: '/', absolute: true)},${message(code:"regions.title")}"/>
     <meta name="breadcrumb" content="${region.name}"/>
 
     <asset:script type="text/javascript">
@@ -27,6 +27,8 @@
             },
             username: '${rg.loggedInUsername()}',
             useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}',
+            contextPath: "${request.contextPath}",
+            locale: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString())?:request.locale}",
             q: '${region.q}'
         <g:if test="${enableQueryContext}">
             ,qc: "${grailsApplication.config.biocache.queryContext}"

@@ -18,11 +18,21 @@
 var regionWidget;
 
 $(function () {
-    google.charts.load('current', {packages: ['corechart'], callback: chartReady});
+    google.charts.load('current', {packages: ['corechart'], language: REGION_CONFIG.locale,  callback: chartReady});
 
     $(document).on("click", "[aa-refresh-zones]", function (event) {
         event.stopPropagation();
         return false;
+    });
+
+    jQuery.i18n.properties({
+        name: 'messages',
+        path: REGION_CONFIG.contextPath + '/messages/i18n/',
+        mode: 'map',
+        async: true,
+        cache: true,
+        language: REGION_CONFIG.locale
+        // ,callback: function(){ alert( "show.more.species = " + jQuery.i18n.prop('show.more.species')); }
     });
 
     if (REGION_CONFIG.enableHubData) {
@@ -158,26 +168,10 @@ var region = {
      */
     format: function (count) {
         if (count >= 1000000) {
-            return count.numberFormat("#,#0,,.00 million");
+            return $.i18n.prop("count.million",  Number(count/1000000).toLocaleString(REGION_CONFIG.locale, { minimumFractionDigits: 0, maximumSignificantDigits: 2,  }));
         }
-        return region.addCommas(count);
+        return Number(count).toLocaleString(REGION_CONFIG.locale);
     },
-
-    /**
-     * Inserts commas into a number for display.
-     * @param nStr
-     */
-    addCommas: function (nStr) {
-        nStr += '';
-        var x = nStr.split('.');
-        var x1 = x[0];
-        var x2 = x.length > 1 ? '.' + x[1] : '';
-        var rgx = /(\d+)(\d{3})/;
-        while (rgx.test(x1)) {
-            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-        }
-        return x1 + x2;
-    }
 };
 
 // This function has to be in the global scope for the chart to work
