@@ -150,7 +150,7 @@ function buildGenericFacetChart(name, data, query, chartsDiv, chartOptions) {
 
     // resolve the chart options
     var opts = $.extend({}, genericChartOptions);
-    opts.title = "By " + chartLabel;  // default title
+    opts.title = $.i18n.prop("charts.by") + " " + $.i18n.prop("charts.by." + chartLabel);  // default title
     var individualOptions = individualChartOptions[name] ? individualChartOptions[name] : {};
     // merge generic, individual and user options
     opts = $.extend(true, {}, opts, individualOptions, chartOptions[name]);
@@ -408,7 +408,7 @@ var taxonomyChart = {
         // resolve the chart options
         var opts = $.extend({}, taxonomyPieChartOptions);
         opts = $.extend(true, opts, this.chartOptions);
-        opts.title = opts.name ? opts.name + " records by " + data.rank : "By " + data.rank;
+        opts.title = opts.name ? $.i18n.prop("charts.records.by", opts.name, data.rank) : $.i18n.prop("charts.by") + " " + $.i18n.prop("charts.by." + data.rank);
         opts.backgroundColor = {fill: 'transparent'};
 
         // create the outer div that will contain the chart and the additional links
@@ -450,8 +450,9 @@ var taxonomyChart = {
         // draw the back button / instructions
         var $backLink = $('#backLink');
         if ($backLink.length == 0) {
-            $backLink = $('<a class="btn btn-default" id="backLink">&laquo; Previous rank</a>').appendTo($outerContainer);  // create it
+            $backLink = $('<a class="btn btn-default" id="backLink"></a>').appendTo($outerContainer);  // create it
             $backLink.css('position', 'relative').css('top', '-75px');
+            $backLink.html('&laquo; ' + $.i18n.prop('charts.previous.rank'));
             $backLink.click(function () {
                 // only act if link was real
                 if (!$backLink.hasClass('lnk')) return;
@@ -471,11 +472,11 @@ var taxonomyChart = {
         }
         if (this.hasState()) {
             // show the prev link
-            $backLink.html("&laquo; Previous rank").addClass('lnk');
+            $backLink.html('&laquo; ' + $.i18n.prop('charts.previous.rank')).addClass('lnk');
         }
         else {
             // show the instruction
-            $backLink.html("Click a slice to drill into the next taxonomic level.").removeClass('link');
+            $backLink.html($.i18n.prop("charts.click.slice")).removeClass('link');
         }
 
         // draw records link
@@ -490,10 +491,10 @@ var taxonomyChart = {
 
         // set link text
         if (this.hasState()) {
-            $recordsLink.html('<i  id="btn_icon" class="fa fa-share-square-o"></i>&nbsp;View records for ' + this.rank + ' ' + this.name);
+            $recordsLink.html('<i  id="btn_icon" class="fa fa-share-square-o"></i>&nbsp;' + $.i18n.prop("charts.view.records.for",  $.i18n.prop("charts.by." + this.rank), this.name));
         }
         else {
-            $recordsLink.html('<i  id="btn_icon" class="fa fa-share-square-o"></i>&nbsp;View all records');
+            $recordsLink.html('<i  id="btn_icon" class="fa fa-share-square-o"></i>&nbsp;' + $.i18n.prop("charts.view.all.records"));
         }
 
         // setup a click handler - if requested
