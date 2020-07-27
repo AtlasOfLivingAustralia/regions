@@ -6,6 +6,7 @@ import grails.util.Metadata
 import groovyx.net.http.URIBuilder
 import org.apache.commons.lang.StringEscapeUtils
 import org.apache.commons.httpclient.util.URIUtil
+import org.grails.web.json.JSONObject
 
 import javax.annotation.PostConstruct
 
@@ -592,16 +593,20 @@ class MetadataService {
     }
 
     @Cacheable(value = "metadata", key = { '"getStateEmblems"' })
-    def getStateEmblems() {
+    JSONObject getStateEmblems() {
         def file = new File(CONFIG_DIR + "/state-emblems.json")
+        JSONObject emblemObj = new JSONObject()
+
         if (!file.exists()) {
+            log.debug "Emblems not found in ext config, looking in grails-app/conf."
             file = new File(this.class.classLoader.getResource('default/state-emblems.json').toURI())
         }
+
         if (file.exists()) {
-            JSON.parse(file.text)
-        } else {
-            [] // NdR this should be a Map not List! TODO test and fix
+            emblemObj = JSON.parse(file.text)
         }
+
+        emblemObj
     }
 
     /**
@@ -778,8 +783,7 @@ class MetadataService {
         if (file.exists()) {
             JSON.parse(file.text)
         } else {
-            file =
-                    null
+            file = null
         }
     }
 }
