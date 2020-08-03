@@ -167,10 +167,11 @@ var region = {
      * @param count the number
      */
     format: function (count) {
+        // Convert de_AT to de-AT, etc
         if (count >= 1000000) {
-            return $.i18n.prop("count.million",  Number(count/1000000).toLocaleString(REGION_CONFIG.locale, { minimumFractionDigits: 0, maximumSignificantDigits: 2,  }));
+            return $.i18n.prop("count.million",  Number(count/1000000).toLocaleString(REGION_CONFIG.locale.replace("_", "-"), { minimumFractionDigits: 0, maximumSignificantDigits: 2,  }));
         }
-        return Number(count).toLocaleString(REGION_CONFIG.locale);
+        return Number(count).toLocaleString(REGION_CONFIG.locale.replace("_", "-"));
     },
 };
 
