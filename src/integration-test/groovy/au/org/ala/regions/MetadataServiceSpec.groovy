@@ -1,7 +1,11 @@
 package au.org.ala.regions
 
 import grails.test.mixin.integration.Integration
+import groovyx.net.http.RESTClient
+import spock.lang.Shared
 import spock.lang.Specification
+import org.grails.web.json.JSONObject
+import spock.lang.Unroll
 
 /**
  *
@@ -11,10 +15,38 @@ class MetadataServiceSpec extends Specification {
 
     MetadataService metadataService
 
+    @Shared
+    def client = new RESTClient("https://bie.ala.org.au/")
+
     def setup() {
     }
 
     def cleanup() {
+    }
+
+    @Unroll("#state of #group should have a valid guid")
+    void "test state-emblems guids"() {
+        given:
+        JSONObject stateEmblems = metadataService.getStateEmblems()
+
+        when:
+        def emblems = stateEmblems[state];
+        def response;
+        if (emblems[group]) {
+            def guid = emblems."${group}".guid
+            response = client.get(path: "/ws/species/${guid}.json")
+        }
+
+        then: 'server returns 200 code (ok)'
+        if (response != null)
+            assert response.status == 200 : 'response code should be 200'
+
+        where:
+        [state, group] << [
+                ["AUSTRALIAN CAPITAL TERRITORY", "NEW SOUTH WALES", "NORTHERN TERRITORY", "QUEENSLAND",
+                 "SOUTH AUSTRALIA", "TASMANIA", "VICTORIA", "WESTERN AUSTRALIA", "NEW SOUTH WALES"],
+                ["animal", "plant", "marine", "bird"]
+                ].combinations()
     }
 
     void "test retrieveEmblemsMetadata method"() {
