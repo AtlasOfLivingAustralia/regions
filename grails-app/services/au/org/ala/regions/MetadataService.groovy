@@ -101,7 +101,8 @@ class MetadataService {
     List getGroups(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
 
-        def responseGroups = getJSON("${BIOCACHE_SERVICE_URL}/explore/hierarchy")
+        //def responseGroups = getJSON("${BIOCACHE_SERVICE_URL}/explore/hierarchy")
+        def responseGroups = JSON.parse(new File("/data/regions/config/regionsGroups.json").text)
         if (!(responseGroups instanceof Map && responseGroups?.error)) {
             Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid, showHubData)
 

@@ -20,12 +20,25 @@
     <asset:javascript src="regions_page"/>
 </head>
 <body class="nav-locations">
+<!-- Breadcrumb -->
+<section id="breadcrumb" style="background-color:#ef932a; width:100%">
+    <div class="container-fluid">
+        <div class="row">
+            <ul class="breadcrumb-list">
+                <li class="active"><a href="https://www.biodiversityatlas.at" style="color: rgb(222, 222, 222)">Home</a></li>
+                <li><a href="https://regions.biodiversityatlas.at" style="color: rgb(222, 222, 222)">Biodiversität der Regionen</a></li>
+            </ul>
+        </div>
+    </div>
+</section>
 <div class="row">
     <div class="col-md-12">
         <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
         </g:if>
-        <h1><g:message code="select.region.title"/></h1>
+        <div style="margin-top:10px">
+            <h1><g:message code="select.region.title"/></h1>
+        </div>
         <p>
             <g:message code="select.region.help1"/>
             <br/>

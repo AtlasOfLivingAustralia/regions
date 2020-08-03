@@ -73,12 +73,25 @@
 <g:set var="enableQueryContext" value="${grailsApplication.config.biocache.enableQueryContext?.toBoolean()}"></g:set>
 <g:set var="enableHubData" value="${grailsApplication.config.hub.enableHubData?.toBoolean()}"></g:set>
 <g:set var="hubState" value="${true}"></g:set>
+
+<!-- Breadcrumb -->
+<section id="breadcrumb" style="background-color:#ef932a; width:100%">
+    <div class="container-fluid">
+        <div class="row">
+            <ul class="breadcrumb-list">
+                <li><a href="https://www.biodiversityatlas.at" style="color: rgb(222, 222, 222)">Home</a></li>
+                <li class="active"><a href="https://regions.biodiversityatlas.at" style="color: rgb(222, 222, 222)">Biodiversität der Regionen</a></li>
+            </ul>
+        </div>
+    </div>
+</section>
+<!-- Banner -->
 <div class="row">
     <div class="col-md-12">
         <div class="pull-right">
             <div class="row">
                 <g:if test="${alertsUrl}">
-                <a id="alertsButton" class="btn btn-primary btn-ala pull-right" href="${alertsUrl}">
+                <a id="alertsButton" style="visibility:hidden" class="btn btn-primary btn-ala pull-right" href="${alertsUrl}">
                     <g:message code="alerts.btn" />
                     <i class="icon-bell icon-white"></i>
                 </a>
@@ -187,6 +200,7 @@
                     <i class="spinner fa fa-cog fa-spin fa-3x"></i>
                 </div>
             </div>
+            <div id="info-text" style="visibility: hidden"><p><g:message code="charts.click.slice"/></p></div>
         </div>
     </div>
 

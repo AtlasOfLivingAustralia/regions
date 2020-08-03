@@ -49,7 +49,7 @@ $.i18n.properties = function(settings) {
 	// set up settings
     var defaults = {
         name:           'Messages',
-        language:       '',
+        language:       'de_AT',
         path:           '',  
         mode:           'vars',
         cache:			false,

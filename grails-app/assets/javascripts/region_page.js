@@ -19,7 +19,6 @@ var regionWidget;
 
 $(function () {
     google.charts.load('current', {packages: ['corechart'], language: REGION_CONFIG.locale,  callback: chartReady});
-
     $(document).on("click", "[aa-refresh-zones]", function (event) {
         event.stopPropagation();
         return false;
@@ -170,7 +169,7 @@ var region = {
         if (count >= 1000000) {
             return $.i18n.prop("count.million",  Number(count/1000000).toLocaleString(REGION_CONFIG.locale, { minimumFractionDigits: 0, maximumSignificantDigits: 2,  }));
         }
-        return Number(count).toLocaleString(REGION_CONFIG.locale);
+        return Number(count).toLocaleString(REGION_CONFIG.locale.replace("_", "-"));
     },
 };
 

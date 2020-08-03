@@ -446,7 +446,16 @@ var taxonomyChart = {
         google.visualization.events.addListener(chart, 'onmouseout', function () {
             $('#taxaChart').css('cursor', 'default');
         });
-
+        // click descrInfoText
+        if($('#speciesTab').parent().attr("class") == "active") {
+            $('#info-text').css("visibility","hidden");
+        }
+        $('#speciesTab').click(function() {
+            $('#info-text').css("visibility", "hidden");
+        });
+        $('#taxonomyTab').click(function() {
+            $('#info-text').css("visibility", "visible");
+        });
         // draw the back button / instructions
         var $backLink = $('#backLink');
         if ($backLink.length == 0) {
@@ -472,11 +481,11 @@ var taxonomyChart = {
         }
         if (this.hasState()) {
             // show the prev link
-            $backLink.html('&laquo; ' + $.i18n.prop('charts.previous.rank')).addClass('lnk');
+            $backLink.html('&laquo; ' + $.i18n.prop('charts.previous.rank')).addClass('lnk').css('visibility','visible');
         }
         else {
             // show the instruction
-            $backLink.html($.i18n.prop("charts.click.slice")).removeClass('link');
+            $backLink.html($.i18n.prop('charts.previous.rank')).removeClass('link').css('visibility','hidden');
         }
 
         // draw records link
