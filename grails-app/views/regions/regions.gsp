@@ -21,7 +21,7 @@
 </head>
 <body class="nav-locations">
 <!-- Breadcrumb -->
-<section id="breadcrumb" style="background-color:#ef932a; width:100%">
+<section id="breadcrumb" style="background-color:#ef932a; width:100%;">
     <div class="container-fluid">
         <div class="row">
             <ul class="breadcrumb-list">
@@ -133,7 +133,7 @@
             mapContainer: 'map_canvas',
             defaultRegionType: "${grailsApplication.config.default.regionType}",
             defaultRegion: "${grailsApplication.config.default.region}",
-            showQueryContextLayer: ${grailsApplication.config.layers.showQueryContext},
+            showQueryContextLayer: "${grailsApplication.config.layers.showQueryContext}",
             queryContextLayer: {
                 name:"${grailsApplication.config.layers.queryContextName}",
                 shortName:"${grailsApplication.config.layers.queryContextShortName}",
