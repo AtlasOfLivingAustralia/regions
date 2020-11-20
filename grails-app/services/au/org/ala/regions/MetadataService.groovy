@@ -231,7 +231,7 @@ class MetadataService {
                     uiQuery         : URIUtil.encodeWithinQuery("/occurrences/search?${searchTerms}"),
                     queryDisplayName: URIUtil.encodeWithinQuery(region.name),
                     baseUrlForWS    : URIUtil.encodeWithinQuery("${BIOCACHE_SERVICE_URL}"),
-                    baseUrlForUI    : URIUtil.encodeWithinQuery("${BIOCACHE_URL}&resourceName=Atlas"),
+                    baseUrlForUI    : URIUtil.encodeWithinQuery("${BIOCACHE_URL}"),
                     resourceName    : URIUtil.encodeWithinQuery( grailsApplication.config.getProperty("alertsResourceName") ) 
             ]
 
