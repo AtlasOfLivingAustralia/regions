@@ -75,7 +75,7 @@
 <g:set var="hubState" value="${true}"></g:set>
 
 <!-- Breadcrumb -->
-<section id="breadcrumb" style="background-color:#ef932a; width:100%">
+<section id="breadcrumb" style="background-color: rgb(73, 117, 74); width:100%; margin-top: -1.5em">
     <div class="container-fluid">
         <div class="row">
             <ul class="breadcrumb-list">

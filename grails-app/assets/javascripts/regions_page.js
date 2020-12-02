@@ -494,7 +494,7 @@
                     this.name + "</a>" ;
                 var label = "<a class='region-link' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
                     this.name + "</a>" ;
-                var zoom = "<span id='zoomTo' class='btn btn-default'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra;
+                var zoom = "<span id='zoomTo' class='btn btn-default'><i class='fa fa-search-plus'></i> zoom </span>" + extra;
                 var latlng = map.lmap.getCenter()
                 var bbox = selectedRegionType.getRegion(this.name).bbox;
                 if (bbox !== undefined) {
