@@ -637,8 +637,8 @@
                 + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS="
                 + selectedRegionType.layerName + "&STYLES&LAYERS=ALA%3A" + selectedRegionType.layerName
                 + "&INFO_FORMAT=text%2Fhtml&FEATURE_COUNT=1&X=" + Math.floor(X)
-                + "&Y=" + Math.floor(Y) + "&SRS=EPSG%3A900913&WIDTH=" + $('#' + map.containerId).width()
-                + "&HEIGHT=" + $('#' + map.containerId).height() + "&BBOX=" + sw[0]
+                + "&Y=" + Math.floor(Y) + "&SRS=EPSG%3A900913&WIDTH=" + Math.floor($('#' + map.containerId).width())
+                + "&HEIGHT=" + Math.floor($('#' + map.containerId).height()) + "&BBOX=" + sw[0]
                 + "%2C" + sw[1] + "%2C" + ne[0] + "%2C" + ne[1];
             //console.log(url)
             $.ajax({
