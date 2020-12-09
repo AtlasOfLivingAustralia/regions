@@ -224,8 +224,8 @@ class MetadataService {
      */
     String buildAlertsUrl(Map region) {
         URLDecoder.decode(new URIBuilder("${ALERTS_URL}/webservice/createBiocacheNewRecordsAlert").with {
-            String searchTerms = paramsToString(buildCommonDownloadRecordsParams(region.fid, region.type, region.name, region.pid))
-
+            String searchTerms = paramsToString(buildCommonDownloadRecordsParams(region.fid, region.type,
+                    URIUtil.encodeWithinQuery(region.name), region.pid))
             query = [
                     webserviceQuery : URIUtil.encodeWithinQuery("/occurrences/search?${searchTerms}"),
                     uiQuery         : URIUtil.encodeWithinQuery("/occurrences/search?${searchTerms}"),
