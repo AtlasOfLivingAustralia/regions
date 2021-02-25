@@ -547,3 +547,14 @@ div #maploading > div > i {
 .leaflet-container {
     cursor: pointer !important;
 }
+
+.ui-tooltip {
+    /* For some reason this had a bigger opacity, almost invisible */
+    opacity: .9;
+}
+
+.layer-info {
+    margin-top: 3px;
+    color: gray;
+    float:right;
+}
