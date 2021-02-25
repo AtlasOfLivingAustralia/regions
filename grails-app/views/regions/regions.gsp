@@ -42,7 +42,11 @@
         </p>
         <div id="accordion">
             <g:each in="${menu}" var="item">
-                <h2><a href="#">${item.label}</a></h2>
+                <h2><a href="#">${item.label}</a>
+                    <g:if test="${grailsApplication.config.getProperty("showNotesInfoInAccordionPanel", Boolean, false) && item.notes?.length() > 0}">
+                        <span class="glyphicon glyphicon glyphicon-info-sign layer-info" aria-hidden="true" data-toggle="tooltip" title="${item.notes}"></span>
+                    </g:if>
+                </h2>
                 <div id="${item.layerName}" layer="${item.label}"><span class="loading">
                     <g:message code="loading"/>
                 </span>
@@ -131,7 +135,10 @@
             },
             useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}'
         });
-    })
+    });
+
+    $('[data-toggle="tooltip"]').tooltip();
+
 </asset:script>
 </body>
 </html>
