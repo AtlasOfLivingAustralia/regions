@@ -292,7 +292,12 @@ tr.groupSelected, tr.groupSelected:hover td {
     /*background-color: #C44D34 !important;*/
     /*color: white;*/
 }
-
+tr.link:hover {
+    background-color: #49754a;
+    color: #ddd;
+    /*background-color: #C44D34 !important;*/
+    /*color: white;*/
+}
 tr.speciesSelected, tr.speciesSelected:hover td {
     /*background-color: #C44D34 !important;*/
     /*color: white;*/
@@ -547,3 +552,4 @@ div #maploading > div > i {
 .leaflet-container {
     cursor: pointer !important;
 }
+
