@@ -1,6 +1,7 @@
 package au.org.ala.regions
 
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
+import grails.testing.services.ServiceUnitTest
 import groovyx.net.http.RESTClient
 import spock.lang.Shared
 import spock.lang.Specification
@@ -11,7 +12,7 @@ import spock.lang.Unroll
  *
  */
 @Integration
-class MetadataServiceSpec extends Specification {
+class MetadataServiceSpec extends Specification implements  ServiceUnitTest<MetadataService> {
 
     MetadataService metadataService
 

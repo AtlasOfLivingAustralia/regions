@@ -16,12 +16,17 @@ spring:
     groovy:
         template:
             check-template-location: false
-
-# Spring Actuator Endpoints are Disabled by Default
-endpoints:
-    enabled: true
     jmx:
-        enabled: true
+        unique-names: true
+    devtools:
+        restart:
+            exclude:
+                - grails-app/views/**
+                - grails-app/i18n/**
+                - grails-app/conf/**
+management:
+    endpoints:
+        enabled-by-default: true
 
 ---
 grails:
@@ -76,7 +81,17 @@ grails:
 endpoints:
     jmx:
         unique-names: true
-
+security:
+    cas:
+        uriFilterPattern: "/admin/*,/alaAdmin/*"
+        uriExclusionFilterPattern: "/images.*,/css.*,/js.*,/less.*"
+        enabled: false
+    oidc:
+        enabled: true
+        discovery-uri: 'https://auth-test.ala.org.au/cas/oidc/.well-known'
+        clientId: 'change me'
+        secret: 'change me'
+        scope: 'openid profile roles'
 ---
 hibernate:
     cache:
