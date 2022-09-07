@@ -51,8 +51,8 @@ dependencies {
     compile "org.grails:grails-core"
     compile "org.grails:grails-dependencies"
     compile "org.grails:grails-web-boot"
-    compile 'org.grails.plugins:cache:4.0.0.RC1'
-    compile 'org.grails.plugins:cache-ehcache:3.0.0.M1'
+    compile "org.grails.plugins:cache"
+    compile "org.grails.plugins:cache-ehcache:3.0.0"
     console "org.grails:grails-console"
     compile "org.grails:grails-datastore-gorm:${gormVersion}"
     compile 'org.grails.plugins:external-config:2.0.0'

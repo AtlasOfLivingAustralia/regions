@@ -2,7 +2,7 @@ import grails.util.Metadata
 
 grails.project.groupId = 'au.org.ala'
 
-grails.serverURL = 'http://dev.ala.org.au:8080'
+grails.serverURL = 'http://localhost:8080'
 
 ENV_NAME = "EXPERT_CONFIG"
 appName = 'regions'
@@ -26,11 +26,11 @@ security {
     cas {
         // appServerName is automatically set from grails.serverURL
 
-        uriFilterPattern = '/alaAdmin.*'
+        uriFilterPattern = "/alaAdmin/*"
         uriExclusionFilterPattern = '/assets/.*,/images/.*,/css/.*,/js/.*,/less/.*'
 
         //authenticateOnlyIfLoggedInPattern requires authenticateOnlyIfLoggedInPattern to identify 'logged in' when ignoreCookie='true'
-        authenticateOnlyIfLoggedInPattern = '.*'
+        authenticateOnlyIfLoggedInPattern = '/*'
     }
 }
 

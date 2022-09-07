@@ -83,7 +83,7 @@ endpoints:
         unique-names: true
 security:
     cas:
-        uriFilterPattern: "/admin/*,/alaAdmin/*"
+        uriFilterPattern: "/alaAdmin/*"
         uriExclusionFilterPattern: "/images.*,/css.*,/js.*,/less.*"
         enabled: false
     oidc:
