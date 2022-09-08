@@ -6,7 +6,7 @@ branches:
   only:
   - master
   - develop
-  - oidc-grails4
+  - feature/oidc-grails4
   - Leaflet-migration
   - hotfix
 before_cache:
