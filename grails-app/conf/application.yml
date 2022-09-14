@@ -88,10 +88,10 @@ security:
         enabled: false
     oidc:
         enabled: true
-        discovery-uri: 'https://auth-test.ala.org.au/cas/oidc/.well-known'
+        discoveryUri: https://auth-test.ala.org.au/cas/oidc/.well-known
+        scope: openid profile email ala roles
         clientId: 'change me'
         secret: 'change me'
-        scope: 'openid profile roles'
 ---
 hibernate:
     cache:
