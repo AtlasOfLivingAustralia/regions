@@ -2,7 +2,7 @@ import grails.util.Metadata
 
 grails.project.groupId = 'au.org.ala'
 
-grails.serverURL = 'http://localhost:8080'
+grails.serverURL = 'http://dev.ala.org.au:8080'
 
 ENV_NAME = "EXPERT_CONFIG"
 appName = 'regions'
