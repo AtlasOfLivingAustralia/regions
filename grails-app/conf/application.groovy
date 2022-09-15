@@ -26,11 +26,11 @@ security {
     cas {
         // appServerName is automatically set from grails.serverURL
 
-        uriFilterPattern = '/alaAdmin.*'
+        uriFilterPattern = "/alaAdmin/*"
         uriExclusionFilterPattern = '/assets/.*,/images/.*,/css/.*,/js/.*,/less/.*'
 
         //authenticateOnlyIfLoggedInPattern requires authenticateOnlyIfLoggedInPattern to identify 'logged in' when ignoreCookie='true'
-        authenticateOnlyIfLoggedInPattern = '.*'
+        authenticateOnlyIfLoggedInPattern = '/*'
     }
 }
 

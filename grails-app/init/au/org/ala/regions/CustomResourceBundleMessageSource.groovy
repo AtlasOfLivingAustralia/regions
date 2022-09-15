@@ -12,7 +12,7 @@
  */
 package au.org.ala.regions
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.grails.spring.context.support.ReloadableResourceBundleMessageSource
 /**
  * Custom message source to expose all message for i18n controller
@@ -23,7 +23,7 @@ import org.grails.spring.context.support.ReloadableResourceBundleMessageSource
  */
 // 2020-Mar: Vicente copied and adapted Nick class in Regions
 
-@Log4j
+@Slf4j
 class CustomResourceBundleMessageSource extends ReloadableResourceBundleMessageSource {
 
     /**
