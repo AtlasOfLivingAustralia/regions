@@ -88,8 +88,8 @@ function loadFacetCharts(chartOptions) {
     chartsDiv.append($("<span>Loading charts...</span>"));
     var query = chartOptions.query ? chartOptions.query : buildQueryString(chartOptions.instanceUid);
     $.ajax({
-        url: urlConcat(biocacheServicesUrl, "/occurrences/search.json?pageSize=0&q=") + query,
-        dataType: 'jsonp',
+        url: urlConcat(biocacheServicesUrl, "/occurrences/search?pageSize=0&q=") + query,
+        dataType: 'json',
         error: function () {
             cleanUp();
         },
@@ -354,7 +354,7 @@ var taxonomyChart = {
             this.threshold = chartOptions.threshold;
         }
 
-        var url = biocacheServicesUrl + "/breakdown.json?q=" + this.query;
+        var url = biocacheServicesUrl + "/breakdown?q=" + this.query;
 
         // add url params to set state
         if (this.rank) {
@@ -366,7 +366,7 @@ var taxonomyChart = {
 
         $.ajax({
             url: url,
-            dataType: 'jsonp',
+            dataType: 'json',
             timeout: 30000,
             complete: function (jqXHR, textStatus) {
                 if (textStatus == 'timeout') {
@@ -611,7 +611,7 @@ function initTaxonTree(treeOptions) {
                 ajax: {
                     url: function (node) {
                         var rank = $(node).attr("rank");
-                        var u = urlConcat(biocacheServicesUrl, "/breakdown.json?q=") + query + "&rank=";
+                        var u = urlConcat(biocacheServicesUrl, "/breakdown?q=") + query + "&rank=";
                         if (rank == 'kingdoms') {
                             u += 'kingdom';  // starting node
                         }
@@ -620,7 +620,7 @@ function initTaxonTree(treeOptions) {
                         }
                         return u;
                     },
-                    dataType: 'jsonp',
+                    dataType: 'json',
                     success: function (data) {
                         var nodes = [];
                         var rank = data.rank;
