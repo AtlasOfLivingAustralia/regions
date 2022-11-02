@@ -16,7 +16,7 @@ plugins {
 }
 
 
-version "3.4.1-SNAPSHOT"
+version "3.4.2-SNAPSHOT"
 group "au.org.ala"
 
 apply plugin:"eclipse"
