@@ -22,7 +22,7 @@ $(function () {
         source: function (request, response) {
             $.ajax({
                 url: autocompleteUrl,
-                dataType: "jsonp",
+                dataType: "json",
                 data: {
                     term: request.term
                 },
