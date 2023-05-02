@@ -16,7 +16,6 @@ plugins {
 }
 
 
-
 version "3.5.0-SNAPSHOT"
 group "au.org.ala"
 
