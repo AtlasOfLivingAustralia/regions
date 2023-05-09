@@ -183,7 +183,7 @@ class MetadataService {
         def response = getJSON(params)
 
         //species count
-        String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrence/facets").with {
+        String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/facets").with {
             query = [
                     facets: 'names_and_lsid',
                     flimit: '0'
