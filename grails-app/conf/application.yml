@@ -3,6 +3,14 @@ grails:
     profile: web
     codegen:
         defaultPackage: au.org.ala
+    cache:
+        enabled: true
+        caches:
+            default:
+                maxCapacity: 50000
+#        ehcache:
+#            ehcacheXmlLocation: 'classpath:ehcache.xml'
+#            lockTimeout: 200
 
 info:
     app:

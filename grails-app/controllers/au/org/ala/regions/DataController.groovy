@@ -35,7 +35,7 @@ class DataController {
                     if (regionType == 'other') {
                         metadataService.getOtherRegions().each { other, otherValue ->
                             url {
-                                loc(grailsApplication.config.grails.serverURL + "/layer/" + other.encodeAsURL())
+                                loc(grailsApplication.config.getProperty('grails.serverURL') + "/layer/" + other.encodeAsURL())
                                 changefreq('weekly')
                             }
                         }
@@ -43,7 +43,7 @@ class DataController {
                     else {
                         metadataService.getObjectsForALayer(metadataService.fidFor(regionType)).each { key, obj ->
                             url {
-                                loc(grailsApplication.config.grails.serverURL + "/${regionType}/" + obj.name.encodeAsURL())
+                                loc(grailsApplication.config.grails.getProperty('serverURL') + "/${regionType}/" + obj.name.encodeAsURL())
                                 changefreq('weekly')
                             }
                         }

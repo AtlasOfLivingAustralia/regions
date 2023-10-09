@@ -2,11 +2,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
+    <meta name="breadcrumbParent" content="${grailsApplication.config.getProperty('breadcrumbParent')}"/>
     <meta name="breadcrumb" content="Habitats"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta name="layout" content="${grailsApplication.config.getProperty('skin.layout') ?: 'main'}"/>
-    <title>Habitats | ${grailsApplication.config.orgNameLong}</title>
+    <title>Habitats | ${grailsApplication.config.getProperty('orgNameLong')}</title>
 
     <asset:javascript src="regions/application"/>
     <asset:stylesheet src="application"/>
@@ -97,13 +97,13 @@
 <asset:script type="text/javascript">
 
     var REGION_CONF = {
-        server: '${grailsApplication.config.grails.serverURL}',
-        spatialService: "${grailsApplication.config.layersService.baseURL}/",
-        spatialWms: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
-        spatialCache: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
-        accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
+        server: '${grailsApplication.config.getProperty('grails.serverURL')}',
+        spatialService: "${grailsApplication.config.getProperty('layersService.baseURL')}/",
+        spatialWms: "${grailsApplication.config.getProperty('geoserver.baseURL')}/ALA/wms?",
+        spatialCache: "${grailsApplication.config.getProperty('geoserver.baseURL')}/ALA/wms?",
+        accordionPanelMaxHeight: '${grailsApplication.config.getProperty('accordion.panel.maxHeight')}',
         mapBounds: JSON.parse('${grailsApplication.config.getProperty('map.bounds')?.size() > 2 ? grailsApplication.config.getProperty('map.bounds') : "[-44, 112, -9, 154]"}'), // Note: map.bounds is a string NOT a List
-        mapHeight: '${grailsApplication.config.map.height}',
+        mapHeight: '${grailsApplication.config.getProperty('map.height')}',
         mapContainer: 'map_canvas',
         biocacheUrl: '${grailsApplication.config.getProperty('biocache.baseURL')}',
         layerField: 'cl1918'

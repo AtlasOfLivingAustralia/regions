@@ -436,10 +436,11 @@
          * @param pid the pid of the subregion */
         // this has meaning when the region is a layer/field in the 'other' set and an object within that
         // layer has been selected.
-        setSubregion: function (region, pid) {
+        setSubregion: function (region, pid, latlng) {
             // console.log("setSubregion");
             this.subregion = region;
             this.subregionPid = pid;
+            this.subregionlatlng = latlng;
             this.displayRegion();
             this.setLinks(region);
             enableRegionsSlider();
@@ -472,7 +473,11 @@
         },
         /* Build the url to view the current region */
         urlToViewRegion: function () {
-            return config.baseUrl + "/" + encodeURI(selectedRegionType.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(this.name))).replace("%3B", "%253B");
+            if (selectedRegionType.other && selectedRegion.subregion != null) {
+                return config.baseUrl + "/" + encodeURI(this.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(selectedRegion.subregion))).replace("%3B", "%253B");
+            } else {
+                return config.baseUrl + "/" + encodeURI(selectedRegionType.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(this.name))).replace("%3B", "%253B");
+            }
         },
         /* Write the region link and optional subregion name and zoom link at the top of the map.
          * @param subregion the name of the subregion */
@@ -490,10 +495,15 @@
                     }
                 }
 
-                var btn = "<a class='btn btn-default' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
-                    this.name + "</a>" ;
-                var label = "<a class='region-link' href='" + this.urlToViewRegion() + "' title='Go to " + this.name + "'>" +
-                    this.name + "</a>" ;
+                var name = this.name
+                if (this.other && this.subregion != null) {
+                    name = this.subregion
+                }
+
+                var btn = "<a class='btn btn-default' href='" + this.urlToViewRegion() + "' title='Go to " + name + "'>" +
+                    name + "</a>" ;
+                var label = "<a class='region-link' href='" + this.urlToViewRegion() + "' title='Go to " + name + "'>" +
+                    name + "</a>" ;
                 var zoom = "<span id='zoomTo' class='btn btn-default'><i class='fa fa-search-plus'></i> Zoom to region</span>" + extra;
                 var latlng = map.lmap.getCenter()
                 var bbox = selectedRegionType.getRegion(this.name).bbox;
@@ -501,6 +511,9 @@
                     //console.log("bbox", bbox);));
                     var lBbox = L.latLngBounds(L.latLng(bbox.minLat, bbox.minLng), L.latLng(bbox.maxLat, bbox.maxLng));
                     latlng = lBbox.getCenter();
+                }
+                if (this.other && this.subregion != null) {
+                    latlng = this.subregionlatlng
                 }
 
                 showInfo(btn, label, zoom, latlng);
@@ -621,7 +634,7 @@
         },
         /* Handle user clicks on the map */
         clickHandler: function (event) {
-            var location = event.latLng,
+            var location = event.latlng,
                 fid = selectedRegionType.getFid(),
                 features = [],
                 that = this;
@@ -633,59 +646,37 @@
             var sw = map.transform4326to3857(s.lng, s.lat);
             var X  = map.lmap.layerPointToContainerPoint(event.layerPoint).x;
             var Y  = map.lmap.layerPointToContainerPoint(event.layerPoint).y;
-            var url = map.config.spatialWmsUrl
-                + "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS="
-                + selectedRegionType.layerName + "&STYLES&LAYERS=ALA%3A" + selectedRegionType.layerName
-                + "&INFO_FORMAT=text%2Fhtml&FEATURE_COUNT=1&X=" + Math.floor(X)
-                + "&Y=" + Math.floor(Y) + "&SRS=EPSG%3A900913&WIDTH=" + Math.floor($('#' + map.containerId).width())
-                + "&HEIGHT=" + Math.floor($('#' + map.containerId).height()) + "&BBOX=" + sw[0]
-                + "%2C" + sw[1] + "%2C" + ne[0] + "%2C" + ne[1];
+
+            var fid = selectedRegionType.fid
+            if (selectedRegion != null && selectedRegion.other) {
+                fid = selectedRegion.id
+            }
+
+            var url = map.config.spatialServiceUrl + '/intersect/' + fid + '/' + location.lat + '/' + location.lng
             //console.log(url)
             $.ajax({
                 url: url,
                 dataType: 'text',
                 success: function (data) {
-                    if (data.length === 0) {
+                    if (data.length < 3) {
                         return;
                     }
 
-                    var result = $(data);
+                    var json = JSON.parse(data)
 
-                    switch (result.find('td')) {
-                        case 0:
-                            if (selectedRegion && selectedRegion.other) {
-                                selectedRegion.clearSubregion();
-                            }
-                            else {
-                                clearSelectedRegion();
-                            }
-                            break;
-                        default:  // treat one or many as just one for now
-                            if (false && selectedRegion && selectedRegion.other) {
-                                // NdR - skipped this check - I can't see where `features` gets set - only ref is an empty array declaration
-                                selectedRegion.setSubregion(features[0].value, features[0].pid);
-                            }
-                            else {
-                                var found = false;
-                                $.each(selectedRegionType.objects, function (idx, rt) {
-                                    if (!found) {
-                                        $.each(result.find('td'), function (i, obj) {
-                                            // console.log("td check", obj.innerHTML, rt.name);
-                                            if (!found && obj.innerHTML === rt.name) {
-                                                found = true;
+                    if (json[0].pid == undefined) {
+                        return
+                    } else if (selectedRegion && selectedRegion.other) {
+                        var region = new Region(selectedRegion.name);
+                        region.setSubregion(json[0].value, json[0].pid, event.latlng)
+                        region.set()
+                    } else {
+                        that.clickedRegion = json[0].value
+                        if (selectedRegion !== null && name === selectedRegion.name) {
+                            document.location.href = selectedRegion.urlToViewRegion();
+                        }
+                        var region = new Region(that.clickedRegion).set();
 
-                                                that.clickedRegion = rt.name;
-                                                var name = rt.name;
-                                                if (selectedRegion !== null && name === selectedRegion.name &&
-                                                    name.toLowerCase() !== 'n/a') {
-                                                    document.location.href = selectedRegion.urlToViewRegion();
-                                                }
-                                                var region = new Region(name).set();
-                                            }
-                                        })
-                                    }
-                                });
-                            }
                     }
                 }
             });
