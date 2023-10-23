@@ -93,7 +93,7 @@ dependencies {
         exclude module: "cache"
     }
     implementation "org.grails.plugins:ala-admin-plugin:2.3.0"
-    implementation  "org.grails.plugins:ala-bootstrap3:4.3.0"
+    implementation  "org.grails.plugins:ala-bootstrap3:4.4.0"
 }
 
 bootWar {
