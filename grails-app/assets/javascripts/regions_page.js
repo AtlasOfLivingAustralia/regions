@@ -406,7 +406,6 @@
                 $.bbq.pushState({region: this.name});
                 selectedRegionType.highlightInList(this.name);
             }
-            this.setLinks(selectedRegion);
             if (this.other) {
                 this.id = layers[selectedRegionType.name].objects[this.name].fid;
                 // other regions draw as a full layer
@@ -419,6 +418,8 @@
                 }
                 enableRegionsSlider();
             }
+            this.setLinks(selectedRegion);
+
         },
         /* Deselect this instance and remove its screen artifacts */
         clear: function () {
@@ -473,10 +474,14 @@
         },
         /* Build the url to view the current region */
         urlToViewRegion: function () {
+            var pid = ''
+            if (this.id != '' && this.id != undefined) {
+                pid = '?pid=' + this.id
+            }
             if (selectedRegionType.other && selectedRegion.subregion != null) {
-                return config.baseUrl + "/" + encodeURI(this.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(selectedRegion.subregion))).replace("%3B", "%253B");
+                return config.baseUrl + "/" + encodeURI(this.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(selectedRegion.subregion))).replace("%3B", "%253B") + '?pid=' + selectedRegion.subregionPid;
             } else {
-                return config.baseUrl + "/" + encodeURI(selectedRegionType.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(this.name))).replace("%3B", "%253B");
+                return config.baseUrl + "/" + encodeURI(selectedRegionType.name) + "/" + encodeURIComponent(he.encode(encodeURIComponent(this.name))).replace("%3B", "%253B") + pid;
             }
         },
         /* Write the region link and optional subregion name and zoom link at the top of the map.

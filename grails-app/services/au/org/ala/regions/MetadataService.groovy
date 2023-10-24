@@ -92,6 +92,16 @@ class MetadataService {
         emblemMetadata
     }
 
+    def getSubgroups() {
+        // look locally first
+        File localFile = new File(grailsApplication.config.getProperty('subgroupFile'))
+        if (localFile.exists()) {
+            JSON.parse(localFile.text)
+        } else {
+            getJSON("${BIOCACHE_SERVICE_URL}/explore/hierarchy")
+        }
+    }
+
     /**
      *
      * @param regionFid
@@ -102,7 +112,7 @@ class MetadataService {
     List getGroups(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
 
-        def responseGroups = getJSON("${BIOCACHE_SERVICE_URL}/explore/hierarchy")
+        def responseGroups = getSubgroups()
         if (!(responseGroups instanceof Map && responseGroups?.error)) {
             Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid, showHubData)
 
