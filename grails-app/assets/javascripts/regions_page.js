@@ -508,7 +508,6 @@
                 var latlng = map.lmap.getCenter()
                 var bbox = selectedRegionType.getRegion(this.name).bbox;
                 if (bbox !== undefined) {
-                    //console.log("bbox", bbox);));
                     var lBbox = L.latLngBounds(L.latLng(bbox.minLat, bbox.minLng), L.latLng(bbox.maxLat, bbox.maxLng));
                     latlng = lBbox.getCenter();
                 }
@@ -535,23 +534,17 @@
         // default opacity for the overlay showing the selected layer
         defaultLayerOpacity: 0.5,
         // the default bounds for the map
-        initialBounds:  L.latLngBounds(L.latLng(-41.5, 114), L.latLng(-13.5, 154)),
         clickedRegion: "",
-        init: function () {
+        init: function (config) {
 
             this.lmap = L.map(this.containerId, {
                 scrollWheelZoom: false
             });
 
-            // TODO pull basemap into config
-            var defaultBaseLayer = L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
-                attribution:  "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, imagery &copy; <a href='https://cartodb.com/attributions'>CartoDB</a>",
-                subdomains: "abcd"
+            var defaultBaseLayer = L.tileLayer(config.mapMinimalUrl, {
+                attribution: config.mapMinimalAttribution,
+                subdomains: config.mapMinimalSubdomains
             });
-
-            var baseLayers = {
-                "Minimal": defaultBaseLayer
-            };
 
             if (config.useGoogleApi) {
                 // only show layer controls when Google API key is available
@@ -565,7 +558,12 @@
             }
 
             this.lmap.addLayer(defaultBaseLayer);
-            this.lmap.fitBounds(this.initialBounds);
+
+            var initialBounds = L.latLngBounds(
+                L.latLng(config.bbox.sw.lat, config.bbox.sw.lng),
+                L.latLng(config.bbox.ne.lat, config.bbox.ne.lng));
+
+            this.lmap.fitBounds(initialBounds);
 
             var that = this;
             this.lmap.on('click', this.clickHandler);
@@ -749,6 +747,11 @@
         config.queryContextLayerOrder = options.queryContextLayerOrder || 0;
         config.useGoogleApi = options.useGoogleApi;
 
+        config.mapMinimalUrl = options.mapMinimalUrl;
+        config.mapMinimalAttribution = options.mapMinimalAttribution;
+        config.mapMinimalSubdomains = options.mapMinimalSubdomains;
+        config.bbox = options.bbox;
+
         /*****************************************\
          | Create the region types from metadata
          \*****************************************/
@@ -845,10 +848,7 @@
             map.initialBounds = L.latLngBounds(
                 L.latLng(options.mapBounds[0], options.mapBounds[1]),
                 L.latLng(options.mapBounds[2], options.mapBounds[3]));
-            // map.initialBounds = new google.maps.LatLngBounds(
-            //     new google.maps.LatLng(options.mapBounds[0], options.mapBounds[1]),
-            //     new google.maps.LatLng(options.mapBounds[2], options.mapBounds[3]));
-        map.init();
+        map.init(config);
 
         /*****************************************\
          | Handle map reset

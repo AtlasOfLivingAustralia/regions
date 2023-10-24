@@ -33,23 +33,26 @@
         <g:if test="${enableQueryContext}">
             ,qc: "${grailsApplication.config.getProperty('biocache.queryContext')}"
         </g:if>
-        ,hubFilter: "${raw((enableHubData ? grailsApplication.config.getProperty('hub.hubFilter') : '') + grailsApplication.config.getProperty('biocache.filter'))}"
+            ,hubFilter: "${raw((enableHubData ? grailsApplication.config.getProperty('hub.hubFilter') : '') + grailsApplication.config.getProperty('biocache.filter'))}"
             ,enableHubData: ${enableHubData ?: false}
         <g:if test="${enableHubData}">
             ,showHubData: ${hubState}
         </g:if>
-        ,bbox: {
-            sw: {
-                lat: ${region.bbox?.minLat},
-                lng: ${region.bbox?.minLng}
-            },
-            ne: {
-                lat: ${region.bbox?.maxLat},
-                lng: ${region.bbox?.maxLng}
+            ,bbox: {
+                sw: {
+                    lat: ${region.bbox?.minLat},
+                    lng: ${region.bbox?.minLng}
+                },
+                ne: {
+                    lat: ${region.bbox?.maxLat},
+                    lng: ${region.bbox?.maxLng}
+                }
             }
-        }
-        ,useReflectService: ${useReflect}
-            ,enableRegionOverlay: ${enableRegionOverlay != null ? enableRegionOverlay : 'true'}
+            ,useReflectService: ${useReflect}
+            ,enableRegionOverlay: ${enableRegionOverlay != null ? enableRegionOverlay : 'true'},
+            mapMinimalUrl: "${grailsApplication.config.getProperty('map.minimal.url')}",
+            mapMinimalAttribution: "${raw(grailsApplication.config.getProperty('map.minimal.attr'))}",
+            mapMinimalSubdomains: "${grailsApplication.config.getProperty('map.minimal.subdomains')}"
         };
     </asset:script>
 

@@ -133,7 +133,20 @@
                 order:"${grailsApplication.config.getProperty('layers.queryContextOrder')}",
                 displayName:"${grailsApplication.config.getProperty('layers.queryContextDisplayName')}"
             },
-            useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}'
+            useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}',
+            mapMinimalUrl: "${grailsApplication.config.getProperty('map.minimal.url')}",
+            mapMinimalAttribution: "${raw(grailsApplication.config.getProperty('map.minimal.attr'))}",
+            mapMinimalSubdomains: "${grailsApplication.config.getProperty('map.minimal.subdomains')}",
+            bbox: {
+                sw: {
+                    lat: ${grailsApplication.config.getProperty('map.minLat')},
+                    lng: ${grailsApplication.config.getProperty('map.minLng')}
+                },
+                ne: {
+                    lat: ${grailsApplication.config.getProperty('map.maxLat')},
+                    lng: ${grailsApplication.config.getProperty('map.maxLng')}
+                }
+            }
         });
     });
 

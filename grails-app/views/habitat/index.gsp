@@ -106,7 +106,20 @@
         mapHeight: '${grailsApplication.config.getProperty('map.height')}',
         mapContainer: 'map_canvas',
         biocacheUrl: '${grailsApplication.config.getProperty('biocache.baseURL')}',
-        layerField: 'cl1918'
+        layerField: 'cl1918',
+        bbox: {
+            sw: {
+                    lat: ${grailsApplication.config.getProperty('map.minLat')},
+                    lng: ${grailsApplication.config.getProperty('map.minLng')}
+            },
+            ne: {
+                lat: ${grailsApplication.config.getProperty('map.maxLat')},
+                            lng: ${grailsApplication.config.getProperty('map.maxLng')}
+            }
+        },
+        mapMinimalUrl: "${grailsApplication.config.getProperty('map.minimal.url')}",
+        mapMinimalAttribution: "${raw(grailsApplication.config.getProperty('map.minimal.attr'))}",
+        mapMinimalSubdomains: "${grailsApplication.config.getProperty('map.minimal.subdomains')}"
     };
 
     var colours = [
@@ -131,9 +144,11 @@
         [mapBounds[2], mapBounds[3]]
     ]);
 
-    L.tileLayer('http://a.tiles.mapbox.com/v3/nickdos.kf2g7gpb/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(HABITAT_MAP.map);
+    var defaultBaseLayer = L.tileLayer(REGION_CONF.mapMinimalUrl, {
+                attribution: REGION_CONF.mapMinimalAttribution,
+                subdomains: REGION_CONF.mapMinimalSubdomains
+        });
+    HABITAT_MAP.map.addLayer(defaultBaseLayer);
 
     function addColorFrag(numericID, colour){
       return '<ColorMapEntry color="0xFFFFFF" opacity="0.0" quantity="'+ (numericID-1)+'"/>'+

@@ -748,10 +748,9 @@ var RegionMap = function (config) {
             scrollWheelZoom: false,
         });
 
-        // TODO pull out into config, so it can be changed without redeploying app
-        var defaultBaseLayer = L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png", {
-            attribution:  "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, imagery &copy; <a href='https://cartodb.com/attributions'>CartoDB</a>",
-            subdomains: "abcd"
+        var defaultBaseLayer = L.tileLayer(REGION_CONFIG.mapMinimalUrl, {
+                attribution: REGION_CONFIG.mapMinimalAttribution,
+                subdomains: REGION_CONFIG.mapMinimalSubdomains
         });
 
         if (REGION_CONFIG.useGoogleApi) {
@@ -784,30 +783,6 @@ var RegionMap = function (config) {
          | Overlay the region shape
          \*****************************************/
         drawRegionOverlay();
-
-        /*******************************************************\
-         | Hack the viewport if we don't have good bbox data
-         \*******************************************************/
-        // fall-back attempt at bounding box if all of Oz
-        if (false && initialBounds.equals(new google.maps.LatLngBounds(
-                new google.maps.LatLng(-42, 113),
-                new google.maps.LatLng(-14, 153)))) {
-            $.ajax({
-                url: regionWidget.getUrls().proxyUrlBbox + "?q=" + decodeURI(regionWidget.getCurrentState().q),
-                //url: url,
-                dataType: 'json',
-                success: function (data) {
-                    if (data[0] !== 0.0) {
-                        initialBounds = new google.maps.LatLngBounds(
-                            new google.maps.LatLng(data[1], data[0]),
-                            new google.maps.LatLng(data[3], data[2]));
-                        map.fitBounds(initialBounds);
-                        $('#using-bbox-hack').html("Using occurrence bounds");
-                        $('#bbox').html("Using bbox " + initialBounds.toString());
-                    }
-                }
-            });
-        }
     };
 
     /**
