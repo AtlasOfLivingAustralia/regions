@@ -38,11 +38,11 @@ class RegionsTagLib {
      * @deprecated use HeaderFooterTagLib
      */
     def loginoutLink2011 = { attrs ->
-        def requestUri = grailsApplication.config.security.cas.serverName + request.forwardURI
+        def requestUri = grailsApplication.config.getProperty('security.cas.serverName') + request.forwardURI
         if (AuthenticationCookieUtils.cookieExists(request, AuthenticationCookieUtils.ALA_AUTH_COOKIE)) {
             // currently logged in
             out << link(controller: 'regions', action: 'logout',
-                    params: [casUrl: grailsApplication.config.security.cas.logoutUrl,
+                    params: [casUrl: grailsApplication.config.getProperty('security.cas.logoutUrl'),
                             appUrl: attrs.fixedAppUrl ?: requestUri]) {'Logout'}
         } else {
             // currently logged out
@@ -70,8 +70,8 @@ class RegionsTagLib {
      */
     def breadcrumbTrail = {attrs ->
 
-        String homeURL = grailsApplication.config.skin.homeURL ?: grailsApplication.config.ala.baseURL
-        SortedMap breadcrumbConfig = new TreeMap(grailsApplication.config.skin.breadcrumb ?: grailsApplication.config.breadcrumb.default)
+        String homeURL = grailsApplication.config.getProperty('skin.homeURL') ?: grailsApplication.config.getProperty('ala.baseURL')
+        SortedMap breadcrumbConfig = new TreeMap(grailsApplication.config.getProperty('skin.breadcrumb') ?: grailsApplication.config.getProperty('breadcrumb.default'))
 
         breadcrumbConfig.each { String level, Map config ->
             out << """<li><a href='${homeURL+config.path}'>${config.title}</a> <span class="divider"><i class="fa fa-arrow-right"></i></span></li>"""

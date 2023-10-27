@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
-    <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
+    <meta name="breadcrumbParent" content="${grailsApplication.config.getProperty('breadcrumbParent')}"/>
     <meta name="breadcrumbs" content="${g.createLink(uri: '/', absolute: true)},${message(code:"regions.title")}"/>
     <meta name="breadcrumb" content="${region.name}"/>
 
@@ -18,12 +18,12 @@
                 regionsApp: '${g.createLink(uri: '/', absolute: true)}',
                 proxyUrl: '${g.createLink(controller: 'proxy', action: 'index')}',
                 proxyUrlBbox: '${g.createLink(controller: 'proxy', action: 'bbox')}',
-                speciesPageUrl: "${grailsApplication.config.bie.baseURL}/species/",
-                biocacheServiceUrl: "${grailsApplication.config.biocacheService.baseURL}",
-                biocacheWebappUrl: "${grailsApplication.config.biocache.baseURL}",
-                spatialWmsUrl: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
-                spatialCacheUrl: "${grailsApplication.config.geoserver.baseURL}/gwc/service/wms?",
-                spatialServiceUrl: "${grailsApplication.config.layersService.baseURL}/",
+                speciesPageUrl: "${grailsApplication.config.getProperty('bie.baseURL')}/species/",
+                biocacheServiceUrl: "${grailsApplication.config.getProperty('biocacheService.baseURL')}",
+                biocacheWebappUrl: "${grailsApplication.config.getProperty('biocache.baseURL')}",
+                spatialWmsUrl: "${grailsApplication.config.getProperty('geoserver.baseURL')}/ALA/wms?",
+                spatialCacheUrl: "${grailsApplication.config.getProperty('geoserver.baseURL')}/gwc/service/wms?",
+                spatialServiceUrl: "${grailsApplication.config.getProperty('layersService.baseURL')}/",
             },
             username: '${rg.loggedInUsername()}',
             useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}',
@@ -31,33 +31,36 @@
             locale: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString())?:request.locale}",
             q: '${region.q}'
         <g:if test="${enableQueryContext}">
-            ,qc: "${grailsApplication.config.biocache.queryContext}"
+            ,qc: "${grailsApplication.config.getProperty('biocache.queryContext')}"
         </g:if>
-        ,hubFilter: "${raw((enableHubData ? grailsApplication.config.hub.hubFilter : '') + grailsApplication.config.biocache.filter)}"
+            ,hubFilter: "${raw((enableHubData ? grailsApplication.config.getProperty('hub.hubFilter') : '') + grailsApplication.config.getProperty('biocache.filter'))}"
             ,enableHubData: ${enableHubData ?: false}
         <g:if test="${enableHubData}">
             ,showHubData: ${hubState}
         </g:if>
-        ,bbox: {
-            sw: {
-                lat: ${region.bbox?.minLat},
-                lng: ${region.bbox?.minLng}
-            },
-            ne: {
-                lat: ${region.bbox?.maxLat},
-                lng: ${region.bbox?.maxLng}
+            ,bbox: {
+                sw: {
+                    lat: ${region.bbox?.minLat},
+                    lng: ${region.bbox?.minLng}
+                },
+                ne: {
+                    lat: ${region.bbox?.maxLat},
+                    lng: ${region.bbox?.maxLng}
+                }
             }
-        }
-        ,useReflectService: ${useReflect}
-            ,enableRegionOverlay: ${enableRegionOverlay != null ? enableRegionOverlay : 'true'}
+            ,useReflectService: ${useReflect}
+            ,enableRegionOverlay: ${enableRegionOverlay != null ? enableRegionOverlay : 'true'},
+            mapMinimalUrl: "${grailsApplication.config.getProperty('map.minimal.url')}",
+            mapMinimalAttribution: "${raw(grailsApplication.config.getProperty('map.minimal.attr'))}",
+            mapMinimalSubdomains: "${grailsApplication.config.getProperty('map.minimal.subdomains')}"
         };
     </asset:script>
 
     <meta name="layout" content="${grailsApplication.config.getProperty('skin.layout') ?: 'main'}"/>
-    <title>${region.name} | ${grailsApplication.config.orgNameLong}</title>
+    <title>${region.name} | ${grailsApplication.config.getProperty('orgNameLong')}</title>
     <script src="${g.createLink(controller: 'data', action: 'regionsMetadataJavascript')}"></script>
 
-    <script src="https://maps.google.com/maps/api/js?key=${grailsApplication.config.google.apikey}"></script>
+    <script src="https://maps.google.com/maps/api/js?key=${grailsApplication.config.getProperty('google.apikey')}"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
 
     <asset:stylesheet src="leaflet/leaflet"/>
@@ -70,8 +73,8 @@
 </head>
 
 <body class="nav-locations regions">
-<g:set var="enableQueryContext" value="${grailsApplication.config.biocache.enableQueryContext?.toBoolean()}"></g:set>
-<g:set var="enableHubData" value="${grailsApplication.config.hub.enableHubData?.toBoolean()}"></g:set>
+<g:set var="enableQueryContext" value="${grailsApplication.config.getProperty('biocache.enableQueryContext')?.toBoolean()}"></g:set>
+<g:set var="enableHubData" value="${grailsApplication.config.getProperty('hub.enableHubData')?.toBoolean()}"></g:set>
 <g:set var="hubState" value="${true}"></g:set>
 <div class="row">
     <div class="col-md-12">

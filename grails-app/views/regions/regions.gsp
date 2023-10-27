@@ -2,14 +2,14 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="breadcrumbParent" content="${grailsApplication.config.breadcrumbParent}"/>
+    <meta name="breadcrumbParent" content="${grailsApplication.config.getProperty('breadcrumbParent')}"/>
     <meta name="breadcrumb" content="${g.message(code:'regions.title')}"/>
     <meta name="layout" content="${grailsApplication.config.getProperty('skin.layout') ?: 'main'}"/>
 
-    <title><g:message code="regions.title"/> | ${grailsApplication.config.orgNameLong ?: 'Atlas of Living Australia'}</title>
+    <title><g:message code="regions.title"/> | ${grailsApplication.config.getProperty('orgNameLong') ?: 'Atlas of Living Australia'}</title>
 
     <script src="${g.createLink(controller: 'data', action: 'regionsMetadataJavascript')}"></script>
-    <script src="https://maps.google.com/maps/api/js?key=${grailsApplication.config.google.apikey}"></script>
+    <script src="https://maps.google.com/maps/api/js?key=${grailsApplication.config.getProperty('google.apikey')}"></script>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
 
     <asset:stylesheet src="leaflet/leaflet"/>
@@ -114,26 +114,39 @@
         });
 
         init_regions({
-            server: '${grailsApplication.config.grails.serverURL}',
-            spatialService: "${grailsApplication.config.layersService.baseURL}/",
-            spatialWms: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
-            spatialCache: "${grailsApplication.config.geoserver.baseURL}/ALA/wms?",
-            accordionPanelMaxHeight: '${grailsApplication.config.accordion.panel.maxHeight}',
-            mapBounds: JSON.parse('${grailsApplication.config.map.bounds ?: []}'),
-            mapHeight: '${grailsApplication.config.map.height}',
+            server: '${grailsApplication.config.getProperty('grails.serverURL')}',
+            spatialService: "${grailsApplication.config.getProperty('layersService.baseURL')}/",
+            spatialWms: "${grailsApplication.config.getProperty('geoserver.baseURL')}/ALA/wms?",
+            spatialCache: "${grailsApplication.config.getProperty('geoserver.baseURL')}/ALA/wms?",
+            accordionPanelMaxHeight: '${grailsApplication.config.getProperty('accordion.panel.maxHeight')}',
+            mapBounds: JSON.parse('${grailsApplication.config.getProperty('map.bounds') ?: []}'),
+            mapHeight: '${grailsApplication.config.getProperty('map.height')}',
             mapContainer: 'map_canvas',
-            defaultRegionType: "${grailsApplication.config.default.regionType}",
-            defaultRegion: "${grailsApplication.config.default.region}",
-            showQueryContextLayer: ${grailsApplication.config.layers.showQueryContext},
+            defaultRegionType: "${grailsApplication.config.getProperty('default.regionType')}",
+            defaultRegion: "${grailsApplication.config.getProperty('default.region')}",
+            showQueryContextLayer: ${grailsApplication.config.getProperty('layers.showQueryContext')},
             queryContextLayer: {
-                name:"${grailsApplication.config.layers.queryContextName}",
-                shortName:"${grailsApplication.config.layers.queryContextShortName}",
-                fid:"${grailsApplication.config.layers.queryContextFid}",
-                bieContext:"${grailsApplication.config.layers.queryContextBieContext}",
-                order:"${grailsApplication.config.layers.queryContextOrder}",
-                displayName:"${grailsApplication.config.layers.queryContextDisplayName}"
+                name:"${grailsApplication.config.getProperty('layers.queryContextName')}",
+                shortName:"${grailsApplication.config.getProperty('layers.queryContextShortName')}",
+                fid:"${grailsApplication.config.getProperty('layers.queryContextFid')}",
+                bieContext:"${grailsApplication.config.getProperty('layers.queryContextBieContext')}",
+                order:"${grailsApplication.config.getProperty('layers.queryContextOrder')}",
+                displayName:"${grailsApplication.config.getProperty('layers.queryContextDisplayName')}"
             },
-            useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}'
+            useGoogleApi: '${(grailsApplication.config.getProperty('google.apikey')) ? "true": ""}',
+            mapMinimalUrl: "${grailsApplication.config.getProperty('map.minimal.url')}",
+            mapMinimalAttribution: "${raw(grailsApplication.config.getProperty('map.minimal.attr'))}",
+            mapMinimalSubdomains: "${grailsApplication.config.getProperty('map.minimal.subdomains')}",
+            bbox: {
+                sw: {
+                    lat: ${grailsApplication.config.getProperty('map.minLat')},
+                    lng: ${grailsApplication.config.getProperty('map.minLng')}
+                },
+                ne: {
+                    lat: ${grailsApplication.config.getProperty('map.maxLat')},
+                    lng: ${grailsApplication.config.getProperty('map.maxLng')}
+                }
+            }
         });
     });
 

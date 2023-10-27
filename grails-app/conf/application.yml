@@ -3,6 +3,14 @@ grails:
     profile: web
     codegen:
         defaultPackage: au.org.ala
+    cache:
+        enabled: true
+        caches:
+            default:
+                maxCapacity: 50000
+#        ehcache:
+#            ehcacheXmlLocation: 'classpath:ehcache.xml'
+#            lockTimeout: 200
 
 info:
     app:
@@ -99,3 +107,16 @@ hibernate:
         use_second_level_cache: true
         use_query_cache: false
         region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+
+map:
+    minLat: -41.5
+    minLng: 114
+    maxLat: -13.5
+    maxLng: 154
+    minimal:
+        url: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+        attr: "Map data &copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a>, imagery &copy; <a href='https://cartodb.com/attributions'>CartoDB</a>"
+        subdomains: "abcd"
+
+showNotesInfoInAccordionPanel: false
+subgroupFile: '/data/regions/config/regionsGroups.json'

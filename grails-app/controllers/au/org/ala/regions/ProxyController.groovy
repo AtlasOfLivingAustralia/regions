@@ -31,8 +31,8 @@ class ProxyController {
 
     private def getAllowedHosts() {
         if (allowedHosts == null) {
-            if (grailsApplication.config.allowedHosts) {
-                allowedHosts = grailsApplication.config.allowedHosts.toString().split(',')
+            if (grailsApplication.config.getProperty('allowedHosts')) {
+                allowedHosts = grailsApplication.config.getProperty('allowedHosts').toString().split(',')
             } else {
                 allowedHosts = DEFAULT_ALLOWED_HOSTS
             }
@@ -85,7 +85,7 @@ class ProxyController {
     def kml() {
 
         def pid = params.pid ?: 5388062 // ger
-        def baseUrl = grailsApplication.config.layersService.baseURL
+        def baseUrl = grailsApplication.config.getProperty('layersService.baseURL')
         def url = baseUrl + "/shape/kml/" + pid
 
         def conn = new URL(url).openConnection()
@@ -97,7 +97,7 @@ class ProxyController {
     }
 
     def bbox() {
-        def baseUrl = grailsApplication.config.biocacheService.baseURL
+        def baseUrl = grailsApplication.config.getProperty('biocacheService.baseURL')
         def url = baseUrl + "/mapping/bounds?q=" + URLEncoder.encode(params.q.trim(), 'UTF-8')
         def conn = new URL(url).openConnection()
         def box = conn.content.text

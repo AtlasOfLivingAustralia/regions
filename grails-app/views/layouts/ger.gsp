@@ -23,7 +23,7 @@
     <g:layoutHead />
 </head>
 <body style="padding-top:0" class="${pageProperty(name:'body.class')}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}">
-<g:set var="fluidLayout" value="${pageProperty(name:'meta.fluidLayout')?:Boolean.valueOf(grailsApplication.config.skin?.fluidLayout)}"/>
+<g:set var="fluidLayout" value="${pageProperty(name:'meta.fluidLayout')?:Boolean.valueOf(grailsApplication.config.getProperty('skin.fluidLayout'))}"/>
 <g:set var="containerType" value="${fluidLayout ? 'container-fluid' : 'container'}"/>
 
 <!-- Header -->
