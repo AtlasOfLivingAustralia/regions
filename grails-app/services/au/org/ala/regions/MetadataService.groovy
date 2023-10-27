@@ -3,10 +3,10 @@ package au.org.ala.regions
 import grails.converters.JSON
 import grails.plugin.cache.Cacheable
 import grails.util.Metadata
-import groovyx.net.http.URIBuilder
 import org.apache.commons.lang.StringEscapeUtils
-import org.apache.commons.httpclient.util.URIUtil
 import org.grails.web.json.JSONObject
+import org.jasig.cas.client.util.CommonUtils
+import org.jasig.cas.client.util.URIBuilder
 
 import javax.annotation.PostConstruct
 
@@ -28,25 +28,25 @@ class MetadataService {
 
     @PostConstruct
     def init() {
-        BIE_URL = grailsApplication.config.bie.baseURL
-        BIE_SERVICE_URL = grailsApplication.config.bieService.baseURL
-        BIOCACHE_URL = grailsApplication.config.biocache.baseURL
-        BIOCACHE_SERVICE_URL = grailsApplication.config.biocacheService.baseURL
-        DEFAULT_IMG_URL = grailsApplication.config.noImageURL?:"${BIE_URL}/assets/noImage85.jpg"
-        ALERTS_URL = grailsApplication.config.alerts.baseURL
-        CONFIG_DIR = grailsApplication.config.config_dir
-        ENABLE_HUB_DATA = grailsApplication.config.hub.enableHubData?.toBoolean() ?: false
-        HUB_FILTER = grailsApplication.config.hub.hubFilter
-        ENABLE_QUERY_CONTEXT = grailsApplication.config.biocache.enableQueryContext?.toBoolean() ?: false
-        QUERY_CONTEXT = grailsApplication.config.biocache.queryContext
-        ENABLE_OBJECT_INTERSECTION = grailsApplication.config.layers.enableObjectIntersection?.toBoolean() ?: false
-        INTERSECT_OBJECT = grailsApplication.config.layers.intersectObject
+        BIE_URL = grailsApplication.config.getProperty('bie.baseURL')
+        BIE_SERVICE_URL = grailsApplication.config.getProperty('bieService.baseURL')
+        BIOCACHE_URL = grailsApplication.config.getProperty('biocache.baseURL')
+        BIOCACHE_SERVICE_URL = grailsApplication.config.getProperty('biocacheService.baseURL')
+        DEFAULT_IMG_URL = grailsApplication.config.getProperty('noImageURL')?:"${BIE_URL}/assets/noImage85.jpg"
+        ALERTS_URL = grailsApplication.config.getProperty('alerts.baseURL')
+        CONFIG_DIR = grailsApplication.config.getProperty('config_dir')
+        ENABLE_HUB_DATA = grailsApplication.config.getProperty('hub.enableHubData')?.toBoolean() ?: false
+        HUB_FILTER = grailsApplication.config.getProperty('hub.hubFilter')
+        ENABLE_QUERY_CONTEXT = grailsApplication.config.getProperty('biocache.enableQueryContext')?.toBoolean() ?: false
+        QUERY_CONTEXT = grailsApplication.config.getProperty('biocache.queryContext')
+        ENABLE_OBJECT_INTERSECTION = grailsApplication.config.getProperty('layers.enableObjectIntersection')?.toBoolean() ?: false
+        INTERSECT_OBJECT = grailsApplication.config.getProperty('layers.intersectObject')
 
         //add biocache.filter to HUB_FILTER
         if (ENABLE_HUB_DATA) {
-            HUB_FILTER += grailsApplication.config.biocache.filter
+            HUB_FILTER += grailsApplication.config.getProperty('biocache.filter')
         } else {
-            HUB_FILTER = grailsApplication.config.biocache.filter
+            HUB_FILTER = grailsApplication.config.getProperty('biocache.filter')
         }
     }
 
@@ -59,6 +59,7 @@ class MetadataService {
      * speciesUrl: ..., <br/>
      * emblemType: ...], ...]
      */
+    @Cacheable(value="metadata")
     List<Map> getEmblemsMetadata(String regionName) {
         Map emblemGuids = [:]
 
@@ -79,7 +80,7 @@ class MetadataService {
             def emblemInfo = getJSON(url)
             if (!(emblemInfo instanceof Map && emblemInfo?.error)) {
                 emblemMetadata << [
-                        "imgUrl"        : emblemInfo?.imageIdentifier ? "${grailsApplication.config.images.baseURL}/image/proxyImageThumbnail?imageId=${emblemInfo.imageIdentifier}" : DEFAULT_IMG_URL,
+                        "imgUrl"        : emblemInfo?.imageIdentifier ? "${grailsApplication.config.getProperty('images.baseURL')}/image/proxyImageThumbnail?imageId=${emblemInfo.imageIdentifier}" : DEFAULT_IMG_URL,
                         "scientificName": emblemInfo?.taxonConcept?.nameString,
                         "commonName"    : emblemInfo?.commonNames && emblemInfo?.commonNames?.size() > 0 ? emblemInfo?.commonNames[0]?.nameString : "",
                         "speciesUrl"    : "${BIE_URL}/species/${guid}",
@@ -89,6 +90,16 @@ class MetadataService {
         }
 
         emblemMetadata
+    }
+
+    def getSubgroups() {
+        // look locally first
+        File localFile = new File(grailsApplication.config.getProperty('subgroupFile'))
+        if (localFile.exists()) {
+            JSON.parse(localFile.text)
+        } else {
+            getJSON("${BIOCACHE_SERVICE_URL}/explore/hierarchy")
+        }
     }
 
     /**
@@ -101,7 +112,7 @@ class MetadataService {
     List getGroups(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
         List groups = [] << [name: 'ALL_SPECIES', commonName: 'ALL_SPECIES']
 
-        def responseGroups = getJSON("${BIOCACHE_SERVICE_URL}/explore/hierarchy")
+        def responseGroups = getSubgroups()
         if (!(responseGroups instanceof Map && responseGroups?.error)) {
             Map subgroupsWithRecords = getSubgroupsWithRecords(regionFid, regionType, regionName, regionPid, showHubData)
 
@@ -145,15 +156,14 @@ class MetadataService {
      * @return
      */
     Map getSubgroupsWithRecords(String regionFid, String regionType, String regionName, String regionPid, Boolean showHubData = false) {
-        String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
-            query = [
-                    facets  : 'species_subgroup',
-                    flimit  : '-1',
-                    pageSize: 0
-            ] + buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, null, null, null, null, showHubData)
+        String url = "${BIOCACHE_SERVICE_URL}/occurrences/search"
+        def query = [
+                facets  : 'species_subgroup',
+                flimit  : '-1',
+                pageSize: 0
+        ] + buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, null, null, null, null, showHubData)
 
-            it
-        }.toString()
+        url = appendQueryParams(url, query)
 
         log.debug("URL to retrieve subgroups with records = $url")
 
@@ -183,13 +193,14 @@ class MetadataService {
         def response = getJSON(params)
 
         //species count
-        String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/facets").with {
-            query = [
-                    facets: 'names_and_lsid',
-                    flimit: '0'
-            ] + buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, subgroup, from, to, showHubData, filter)
-            it
-        }.toString()
+        String url = "${BIOCACHE_SERVICE_URL}/occurrences/facets"
+        def query = [
+                facets: 'names_and_lsid',
+                flimit: '0'
+        ] + buildCommonDownloadRecordsParams(regionFid, regionType, regionName, regionPid, groupName, subgroup, from, to, showHubData, filter)
+
+        url = appendQueryParams(url, query)
+
         def speciesCountResult = getJSON(url)
         def speciesCount = 0
         if (speciesCountResult && speciesCountResult instanceof List && speciesCountResult.size() > 0) {
@@ -223,20 +234,20 @@ class MetadataService {
      * @return
      */
     String buildAlertsUrl(Map region) {
-        URLDecoder.decode(new URIBuilder("${ALERTS_URL}/webservice/createBiocacheNewRecordsAlert").with {
-            String searchTerms = paramsToString(buildCommonDownloadRecordsParams(region.fid, region.type,
-                    URIUtil.encodeWithinQuery(region.name), region.pid))
-            query = [
-                    webserviceQuery : URIUtil.encodeWithinQuery("/occurrences/search?${searchTerms}"),
-                    uiQuery         : URIUtil.encodeWithinQuery("/occurrences/search?${searchTerms}"),
-                    queryDisplayName: URIUtil.encodeWithinQuery(region.name),
-                    baseUrlForWS    : URIUtil.encodeWithinQuery("${BIOCACHE_SERVICE_URL}"),
-                    baseUrlForUI    : URIUtil.encodeWithinQuery("${BIOCACHE_URL}"),
-                    resourceName    : URIUtil.encodeWithinQuery( grailsApplication.config.getProperty("alertsResourceName") ) 
-            ]
+        String url = "${ALERTS_URL}/webservice/createBiocacheNewRecordsAlert"
+        String searchTerms = paramsToString(buildCommonDownloadRecordsParams(region.fid, region.type, region.name, region.pid))
+        def query = [
+                webserviceQuery : "/occurrences/search?${searchTerms}",
+                uiQuery         : "/occurrences/search?${searchTerms}",
+                queryDisplayName: region.name,
+                baseUrlForWS    : "${BIOCACHE_SERVICE_URL}",
+                baseUrlForUI    : "${BIOCACHE_URL}",
+                resourceName    : grailsApplication.config.getProperty("alertsResourceName")
+        ]
 
-            it
-        }.toString(), 'UTF-8')
+        url = appendQueryParams(url, query)
+
+        URLDecoder.decode(url, 'UTF-8')
     }
 
     /**
@@ -349,11 +360,29 @@ class MetadataService {
      * @return
      */
     String buildBiocacheSearchOccurrencesWsUrl(String regionFid, String regionType, String regionName, String regionPid, String groupName, String subgroup, String from = null, String to = null, String pageIndex = '0', Boolean showHubData = false, String filter = null) {
-        String url = new URIBuilder("${BIOCACHE_SERVICE_URL}/occurrences/search").with {
-            query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, regionPid, groupName, subgroup, from, to, pageIndex, showHubData, filter)
-            it
-        }.toString()
+        String url = "${BIOCACHE_SERVICE_URL}/occurrences/search"
+
+        def query = buildSearchOccurrencesWsParams(regionFid, regionType, regionName, regionPid, groupName, subgroup, from, to, pageIndex, showHubData, filter)
+
+        url = appendQueryParams(url, query)
+
         log.debug "REST URL generated = ${url}"
+
+        url
+    }
+
+    String appendQueryParams(String url, Map query) {
+        query.eachWithIndex { it, idx ->
+            url += idx ? '&' : '?'
+            if (it.value instanceof List) {
+                it.value.eachWithIndex { li, idx2 ->
+                    url += idx2 > 0 ? '&' : ''
+                    url += it.key + "=" + CommonUtils.urlEncode(String.valueOf(li))
+                }
+            } else {
+                url += it.key + "=" + CommonUtils.urlEncode(String.valueOf(it.value))
+            }
+        }
 
         url
     }
@@ -448,14 +477,14 @@ class MetadataService {
      * @param fid
      * @return
      */
-    @Cacheable(value = 'metadata', key = { fid })
+    @Cacheable(value = 'metadata')
     def getRegionMetadata(fid) {
 
         def metadata = new TreeMap()
 
         log.debug("setting cached value ${fid}")
 
-        def url = grailsApplication.config.layersService.baseURL + (ENABLE_OBJECT_INTERSECTION ?
+        def url = grailsApplication.config.getProperty('layersService.baseURL') + (ENABLE_OBJECT_INTERSECTION ?
                 '/intersect/object/' + fid + '/' + INTERSECT_OBJECT : '/field/' + fid)
 
         def result = getJSON(url)
@@ -494,7 +523,22 @@ class MetadataService {
      * @return
      */
     def fidFor(regionType) {
-        getRegionsMetadata()[regionType]?.fid
+        def fid = getRegionsMetadata()[regionType]?.fid
+
+        if (!fid) {
+            // search all submenus
+            getMenu().each {
+                if (it.submenu) {
+                    it.submenu.each { sm ->
+                        if (sm.label == regionType) {
+                            fid = sm.fid
+                        }
+                    }
+                }
+            }
+        }
+
+        fid
     }
 
     /**
@@ -526,7 +570,7 @@ class MetadataService {
      * else the default set.
      * @return
      */
-    @Cacheable(value = 'metadata', key = { 'getRegionsMetadata' })
+    @Cacheable(value="metadata")
     def getRegionsMetadata() {
 
         //update
@@ -547,23 +591,23 @@ class MetadataService {
         md
     }
 
-    @Cacheable(value = 'metadata', key = { pid })
+    @Cacheable(value="metadata")
     def getObjectByPid(pid) {
-        getJSON(grailsApplication.config.layersService.baseURL + '/object/' + pid)
+        getJSON(grailsApplication.config.getProperty('layersService.baseURL') + '/object/' + pid)
     }
 
-    @Cacheable(value = 'metadata', key = { 'getLayersServiceLayers' })
+    @Cacheable(value="metadata")
     Map getLayersServiceLayers() {
         getLayersServiceList('/layers')
     }
 
-    @Cacheable(value = 'metadata', key = { 'getLayersServiceFields' })
+    @Cacheable(value="metadata")
     Map getLayersServiceFields() {
         getLayersServiceList('/fields')
     }
 
     Map getLayersServiceList(path) {
-        def url = grailsApplication.config.layersService.baseURL + path
+        def url = grailsApplication.config.getProperty('layersService.baseURL') + path
 
         def map = [:]
 
@@ -592,7 +636,7 @@ class MetadataService {
         return "var REGIONS = {metadata: " + (regionsMetadata as JSON) + "}"
     }
 
-    @Cacheable(value = "metadata", key = { '"getStateEmblems"' })
+    @Cacheable(value="metadata")
     JSONObject getStateEmblems() {
         def file = new File(CONFIG_DIR + "/state-emblems.json")
         JSONObject emblemObj = new JSONObject()
@@ -615,10 +659,10 @@ class MetadataService {
      * @param fid id of the 'field' (type of region)
      * @return name , area, pid and bbox as a map for all objects
      */
-    @Cacheable(value = 'metadata', key = { "objects_${fid}" })
+    @Cacheable(value="metadata")
     def getObjectsForALayer(fid) {
         def map = [:]
-        def url = grailsApplication.config.layersService.baseURL + '/field/' + fid
+        def url = grailsApplication.config.getProperty('layersService.baseURL') + '/field/' + fid
 
         try {
             def result = getJSON(url)
@@ -696,7 +740,7 @@ class MetadataService {
         }
     }
 
-    @Cacheable(value = 'metadata', key = { 'getMenu' })
+    @Cacheable(value="metadata")
     def getMenu() {
 
         def menu = []
@@ -773,7 +817,7 @@ class MetadataService {
         map
     }
 
-    @Cacheable(value = 'metadata', key = { 'getHabitatConfig' })
+    @Cacheable(value="metadata")
     def getHabitatConfig() {
         def appName = Metadata.current.'app.name'
         def file = new File("/data/${appName}/config/habitats.json")

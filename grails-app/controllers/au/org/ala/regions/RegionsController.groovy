@@ -95,6 +95,13 @@ class RegionsController {
             if (v.label.equals(region.type)) {
                 menu = v
             }
+            if (v.submenu) {
+                v.submenu.each { sm ->
+                    if (sm.label == region.type) {
+                        menu = sm
+                    }
+                }
+            }
         }
 
         //get submenu menu item if applicable

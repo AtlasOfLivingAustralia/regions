@@ -139,6 +139,3 @@ breadcrumbParent = 'https://www.ala.org.au/explore-by-location/,Explore'
 //google.apikey=
 
 habitat.layerID = '918'
-//map.bounds = '[-44, 112, -9, 155]'
-
-showNotesInfoInAccordionPanel: false

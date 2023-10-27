@@ -1,5 +1,5 @@
-<g:set var="orgNameLong" value="${grailsApplication.config.skin.orgNameLong}"/>
-<g:set var="orgNameShort" value="${grailsApplication.config.skin.orgNameShort}"/>
+<g:set var="orgNameLong" value="${grailsApplication.config.getProperty('skin.orgNameLong')}"/>
+<g:set var="orgNameShort" value="${grailsApplication.config.getProperty('skin.orgNameShort')}"/>
 <g:set var="authService" bean="authService"/>
 <!DOCTYPE html>
 <html>
@@ -16,7 +16,7 @@
 </head>
 <body class="${pageProperty(name:'body.class')?:'nav-collections'}" id="${pageProperty(name:'body.id')}" onload="${pageProperty(name:'body.onload')}"  data-offset="${pageProperty(name:'body.data-offset')}" data-target="${pageProperty(name:'body.data-target')}" data-spy="${pageProperty(name:'body.data-spy')}">
 
-<g:set var="fluidLayout" value="${grailsApplication.config.skin.fluidLayout?.toBoolean()}"/>
+<g:set var="fluidLayout" value="${grailsApplication.config.getProperty('skin.fluidLayout')?.toBoolean()}"/>
 <div class="navbar-nav navbar-inverse navbar-static-top">
     <div class="navbar-inner contain-to-grid">
         <div class="${fluidLayout?'container-fluid':'container'}">
@@ -38,18 +38,18 @@
             <div class="pull-right">
                 <div class="navbar-collapse collapse pull-right">
                     <ul class="nav">
-                        <li><a href="${grailsApplication.config.skin.homeURL}/index">Home</a></li>
-                        <li><a href="${grailsApplication.config.skin.homeURL}/occurrences/search?fq=data_hub_uid:dh10#tab_mapView">Search</a></li>
-                        <li><a href="${grailsApplication.config.skin.homeURL}/about">About</a></li>
-                        <li><a href="${grailsApplication.config.skin.homeURL}/help">Help</a></li>
+                        <li><a href="${grailsApplication.config.getProperty('skin.homeURL')}/index">Home</a></li>
+                        <li><a href="${grailsApplication.config.getProperty('skin.homeURL')}/occurrences/search?fq=data_hub_uid:dh10#tab_mapView">Search</a></li>
+                        <li><a href="${grailsApplication.config.getProperty('skin.homeURL')}/about">About</a></li>
+                        <li><a href="${grailsApplication.config.getProperty('skin.homeURL')}/help">Help</a></li>
                         <g:if test="${!authService.getUserId()}">
                             <li>
-                                <a href="${grailsApplication.config.casServerLoginUrl}?service=${grailsApplication.config.serverName}${request.forwardURI}">Login</a>
+                                <a href="${grailsApplication.config.getProperty('casServerLoginUrl')}?service=${grailsApplication.config.getProperty('serverName')}${request.forwardURI}">Login</a>
                             </li>
                         </g:if>
                         <g:if test="${!!authService.getUserId()}">
                             <li>
-                                <a href="${grailsApplication.config.grails.serverURL}/logout/logout?casUrl=${grailsApplication.config.casServerUrlPrefix}/logout&appUrl=${grailsApplication.config.serverName}${request.forwardURI}">Logout</a>
+                                <a href="${grailsApplication.config.getProperty('grails.serverURL')}/logout/logout?casUrl=${grailsApplication.config.getProperty('casServerUrlPrefix')}/logout&appUrl=${grailsApplication.config.getProperty('serverName')}${request.forwardURI}">Logout</a>
                             </li>
                         </g:if>
                     </ul>
@@ -70,9 +70,9 @@
        <div class="row  navbar-inverse">
            <div class="col-md-1">
                <ul class="nav">
-                   <li><a href="${grailsApplication.config.skin.homeURL}/contact">Contact us </a></li>
-                   <li><a href="${grailsApplication.config.skin.homeURL}/access">Accessibility </a></li>
-                   <li><a href="${grailsApplication.config.skin.homeURL}/disclaim">Disclaimer</a></li>
+                   <li><a href="${grailsApplication.config.getProperty('skin.homeURL')}/contact">Contact us </a></li>
+                   <li><a href="${grailsApplication.config.getProperty('skin.homeURL')}/access">Accessibility </a></li>
+                   <li><a href="${grailsApplication.config.getProperty('skin.homeURL')}/disclaim">Disclaimer</a></li>
                </ul>
            </div><!--/.spanX -->
            <div class="col-md-1 smlinks text-right">

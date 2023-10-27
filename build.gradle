@@ -1,33 +1,22 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        maven { url "https://nexus.ala.org.au/content/groups/public/" }
-        maven { url "https://repo.grails.org/grails/core" }
-    }
-    dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.4.6"
-    }
-}
-
 plugins {
+    id "groovy"
+    id "org.grails.grails-gsp"
+    id "org.grails.grails-web"
+    id "com.github.erdi.webdriver-binaries" version "3.0"
+    id "war"
+    id "idea"
+    id "com.bertramlabs.asset-pipeline"
+    id "application"
+    id "eclipse"
+
     id "com.gorylenko.gradle-git-properties" version "2.4.1"
+
+    id "maven-publish"
 }
 
 
-version "3.6.0-SNAPSHOT"
+version "4.0.0-SNAPSHOT"
 group "au.org.ala"
-
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"war"
-apply plugin:"org.grails.grails-web"
-apply plugin:"com.github.erdi.webdriver-binaries"
-apply plugin:"org.grails.grails-gsp"
-apply plugin:"com.bertramlabs.asset-pipeline"
-apply plugin:"maven-publish"
-
 
 publishing {
     targetCompatibility = 1.11
@@ -51,7 +40,8 @@ publishing {
 repositories {
     mavenLocal()
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
-    maven { url "https://repo.grails.org/grails/core" }
+    mavenCentral()
+    maven { url "https://repo.grails.org/grails/core/" }
 }
 
 configurations {
@@ -59,82 +49,61 @@ configurations {
     runtimeClasspath {
         extendsFrom developmentOnly
     }
-}
-
-dependencies {
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    compileOnly "org.springframework.boot:spring-boot-starter-tomcat"
-
-    implementation "org.springframework.boot:spring-boot-starter-logging"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.grails:grails-core"
-    implementation "org.grails:grails-dependencies"
-    implementation "org.grails:grails-web-boot"
-    implementation "org.grails:grails-logging"
-    implementation "org.grails.plugins:cache"
-    implementation "org.grails.plugins:cache-ehcache:3.0.0"
-    console "org.grails:grails-console"
-    implementation "org.grails:grails-datastore-gorm:${gormVersion}"
-    implementation 'dk.glasius:external-config:3.1.1'
-    implementation 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.2'
-
-    testImplementation "org.grails.plugins:geb"
-    testImplementation "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-    testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-    testImplementation "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
-
-    testImplementation  "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
-    testImplementation  "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
-    testImplementation  "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
-    testImplementation  "org.grails:grails-web-testing-support"
-    profile "org.grails.profiles:web"
-
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.4.6"
-    implementation 'com.nerderg.ajaxanywhere:ajaxanywhere:2.1.1'
-    implementation "net.sf.ehcache:ehcache-core:2.6.11"
-    implementation "commons-httpclient:commons-httpclient:3.1"
-
-    implementation "org.grails.plugins:ala-auth:$alaSecurityLibsVersion"
-    implementation "org.grails.plugins:ala-admin-plugin:2.3.0"
-    implementation  "org.grails.plugins:ala-bootstrap3:4.1.0"
-}
-
-webdriverBinaries {
-    chromedriver "$chromeDriverVersion"
-    geckodriver "$geckodriverVersion"
-}
-
-tasks.withType(Test) {
-    systemProperty "geb.env", System.getProperty('geb.env')
-    systemProperty "geb.build.reportsDir", reporting.file("geb/integrationTest")
-    systemProperty "webdriver.chrome.driver", System.getProperty('webdriver.chrome.driver')
-    systemProperty "webdriver.gecko.driver", System.getProperty('webdriver.gecko.driver')
-}
-
-tasks.withType(GroovyCompile) {
-    configure(groovyOptions) {
-        forkOptions.jvmArgs = ['-Xmx1024m']
+    all {
+        resolutionStrategy.force 'org.codehaus.groovy:groovy-xml:3.0.13'
+        resolutionStrategy.eachDependency { DependencyResolveDetails details->
+            if (details.requested.group == 'org.seleniumhq.selenium') {
+                details.useVersion('4.10.0')
+            }
+        }
     }
 }
 
-bootRun {
-    ignoreExitValue true
-    jvmArgs(
-            '-Dspring.output.ansi.enabled=always',
-            '-noverify',
-            '-XX:TieredStopAtLevel=1',
-            '-Xmx1024m')
-    sourceResources sourceSets.main
-    String springProfilesActive = 'spring.profiles.active'
-    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+dependencies {
+
+    implementation("org.grails:grails-core")
+    implementation("org.grails:grails-logging")
+    implementation("org.grails:grails-plugin-databinding")
+    implementation("org.grails:grails-plugin-i18n")
+    implementation("org.grails:grails-plugin-interceptors")
+    implementation("org.grails:grails-plugin-rest")
+    implementation("org.grails:grails-plugin-services")
+    implementation("org.grails:grails-plugin-url-mappings")
+    implementation("org.grails:grails-web-boot")
+    implementation("org.grails.plugins:gsp")
+    implementation("org.springframework.boot:spring-boot-autoconfigure")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-logging")
+    implementation("org.springframework.boot:spring-boot-starter-tomcat")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    compileOnly("io.micronaut:micronaut-inject-groovy")
+    runtimeOnly("com.bertramlabs.plugins:asset-pipeline-grails:4.3.0")
+
+    implementation "org.grails.plugins:cache"
+
+
+    implementation 'dk.glasius:external-config:3.1.1'
+
+    profile "org.grails.profiles:web"
+
+    implementation 'com.nerderg.ajaxanywhere:ajaxanywhere:2.1.1'
+
+    implementation("org.grails.plugins:ala-auth:$alaSecurityLibsVersion") {
+        exclude module: "cache"
+    }
+    implementation "org.grails.plugins:ala-admin-plugin:2.3.0"
+    implementation  "org.grails.plugins:ala-bootstrap3:4.4.0"
 }
 
 bootWar {
-    launchScript()
+    dependsOn(compileGroovyPages)
 }
 
-assets {
-    minifyJs = true
-    minifyCss = true
+war {
+    dependsOn(compileGroovyPages)
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion("11")
 }
