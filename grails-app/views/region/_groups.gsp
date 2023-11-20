@@ -15,7 +15,8 @@
                     <g:if test="${!group.parent}">
                         <i class="fa fa-chevron-right"></i>
                     </g:if>
-                    ${group.commonName == 'ALL_SPECIES' ? message(code:"groups.all.species") : group.commonName}
+                    <g:set var="i18nName" value='${group.commonName == 'ALL_SPECIES' ? 'All Species' : group.commonName}' />
+                    <g:message code="groups.${i18nName.replaceAll("\\s+","").replaceAll(",", "")}" />
                 </td>
             </tr>
         </g:each>
